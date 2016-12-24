@@ -1,110 +1,192 @@
 
 return function(lib)
 	lib.IsEnabled = engine.ActiveGamemode() == "zombiesurvival"
+	lib.BotPosMilestoneUpdateDelay = 30
+	lib.BotPosMilestoneDistMin = 200
+	lib.BotTgtFixationDistMin = 500
+	lib.BotAttackDistMin = 100
 	lib.BotAngOffshoot = 45
-	lib.BotAimPosVelocityOffshoot = 0.1
+	lib.BotAimPosVelocityOffshoot = 0.2
+	lib.BotJumpAntichance = 25
+	lib.BotHooksId = tostring({})
 	
-	local memoryByBotPl = {}
-	hook.Add("PlayerInitialSpawn", tostring({}), function(pl)
-		if not pl:IsBot() then return end
-		
-		memoryByBotPl[pl] = {
-			TargetPlOrNil = nil,
+	hook.Add("PlayerInitialSpawn", lib.BotHooksId, function(pl) if lib.IsEnabled and pl:IsBot() then lib.InitializeBot(pl) end end)
+	hook.Add("PlayerSpawn", lib.BotHooksId, function(pl) if lib.IsEnabled and pl:IsBot() then lib.SetUpBot(pl) end end)
+	hook.Add("StartCommand", lib.BotHooksId, function(pl, cmd) if lib.IsEnabled and pl:IsBot() then lib.UpdateBotCmd(pl, cmd) end end)
+	hook.Add("EntityTakeDamage", lib.BotHooksId, function(ent, dmg) if lib.IsEnabled and ent:IsPlayer() and ent:IsBot() then lib.HandleBotDamage(ent, dmg) end end)
+	
+	lib.MemByBot = {}
+	local memByBot = lib.MemByBot
+	
+	function lib.GetBotAttackPosOrNil(bot)
+		local tgt = memByBot[bot].TgtOrNil
+		if not IsValid(tgt) then return end
+		return tgt:IsPlayer() and LerpVector(0.75, tgt:GetPos(), tgt:EyePos()) or tgt:WorldSpaceCenter()
+	end
+	
+	function lib.CanBotSeeTarget(bot)
+		local attackPos = lib.GetBotAttackPosOrNil(bot)
+		return attackPos and not util.TraceLine{
+			start = lib.GetViewCenter(bot),
+			endpos = attackPos,
+			mask = MASK_PLAYERSOLID,
+			filter = player.GetAll() }.Hit
+	end
+	
+	function lib.BotFace(bot, pos)
+		local mem = memByBot[bot]
+		mem.Angs = LerpAngle(0.5, mem.Angs, (pos - lib.GetViewCenter(bot)):Angle() + mem.AngsOffshoot)
+	end
+	
+	function lib.InitializeBot(bot)
+		memByBot[bot] = {
+			PosMilestone = Vector(),
+			NextPosMilestoneTime = 0,
+			NextFailPosMilestone = function() end,
+			TgtOrNil = nil,
 			NextNodeOrNil = nil,
 			RemainingNodes = {},
 			Angs = Angle(),
 			AngsOffshoot = Angle(),
-			NextUpdate = 0,
-			NextTargetChange = 0 }
-	end)
-	hook.Add("PlayerSpawn", tostring({}), function(pl)
-		if not pl:IsBot() then return end
-		
-		memoryByBotPl[pl].Angs = pl:EyeAngles()
-	end)
-	local function getAttackPos(targetPl) return LerpVector(0.75, targetPl:GetPos(), targetPl:EyePos()) end
-	local function canSee(pl, targetPl)
-		return not util.TraceLine{
-			start = lib.GetViewCenter(pl),
-			endpos = getAttackPos(targetPl),
-			mask = MASK_PLAYERSOLID,
-			filter = team.GetPlayers(TEAM_UNDEAD) }.Hit
+			NextSlowThinkTime = 0,
+			ButtonsToBeClicked = 0 }
 	end
-	hook.Add("StartCommand", tostring({}), function(pl, cmd)
-		if not lib.IsEnabled or not pl:IsBot() or pl:Team() ~= TEAM_UNDEAD then return end
-		
-		cmd:ClearButtons()
-		cmd:ClearMovement()
-		
-		if not pl:Alive() then
-			cmd:SetButtons(IN_ATTACK)
-			return
-		end
-		
-		local memory = memoryByBotPl[pl]
-		
-		if not IsValid(memory.TargetPlOrNil) or memory.TargetPlOrNil:Team() ~= TEAM_HUMAN or memory.NextTargetChange < CurTime() then
-			memory.NextTargetChange = CurTime() + math.random(60, 120)
-			
-			memory.TargetPlOrNil = table.Random(team.GetPlayers(TEAM_HUMAN))
-		end
-		
-		if memory.NextUpdate < CurTime() then
-			memory.NextUpdate = CurTime() + 0.5
-			
-			local angOffshoot = lib.BotAngOffshoot
-			memory.AngsOffshoot = Angle(math.random(-angOffshoot, angOffshoot), math.random(-angOffshoot, angOffshoot), 0)
-			
-			if IsValid(memory.TargetPlOrNil) then
-				local node = lib.MapNavMesh:GetNearestNodeOrNil(pl:GetPos())
-				local targetNode = lib.MapNavMesh:GetNearestNodeOrNil(memory.TargetPlOrNil:GetPos())
-				if node and targetNode then
-					local path = lib.GetBestMeshPathOrNil(node, targetNode)
-					if path then
-						table.remove(path, 1)
-						memory.NextNodeOrNil = table.remove(path, 1)
-						memory.RemainingNodes = path
-					end
-				end
-			end
-		end
-		
-		while memory.NextNodeOrNil do
-			if memory.NextNodeOrNil:GetContains(pl:GetPos()) then
-				memory.NextNodeOrNil = table.remove(memory.RemainingNodes, 1)
+	
+	function lib.SetUpBot(bot)
+		local mem = memByBot[bot]
+		lib.ResetBotPosMilestone(bot)
+		mem.TgtOrNil = nil
+		mem.NextNodeOrNil = nil
+		mem.RemainingNodes = {}
+		mem.Angs = bot:EyeAngles()
+		mem.NextSlowThinkTime = 0
+	end
+	
+	function lib.ResetBotPosMilestone(bot)
+		lib.SetBotPosMilestone(bot)
+		memByBot[bot].NextFailPosMilestone = lib.FailFirstPosMilestone
+	end
+	function lib.UpdateBotPosMilestone(bot)
+		local mem = memByBot[bot]
+		if mem.NextPosMilestoneTime > CurTime() then return end
+		local failed = bot:GetPos():Distance(mem.PosMilestone) < lib.BotPosMilestoneDistMin
+		lib.SetBotPosMilestone(bot)
+		if failed then mem.NextFailPosMilestone(bot) end
+	end
+	function lib.SetBotPosMilestone(bot)
+		local mem = memByBot[bot]
+		mem.PosMilestone = bot:GetPos()
+		mem.NextPosMilestoneTime = CurTime() + lib.BotPosMilestoneUpdateDelay - math.random(0, 10)
+	end
+	function lib.FailFirstPosMilestone(bot)
+		local mem = memByBot[bot]
+		lib.ResetBotTgtOrNil(bot)
+		mem.NextFailPosMilestone = lib.FailSecondPosMilestone
+		mem.ButtonsToBeClicked = bit.bor(mem.ButtonsToBeClicked, IN_JUMP)
+	end
+	function lib.FailSecondPosMilestone(bot)
+		bot:Kill()
+		lib.ResetBotPosMilestone(bot)
+	end
+	
+	function lib.GetPotentialBotTgts(bot) return team.GetPlayers(TEAM_HUMAN) end
+	function lib.ResetBotTgtOrNil(bot) memByBot[bot].TgtOrNil = table.Random(lib.GetPotentialBotTgts(bot)) end
+	function lib.UpdateBotTgtOrNil(bot) if not lib.CanBeBotTgt(memByBot[bot].TgtOrNil) then lib.ResetBotTgtOrNil(bot) end end
+	function lib.CanBeBotTgt(tgtOrNil) return IsValid(tgtOrNil) and tgtOrNil:IsPlayer() and tgtOrNil:Team() == TEAM_HUMAN end
+	
+	function lib.UpdateBotAngsOffshoot(bot)
+		local angOffshoot = lib.BotAngOffshoot
+		memByBot[bot].AngsOffshoot = Angle(math.random(-angOffshoot, angOffshoot), math.random(-angOffshoot, angOffshoot), 0)
+	end
+	
+	function lib.UpdateBotPath(bot)
+		local mem = memByBot[bot]
+		if not IsValid(mem.TgtOrNil) then return end
+		local mapNavMesh = lib.MapNavMesh
+		local node = mapNavMesh:GetNearestNodeOrNil(bot:GetPos())
+		local targetNode = mapNavMesh:GetNearestNodeOrNil(mem.TgtOrNil:GetPos())
+		if not node or not targetNode then return end
+		local path = lib.GetBestMeshPathOrNil(node, targetNode)
+		if not path then return end
+		table.remove(path, 1)
+		mem.NextNodeOrNil = table.remove(path, 1)
+		mem.RemainingNodes = path
+	end
+	
+	function lib.UpdateBotPathProgress(bot)
+		local mem = memByBot[bot]
+		while mem.NextNodeOrNil do
+			if mem.NextNodeOrNil:GetContains(bot:GetPos()) then
+				mem.NextNodeOrNil = table.remove(mem.RemainingNodes, 1)
 			else
 				break
 			end
 		end
+	end
+	
+	function lib.UpdateBotMem(bot)
+		local mem = memByBot[bot]
+		lib.UpdateBotPosMilestone(bot)
+		lib.UpdateBotTgtOrNil(bot)
+		if mem.NextSlowThinkTime <= CurTime() then
+			mem.NextSlowThinkTime = CurTime() + 0.5
+			lib.UpdateBotAngsOffshoot(bot)
+			lib.UpdateBotPath(bot)
+		end
+		lib.UpdateBotPathProgress(bot)
+	end
+	
+	function lib.UpdateBotCmd(bot, cmd)
+		cmd:ClearButtons()
+		cmd:ClearMovement()
 		
-		local aimPosOrNil
-		local attacks = false
-		if IsValid(memory.TargetPlOrNil) and (memory.NextNodeOrNil == nil or canSee(pl, memory.TargetPlOrNil)) then
-			aimPosOrNil = getAttackPos(memory.TargetPlOrNil) + memory.TargetPlOrNil:GetVelocity() * math.Rand(0, lib.BotAimPosVelocityOffshoot)
-			attacks = lib.GetViewCenter(pl):Distance(aimPosOrNil) < 100
-		elseif memory.NextNodeOrNil then
-			aimPosOrNil = memory.NextNodeOrNil.Pos
+		if bot:Team() ~= TEAM_UNDEAD then return end
+		
+		if not bot:Alive() then
+			cmd:SetButtons(IN_ATTACK)
+			return
 		end
-		if aimPosOrNil then
-			memory.Angs = LerpAngle(0.5, memory.Angs, (aimPosOrNil - lib.GetViewCenter(pl)):Angle() + memory.AngsOffshoot)
-			cmd:SetViewAngles(memory.Angs)
-			
-			cmd:SetForwardMove(999999)
-			
-			local facesHindrance = pl:GetVelocity():Length2D() < 0.25 * pl:GetMaxSpeed()
-			
-			local ternaryButton = 0
-			if pl:GetMoveType() == MOVETYPE_LADDER then
-				if IsValid(memory.TargetPlOrNil) and canSee(pl, memory.TargetPlOrNil) then ternaryButton = IN_JUMP end
+		
+		lib.UpdateBotMem(bot)
+		local mem = memByBot[bot]
+		
+		local facesTarget = false
+		local facesHindrance = bot:GetVelocity():Length2D() < 0.25 * bot:GetMaxSpeed()
+		
+		local aimPos
+		if mem.NextNodeOrNil and not lib.CanBotSeeTarget(bot) then
+			aimPos = mem.NextNodeOrNil.Pos
+		elseif IsValid(mem.TgtOrNil) then
+			aimPos = lib.GetBotAttackPosOrNil(bot) + mem.TgtOrNil:GetVelocity() * math.Rand(0, lib.BotAimPosVelocityOffshoot)
+			facesTarget = aimPos:Distance(lib.GetViewCenter(bot)) < lib.BotAttackDistMin
+		else
+			return
+		end
+		
+		lib.BotFace(bot, aimPos)
+		cmd:SetViewAngles(mem.Angs)
+		
+		cmd:SetForwardMove(999999)
+		
+		local ternaryButton = 0
+		if bot:GetMoveType() ~= MOVETYPE_LADDER then
+			if bot:IsOnGround() then
+				if facesHindrance then ternaryButton = math.random(lib.BotJumpAntichance) == 1 and IN_JUMP or IN_DUCK end
 			else
-				if pl:IsOnGround() then
-					if facesHindrance then ternaryButton = math.random(2) == 1 and IN_JUMP or IN_DUCK end
-				else
-					ternaryButton = IN_DUCK
-				end
+				ternaryButton = IN_DUCK
 			end
-			
-			cmd:SetButtons(bit.bor(IN_FORWARD, (attacks or facesHindrance) and IN_ATTACK or 0, ternaryButton))
 		end
-	end)
+		
+		cmd:SetButtons(bit.bor(IN_FORWARD, (facesTarget or facesHindrance) and IN_ATTACK or 0, ternaryButton, mem.ButtonsToBeClicked))
+		mem.ButtonsToBeClicked = 0
+	end
+	
+	function lib.HandleBotDamage(bot, dmg)
+		local attacker = dmg:GetAttacker()
+		if not lib.CanBeBotTgt(attacker) then return end
+		local mem = memByBot[bot]
+		if IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(bot:GetPos()) <= lib.BotTgtFixationDistMin then return end
+		mem.TgtOrNil = attacker
+		lib.ResetBotPosMilestone(bot)
+	end
 end

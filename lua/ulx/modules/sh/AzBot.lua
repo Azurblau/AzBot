@@ -73,13 +73,13 @@ registerCmd("ViewPath", plsParam, strParam, strParam, function(caller, pls, star
 	end
 	for k, pl in pairs(pls) do AzBot.ShowMapNavMeshPath(pl, path) end
 end)
-registerCmd("DebugPath", plsParam, optionalStrParam, function(caller, pls, serializedEntIdxOrNil)
-	local ent = serializedEntIdxOrNil and Entity(tonumber(serializedEntIdxOrNil) or 1) or caller:GetEyeTrace().Entity
+registerCmd("DebugPath", plsParam, optionalStrParam, function(caller, pls, serializedEntIdxOrEmpty)
+	local ent = serializedEntIdxOrEmpty == "" and caller:GetEyeTrace().Entity or Entity(tonumber(serializedEntIdxOrEmpty) or -1)
 	if not IsValid(ent) then
 		caller:ChatPrint("No entity cursored or invalid entity index specified.")
 		return
 	end
-	caller:ChatPrint("Debugging path from player to " .. ent .. ".")
+	caller:ChatPrint("Debugging path from player to " .. tostring(ent) .. ".")
 	for k, pl in pairs(pls) do AzBot.ShowMapNavMeshPath(pl, pl, ent) end
 end)
 registerCmd("ResetPath", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.HideMapNavMeshPath(pl) end end)

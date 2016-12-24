@@ -16,6 +16,8 @@ return function(lib)
 	local nodeFallback = lib.NavMeshNodeMeta.__index
 	local linkFallback = lib.NavMeshLinkMeta.__index
 	
+	lib.BotNodeMinProximity = 20
+	
 	lib.MapNavMeshNetworkStr = "AzBot Map NavMesh"
 	
 	lib.NavMeshItemsSeparator = ";"
@@ -55,9 +57,9 @@ return function(lib)
 			local id = idOrNodeA
 			local serializedNodeIds = id:Split(lib.NavMeshLinkNodesSeparator)
 			if #serializedNodeIds != 2 then error("Link must have exactly 2 nodes to link.", 2) end
-			local nodeIds = from(serializedNodeIds):SelectV(tonumber).R
+			local nodeIds = from(serializedNodeIds):SelV(tonumber).R
 			if from(nodeIds):Len().R != 2 then error("Invalid node ID.", 2) end
-			nodeA, nodeB = unpack(from(nodeIds):SelectV(function(nodeId) return self:ForceGetNode(nodeId) end).R)
+			nodeA, nodeB = unpack(from(nodeIds):SelV(function(nodeId) return self:ForceGetNode(nodeId) end).R)
 		else
 			nodeA = idOrNodeA
 			nodeB = nilOrNodeB
@@ -94,7 +96,7 @@ return function(lib)
 	function linkFallback:GetFocusPos() return LerpVector(0.5, self.Nodes[1].Pos, self.Nodes[2].Pos) end
 	
 	function nodeFallback:GetContains(pos)
-		if not self.HasArea then return pos:Distance(self.Pos) < 50 end
+		if not self.HasArea then return pos:Distance(self.Pos) < lib.BotNodeMinProximity end
 		local params = self.Params
 		return math.abs(pos.z - self.Pos.z) < 50 and pos.x >= params.AreaXMin and pos.x <= params.AreaXMax and pos.y >= params.AreaYMin and pos.y <= params.AreaYMax
 	end
@@ -152,18 +154,18 @@ return function(lib)
 	end
 	
 	function fallback:Serialize()
-		return from(self.ItemById):Select(function(id, item)
-			return nil, id .. lib.NavMeshItemIdParamsPairSeparator .. from(item.Params):Select(function(name, numOrStr)
+		return from(self.ItemById):Sel(function(id, item)
+			return nil, id .. lib.NavMeshItemIdParamsPairSeparator .. from(item.Params):Sel(function(name, numOrStr)
 				return nil, name .. lib.NavMeshItemParamNameNumPairSeparator .. numOrStr
 			end):Join(lib.NavMeshItemParamsSeparator).R
 		end):Join(lib.NavMeshItemsSeparator).R
 	end
 	function lib.DeserializeNavMesh(serialized)
 		local navMesh = lib.NewNavMesh()
-		for idx, serializedItem in ipairs(lib.SplitStr(serialized, lib.NavMeshItemsSeparator)) do
+		for idx, serializedItem in ipairs(lib.GetSplitStr(serialized, lib.NavMeshItemsSeparator)) do
 			local serializedId, serializedParams = unpack(serializedItem:Split(lib.NavMeshItemIdParamsPairSeparator))
 			local item = navMesh:ForceGetItem(lib.DeserializeNavMeshItemId(serializedId))
-			for idx, serializedParam in ipairs(lib.SplitStr(serializedParams, lib.NavMeshItemParamsSeparator)) do
+			for idx, serializedParam in ipairs(lib.GetSplitStr(serializedParams, lib.NavMeshItemParamsSeparator)) do
 				item:SetParam(unpack(serializedParam:Split(lib.NavMeshItemParamNameNumPairSeparator)))
 			end
 		end

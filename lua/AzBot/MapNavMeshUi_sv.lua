@@ -152,7 +152,7 @@ return function(lib)
 	function lib.ShowMapNavMeshPath(pl, pathOrEntA, nilOrEntB)
 		if nilOrEntB == nil then
 			local path = pathOrEntA
-			pl:SendLua(lib.GlobalK .. ".SetShownMapNavMeshPath{" .. (","):Implode(from(path):SelectV(function(node) return node.Id end).R) .. "}")
+			pl:SendLua(lib.GlobalK .. ".SetShownMapNavMeshPath{" .. (","):Implode(from(path):SelV(function(node) return node.Id end).R) .. "}")
 			lib.BeMapNavMeshUiSubscriber(pl)
 			return
 		end

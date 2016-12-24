@@ -27,7 +27,7 @@ return function(lib)
 	
 	local function getItemColor(item) return lib.Color[isHighlightedById[item.Id] and "Green" or (item == cursoredItemOrNil and "Orange" or (isPathPieceById[item.Id] and "Yellow" or "Red"))] end
 	
-	local isHiddenParamByParamName = from((" "):Explode("X Y Z AreaXMin AreaYMin AreaXMax AreaYMax")):ValuesSet().R
+	local isHiddenParamByParamName = from((" "):Explode("X Y Z AreaXMin AreaYMin AreaXMax AreaYMax")):VsSet().R
 	
 	function lib.SetIsMapNavMeshViewEnabled(bool)
 		if isEnabled == bool then return end
@@ -70,7 +70,7 @@ return function(lib)
 						if pos.visible then
 							local paramsQuery = from(item.Params)
 							if not isCursored then paramsQuery:Where(function(name) return not isHiddenParamByParamName[name] end) end
-							local txt = item.Id .. ":\n" .. paramsQuery:Select(function(name, v) return nil, name .. " = " .. v end):Sort():Join("\n").R
+							local txt = item.Id .. ":\n" .. paramsQuery:Sel(function(name, v) return nil, name .. " = " .. v end):Sort():Join("\n").R
 							local txtW, txtH = surface.GetTextSize(txt)
 							local w = txtW + 10
 							local h = txtH + 10
