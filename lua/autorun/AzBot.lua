@@ -1,4 +1,5 @@
 
+AddCSLuaFile()
 include("azbot/azlib.lua")("AzBot", {
 	"azbot/bot_sv.lua",
 	"azbot/mapnavmeshui_cl.lua",

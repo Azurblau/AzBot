@@ -8,10 +8,17 @@ return function(lib)
 	lib.BotAngOffshoot = 45
 	lib.BotAimPosVelocityOffshoot = 0.2
 	lib.BotJumpAntichance = 25
+	lib.MaintainBotRolesAutomatically = true
 	lib.BotHooksId = tostring({})
+	lib.BotClasses = { "Zombie", "Poison Zombie" }
 	
 	hook.Add("PlayerInitialSpawn", lib.BotHooksId, function(pl) if lib.IsEnabled and pl:IsBot() then lib.InitializeBot(pl) end end)
-	hook.Add("PlayerSpawn", lib.BotHooksId, function(pl) if lib.IsEnabled and pl:IsBot() then lib.SetUpBot(pl) end end)
+	hook.Add("PlayerSpawn", lib.BotHooksId, function(pl)
+		if not lib.IsEnabled then return end
+		if pl:IsBot() then lib.SetUpBot(pl) end
+		if lib.MaintainBotRolesAutomatically then lib.MaintainBotRoles() end
+	end)
+	hook.Add("EntityRemoved", lib.BotHooksId, function(ent) if lib.IsEnabled and lib.MaintainBotRolesAutomatically and ent:IsPlayer() then timer.Simple(0, lib.MaintainBotRoles) end end)
 	hook.Add("StartCommand", lib.BotHooksId, function(pl, cmd) if lib.IsEnabled and pl:IsBot() then lib.UpdateBotCmd(pl, cmd) end end)
 	hook.Add("EntityTakeDamage", lib.BotHooksId, function(ent, dmg) if lib.IsEnabled and ent:IsPlayer() and ent:IsBot() then lib.HandleBotDamage(ent, dmg) end end)
 	
@@ -38,7 +45,45 @@ return function(lib)
 		mem.Angs = LerpAngle(0.5, mem.Angs, (pos - lib.GetViewCenter(bot)):Angle() + mem.AngsOffshoot)
 	end
 	
+	function lib.RerollBotClass(bot)
+		local classId = table.Random(lib.BotClasses)
+		local class = GAMEMODE.ZombieClasses[classId]
+		if not class then
+			table.RemoveByValue(lib.BotClasses, classId)
+			lib.RerollBotClass(bot)
+		end
+		if not class.Unlocked then return end
+		bot:SetZombieClass(class.Index)
+	end
+	
+	function lib.GetDesiredZombiesCount() return math.ceil(#player.GetHumans() * GAMEMODE.WaveOneZombies * math.max(1, GAMEMODE:GetWave())) end
+	
+	function lib.MaintainBotRoles()
+		local desiredZombiesCount = lib.GetDesiredZombiesCount()
+		local zombiesCount = #team.GetPlayers(TEAM_UNDEAD)
+		while zombiesCount < desiredZombiesCount do
+			RunConsoleCommand("bot")
+			if lib.MaintainBotRolesAutomatically then return end -- unavoidably loops by itself in this case
+			zombiesCount = zombiesCount + 1
+		end
+		for idx, bot in ipairs(player.GetBots()) do
+			if bot:Team() == TEAM_UNDEAD then
+				if zombiesCount > desiredZombiesCount then
+					bot:Kick()
+					zombiesCount = zombiesCount - 1
+				end
+			else
+				bot:Kick()
+			end
+		end
+	end
+	
 	function lib.InitializeBot(bot)
+		if lib.MaintainBotRolesAutomatically then
+			GAMEMODE.PreviouslyDied[bot:UniqueID()] = CurTime()
+			GAMEMODE:PlayerInitialSpawn(bot)
+		end
+		
 		memByBot[bot] = {
 			PosMilestone = Vector(),
 			NextPosMilestoneTime = 0,
@@ -50,6 +95,8 @@ return function(lib)
 			AngsOffshoot = Angle(),
 			NextSlowThinkTime = 0,
 			ButtonsToBeClicked = 0 }
+		
+		lib.RerollBotClass(bot)
 	end
 	
 	function lib.SetUpBot(bot)
@@ -60,6 +107,8 @@ return function(lib)
 		mem.RemainingNodes = {}
 		mem.Angs = bot:EyeAngles()
 		mem.NextSlowThinkTime = 0
+		
+		lib.RerollBotClass(bot)
 	end
 	
 	function lib.ResetBotPosMilestone(bot)

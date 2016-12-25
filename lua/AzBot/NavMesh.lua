@@ -102,16 +102,17 @@ return function(lib)
 	end
 	
 	function fallback:GetCursoredItemOrNil(pl)
-		local trR = pl:GetEyeTrace()
-		if not trR.Hit then return end
-		local cursoredPos = trR.HitPos
-		local distMin = 10
+		local relAngMin = 5
 		local cursoredItemOrNil
+		local eyePos, eyeAngs = pl:EyePos(), pl:EyeAngles()
 		for id, item in pairs(self.ItemById) do
-			local dist = item:GetFocusPos():Distance(cursoredPos)
-			if dist < distMin then
+			local angs = (item:GetFocusPos() - eyePos):Angle()
+			local relP = math.AngleDifference(eyeAngs.p, angs.p)
+			local relY = math.AngleDifference(eyeAngs.y, angs.y)
+			local relAng = math.sqrt(relP * relP + relY * relY)
+			if relAng < relAngMin then
 				cursoredItemOrNil = item
-				distMin = dist
+				relAngMin = relAng
 			end
 		end
 		return cursoredItemOrNil

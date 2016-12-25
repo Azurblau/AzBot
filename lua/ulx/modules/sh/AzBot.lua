@@ -1,4 +1,26 @@
 
+if engine.ActiveGamemode() == "zombiesurvival" then
+	local isInformedByPl = {}
+	hook.Add("PlayerSpawn", "!human info", function(pl)
+		if isInformedByPl[pl] or pl:Team() ~= TEAM_UNDEAD then return end
+		pl:ChatPrint("Hint: You can type !human to play as survivor.")
+		isInformedByPl[pl] = true
+	end)
+	
+	function ulx.human(pl)
+		if pl:Team() ~= TEAM_UNDEAD then
+			pl:ChatPrint("You're already human!")
+			return
+		end
+		pl:Redeem()
+		pl:StripWeapons()
+		GAMEMODE:GiveRandomEquipment(pl)
+	end
+	local cmd = ulx.command("Zombie Survival", "ulx human", ulx.human, "!human")
+	cmd:defaultAccess(ULib.ACCESS_ALL)
+	cmd:help("If you're a zombie, you can use this command to instantly respawn as a human with a default loadout.")
+end
+
 local function registerCmd(camelCaseName, ...)
 	local func
 	local params = {}
@@ -41,14 +63,6 @@ registerCmd("RefreshMeshView", function(caller)
 	caller:ChatPrint("Refreshed.")
 end)
 
-registerCmd("Remove", strParam, function(caller, id)
-	local item = AzBot.MapNavMesh.ItemById[id]
-	if not item then
-		caller:ChatPrint("Item not found")
-		return
-	end
-	item:Remove()
-end)
 registerCmd("SetParam", strParam, strParam, optionalStrParam, function(caller, id, name, serializedNumOrStrOrEmpty)
 	AzBot.TryCatch(function()
 		AzBot.MapNavMesh.ItemById[AzBot.DeserializeNavMeshItemId(id)]:SetParam(name, serializedNumOrStrOrEmpty)
