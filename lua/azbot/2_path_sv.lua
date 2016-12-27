@@ -1,6 +1,6 @@
 
 return function(lib)
-	function lib.GetBestMeshPathOrNil(startNode, endNode)
+	function lib.GetBestMeshPathOrNil(startNode, endNode, additionalCostOrNilByLink)
 		-- See https://en.wikipedia.org/wiki/A*_search_algorithm
 	
 		local minimalTotalPathCostByNode = {}
@@ -33,7 +33,7 @@ return function(lib)
 				if not evaluatedNodesSet[linkedNode] then
 					evaluationNodeQueue:Enqueue(linkedNode)
 					
-					local linkedNodePathCost = minimalPathCostByNode[node] + node.Pos:Distance(linkedNode.Pos)
+					local linkedNodePathCost = minimalPathCostByNode[node] + node.Pos:Distance(linkedNode.Pos) + (additionalCostOrNilByLink[link] or 0)
 					if linkedNodePathCost < (minimalPathCostByNode[linkedNode] or math.huge) then
 						entranceByNode[linkedNode] = node
 						minimalPathCostByNode[linkedNode] = linkedNodePathCost
