@@ -95,6 +95,8 @@ return function(lib)
 	function nodeFallback:GetFocusPos() return self.Pos end
 	function linkFallback:GetFocusPos() return LerpVector(0.5, self.Nodes[1].Pos, self.Nodes[2].Pos) end
 	
+	function linkFallback:GetParam(name) return self.Params[name] or self.Nodes[1].Params[name] or self.Nodes[2].Params[name] end
+	
 	function nodeFallback:GetContains(pos)
 		if not self.HasArea then return pos:Distance(self.Pos) < lib.BotNodeMinProximity end
 		local params = self.Params

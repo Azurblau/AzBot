@@ -18,8 +18,11 @@ return function(lib)
 	lib.BotAimPosVelocityOffshoot = 0.2
 	lib.BotJumpAntichance = 25
 	lib.DesiredZombieHumanRatio = 0.15
-	lib.MaintainBotRolesAutomatically = table.Count(lib.MapNavMesh.ItemById) > 0
-	lib.IsSelfRedeemEnabled = lib.MaintainBotRolesAutomatically
+	lib.AdditionalZombiesCount = 1
+	lib.HasMapNavMesh = table.Count(lib.MapNavMesh.ItemById) > 0
+	lib.MaintainBotRolesAutomatically = lib.HasMapNavMesh
+	lib.IsSelfRedeemEnabled = lib.HasMapNavMesh
+	lib.IsBonusEnabled = lib.HasMapNavMesh
 	lib.SelfRedeemWaveMax = 4
 	lib.BotHooksId = tostring({})
 	lib.BotClasses = { "Zombie", "Zombie", "Ghoul", "Bloated Zombie", "Bloated Zombie", "Scratcher", "Poison Zombie", "Poison Zombie", "Zombine", "Zombine" }
@@ -29,14 +32,14 @@ return function(lib)
 	hook.Add("PlayerSpawn", lib.BotHooksId, function(pl)
 		if not lib.IsEnabled then return end
 		if pl:IsBot() then lib.SetUpBot(pl) end
-		if pl:Team() == TEAM_HUMAN then
+		if lib.IsBonusEnabled and pl:Team() == TEAM_HUMAN then
 			local hadBonus = hadBonusByPl[pl]
 			hadBonusByPl[pl] = true
 			pl:SetPoints(hadBonus and 0 or 50)
-			if not hadBonus then pl:Give("weapon_zs_arsenalcrate") end
 		end
 		if lib.MaintainBotRolesAutomatically then lib.MaintainBotRoles() end
 	end)
+	hook.Add("PreRestartRound", lib.BotHooksId, function() hadBonusByPl = {} end)
 	hook.Add("EntityRemoved", lib.BotHooksId, function(ent) if lib.IsEnabled and lib.MaintainBotRolesAutomatically and ent:IsPlayer() then timer.Simple(0, lib.MaintainBotRoles) end end)
 	hook.Add("StartCommand", lib.BotHooksId, function(pl, cmd) if lib.IsEnabled and pl:IsBot() then lib.UpdateBotCmd(pl, cmd) end end)
 	hook.Add("EntityTakeDamage", lib.BotHooksId, function(ent, dmg) if lib.IsEnabled and ent:IsPlayer() and ent:IsBot() then lib.HandleBotDamage(ent, dmg) end end)
@@ -54,7 +57,7 @@ return function(lib)
 		local attackPos = lib.GetBotAttackPosOrNil(bot)
 		if not attackPos then return false end
 		local mem = memByBot[bot]
-		if mem.TgtNodeOrNil and mem.NodeOrNil ~= mem.TgtNodeOrNil and mem.TgtNodeOrNil.Params.nosee == 1 then return false end
+		if mem.TgtNodeOrNil and mem.NodeOrNil ~= mem.TgtNodeOrNil and mem.TgtNodeOrNil.Params.See == "Disabled" then return false end
 		local tr = lib.BotSeeTr
 		tr.start = lib.GetViewCenter(bot)
 		tr.endpos = attackPos
@@ -69,6 +72,7 @@ return function(lib)
 	
 	function lib.RerollBotClass(bot)
 		if not GAMEMODE:GetWaveActive() then return end
+		if bot:GetZombieClassTable().Name == "Zombie Torso" then return end
 		local classId = table.Random(lib.BotClasses)
 		local class = GAMEMODE.ZombieClasses[classId]
 		if not class then
@@ -80,7 +84,7 @@ return function(lib)
 		bot:SetZombieClass(class.Index)
 	end
 	
-	function lib.GetDesiredZombiesCount() return math.ceil(#player.GetHumans() * lib.DesiredZombieHumanRatio * math.max(1, GAMEMODE:GetWave())) end
+	function lib.GetDesiredZombiesCount() return math.ceil(#player.GetHumans() * lib.DesiredZombieHumanRatio * math.max(1, GAMEMODE:GetWave())) + lib.AdditionalZombiesCount end
 	
 	function lib.MaintainBotRoles()
 		local desiredZombiesCount = lib.GetDesiredZombiesCount()
@@ -116,7 +120,7 @@ return function(lib)
 			TgtNodeOrNil = nil,
 			NodeOrNil = nil,
 			NextNodeOrNil = nil,
-			RandomCostOrNilByLink = {},
+			AdditionalCostOrNilByLink = {},
 			RemainingNodes = {},
 			Spd = 0,
 			Angs = Angle(),
@@ -127,14 +131,14 @@ return function(lib)
 	end
 	
 	function lib.SetUpBot(bot)
-		local randomCostOrNilByLink = {}
-		for id, link in pairs(lib.MapNavMesh.LinkById) do randomCostOrNilByLink[link] = math.random(0, lib.RandomLinkCostRange) end
+		local additionalCostOrNilByLink = {}
+		for id, link in pairs(lib.MapNavMesh.LinkById) do additionalCostOrNilByLink[link] = math.random(0, lib.RandomLinkCostRange) end
 		
 		local mem = memByBot[bot]
 		lib.ResetBotPosMilestone(bot)
 		mem.TgtOrNil = nil
 		mem.NextNodeOrNil = nil
-		mem.RandomCostOrNilByLink = randomCostOrNilByLink
+		mem.AdditionalCostOrNilByLink = additionalCostOrNilByLink
 		mem.RemainingNodes = {}
 		mem.Angs = bot:EyeAngles()
 		mem.NextSlowThinkTime = 0
@@ -194,13 +198,12 @@ return function(lib)
 		local node = mapNavMesh:GetNearestNodeOrNil(bot:GetPos())
 		mem.TgtNodeOrNil = mapNavMesh:GetNearestNodeOrNil(mem.TgtOrNil:GetPos())
 		if not node or not mem.TgtNodeOrNil then return end
-		local path = lib.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, mem.RandomCostOrNilByLink)
+		local path = lib.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, mem.AdditionalCostOrNilByLink)
 		if not path then return end
 		mem.NodeOrNil = table.remove(path, 1)
 		mem.NextNodeOrNil = table.remove(path, 1)
 		mem.RemainingNodes = path
 	end
-	
 	function lib.UpdateBotPathProgress(bot)
 		local mem = memByBot[bot]
 		while mem.NextNodeOrNil do
@@ -240,12 +243,25 @@ return function(lib)
 		lib.UpdateBotMem(bot)
 		local mem = memByBot[bot]
 		
+		local nodeOrNil = mem.NodeOrNil
+		local nextNodeOrNil = mem.NextNodeOrNil
+		
+		if	nodeOrNil and
+			nextNodeOrNil and
+			nextNodeOrNil.Pos.z > nodeOrNil.Pos.z + 55 then
+			local linkOrNil = nodeOrNil.LinkByLinkedNode[nextNodeOrNil]
+			if linkOrNil and linkOrNil:GetParam("Wall") == "Suicide" then
+				bot:Kill()
+				return
+			end
+		end
+		
 		local facesTgt = false
 		local facesHindrance = bot:GetVelocity():Length2D() < 0.25 * bot:GetMaxSpeed()
 		
 		local aimPos
-		if mem.NextNodeOrNil and not lib.CanBotSeeTarget(bot) then
-			aimPos = mem.NextNodeOrNil.Pos
+		if nextNodeOrNil and not lib.CanBotSeeTarget(bot) then
+			aimPos = nextNodeOrNil.Pos
 		elseif IsValid(mem.TgtOrNil) then
 			aimPos = lib.GetBotAttackPosOrNil(bot) + mem.TgtOrNil:GetVelocity() * math.Rand(0, lib.BotAimPosVelocityOffshoot)
 			facesTgt = aimPos:Distance(lib.GetViewCenter(bot)) < lib.BotAttackDistMin

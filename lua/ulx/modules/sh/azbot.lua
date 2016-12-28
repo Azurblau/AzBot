@@ -32,7 +32,7 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 	cmd:help("If you're a zombie, you can use this command to instantly respawn as a human with a default loadout.")
 end
 
-local function registerCmd(camelCaseName, ...)
+local function registerCmd(camelCaseName, access, ...)
 	local func
 	local params = {}
 	for idx, arg in ipairs({...}) do
@@ -49,32 +49,42 @@ local function registerCmd(camelCaseName, ...)
 	local cmdStr = "azbot " .. camelCaseName:lower()
 	local cmd = ulx.command("AzBot", cmdStr, func, "!" .. cmdStr)
 	for k, param in pairs(params) do cmd:addParam(param) end
-	cmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
+	cmd:defaultAccess(access)
 end
+local function registerSuperadminCmd(camelCaseName, ...) registerCmd(camelCaseName, ULib.ACCESS_SUPERADMIN, ...) end
+local function registerAdminCmd(camelCaseName, ...) registerCmd(camelCaseName, ULib.ACCESS_ADMIN, ...) end
 
 local plsParam = { type = ULib.cmds.PlayersArg }
+local numParam = { type = ULib.cmds.NumArg }
 local strParam = { type = ULib.cmds.StringArg }
 local optionalStrParam = { type = ULib.cmds.StringArg, ULib.cmds.optional }
 
-registerCmd("ViewMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.SetMapNavMeshUiSubscription(pl, "view") end end)
-registerCmd("EditMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.SetMapNavMeshUiSubscription(pl, "edit") end end)
-registerCmd("HideMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.SetMapNavMeshUiSubscription(pl, nil) end end)
+registerAdminCmd("ZombiesCount", numParam, function(caller, num)
+	local formerAdditionalZombiesCount = AzBot.AdditionalZombiesCount
+	local additionalZombiesCount = math.max(1, num)
+	AzBot.AdditionalZombiesCount = additionalZombiesCount
+	caller:ChatPrint("Zombies count changed from " .. formerAdditionalZombiesCount .. " to " .. additionalZombiesCount .. ".")
+end)
 
-registerCmd("SaveMesh", function(caller)
+registerSuperadminCmd("ViewMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.SetMapNavMeshUiSubscription(pl, "view") end end)
+registerSuperadminCmd("EditMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.SetMapNavMeshUiSubscription(pl, "edit") end end)
+registerSuperadminCmd("HideMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.SetMapNavMeshUiSubscription(pl, nil) end end)
+
+registerSuperadminCmd("SaveMesh", function(caller)
 	AzBot.SaveMapNavMesh()
 	caller:ChatPrint("Saved.")
 end)
-registerCmd("ReloadMesh", function(caller)
+registerSuperadminCmd("ReloadMesh", function(caller)
 	AzBot.LoadMapNavMesh()
 	AzBot.UpdateMapNavMeshUiSubscribers()
 	caller:ChatPrint("Reloaded.")
 end)
-registerCmd("RefreshMeshView", function(caller)
+registerSuperadminCmd("RefreshMeshView", function(caller)
 	AzBot.UpdateMapNavMeshUiSubscribers()
 	caller:ChatPrint("Refreshed.")
 end)
 
-registerCmd("SetParam", strParam, strParam, optionalStrParam, function(caller, id, name, serializedNumOrStrOrEmpty)
+registerSuperadminCmd("SetParam", strParam, strParam, optionalStrParam, function(caller, id, name, serializedNumOrStrOrEmpty)
 	AzBot.TryCatch(function()
 		AzBot.MapNavMesh.ItemById[AzBot.DeserializeNavMeshItemId(id)]:SetParam(name, serializedNumOrStrOrEmpty)
 		AzBot.UpdateMapNavMeshUiSubscribers()
@@ -83,7 +93,7 @@ registerCmd("SetParam", strParam, strParam, optionalStrParam, function(caller, i
 	end)
 end)
 
-registerCmd("ViewPath", plsParam, strParam, strParam, function(caller, pls, startNodeId, endNodeId)
+registerSuperadminCmd("ViewPath", plsParam, strParam, strParam, function(caller, pls, startNodeId, endNodeId)
 	local nodeById = AzBot.MapNavMesh.NodeById
 	local startNode = nodeById[AzBot.DeserializeNavMeshItemId(startNodeId)]
 	local endNode = nodeById[AzBot.DeserializeNavMeshItemId(endNodeId)]
@@ -98,7 +108,7 @@ registerCmd("ViewPath", plsParam, strParam, strParam, function(caller, pls, star
 	end
 	for k, pl in pairs(pls) do AzBot.ShowMapNavMeshPath(pl, path) end
 end)
-registerCmd("DebugPath", plsParam, optionalStrParam, function(caller, pls, serializedEntIdxOrEmpty)
+registerSuperadminCmd("DebugPath", plsParam, optionalStrParam, function(caller, pls, serializedEntIdxOrEmpty)
 	local ent = serializedEntIdxOrEmpty == "" and caller:GetEyeTrace().Entity or Entity(tonumber(serializedEntIdxOrEmpty) or -1)
 	if not IsValid(ent) then
 		caller:ChatPrint("No entity cursored or invalid entity index specified.")
@@ -107,4 +117,4 @@ registerCmd("DebugPath", plsParam, optionalStrParam, function(caller, pls, seria
 	caller:ChatPrint("Debugging path from player to " .. tostring(ent) .. ".")
 	for k, pl in pairs(pls) do AzBot.ShowMapNavMeshPath(pl, pl, ent) end
 end)
-registerCmd("ResetPath", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.HideMapNavMeshPath(pl) end end)
+registerSuperadminCmd("ResetPath", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.HideMapNavMeshPath(pl) end end)

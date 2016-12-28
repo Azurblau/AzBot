@@ -32,7 +32,7 @@ return function(globalK, otherLibFilesRelPathEach)
 	end
 	function sortedQueueFallback:Dequeue()
 		local item = table.remove(self)
-		self.Set[item] = nil
+		if item then self.Set[item] = nil end
 		return item
 	end
 	
@@ -46,6 +46,16 @@ return function(globalK, otherLibFilesRelPathEach)
 	local queryFallback = lib.QueryMeta.__index
 	function lib.From(v) return setmetatable({ R = v }, lib.QueryMeta) end
 	local from = lib.From
+	function queryFallback:Any(func)
+		for k, v in pairs(self.R) do
+			if func(k, v) then
+				self.R = true
+				return self
+			end
+		end
+		self.R = false
+		return self
+	end
 	function queryFallback:ShallowCopy()
 		local r = {}
 		for k, v in pairs(self.R) do r[k] = v end
@@ -80,6 +90,10 @@ return function(globalK, otherLibFilesRelPathEach)
 		local r = {}
 		for k, v in pairs(self.R) do if func(k, v) then r[k] = v end end
 		self.R = r
+		return self
+	end
+	function queryFallback:W(arr)
+		for k, v in ipairs(arr) do table.insert(self.R, v) end
 		return self
 	end
 	function queryFallback:Wo(v)
