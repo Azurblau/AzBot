@@ -32,6 +32,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 - Use "azbot savemesh" to save the changes to garrysmod/data/azbot/navmesh/map/\<mapname\>.txt.
 
 ### Notes:
+- Every map that has a navmesh at addon loading time is treated as a bot map (enabling the bot count director, !human command and survivor bonuses). Move the navmesh file if that effect is not desired.
 - Navmeshes can be edited on the fly. Feel free to fix your meshes during testing.
 - Having sized nodes helps locating (= "what node are you in?"). Unsized nodes use a small sphere instead of a rectangular area.
 - Once a bot enters a node's area/sphere, he immediately moves towards the next node's position.
