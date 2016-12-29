@@ -118,6 +118,12 @@ return function(globalK, otherLibFilesRelPathEach)
 		self.R = r
 		return self
 	end
+	function queryFallback:Concat()
+		local r = {}
+		for idx, arr in ipairs(self.R) do for idx2, v in ipairs(arr) do table.insert(r, v) end end
+		self.R = r
+		return self
+	end
 	function queryFallback:Join(separator)
 		self.R = string.Implode(separator, self.R)
 		return self
@@ -163,6 +169,8 @@ return function(globalK, otherLibFilesRelPathEach)
 		color.HalfAlpha = ColorAlpha(color, 128)
 		color.EightAlpha = ColorAlpha(color, 32)
 	end
+	
+	function lib.GetEntsOfClss(clss) return from(clss):SelV(ents.FindByClass):Concat().R end
 	
 	function lib.GetViewCenter(pl) return pl:GetPos() + (pl:Crouching() and pl:GetViewOffsetDucked() or pl:GetViewOffset()) end
 	

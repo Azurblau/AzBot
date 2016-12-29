@@ -35,7 +35,7 @@ end
 local function registerCmd(camelCaseName, access, ...)
 	local func
 	local params = {}
-	for idx, arg in ipairs({...}) do
+	for idx, arg in ipairs{ ... } do
 		if istable(arg) then
 			table.insert(params, arg)
 		elseif isfunction(arg) then
@@ -46,7 +46,7 @@ local function registerCmd(camelCaseName, access, ...)
 		end
 	end
 	ulx["azBot" .. camelCaseName] = func
-	local cmdStr = "azbot " .. camelCaseName:lower()
+	local cmdStr = (access == ULib.ACCESS_SUPERADMIN and "azbot " or "") .. camelCaseName:lower()
 	local cmd = ulx.command("AzBot", cmdStr, func, "!" .. cmdStr)
 	for k, param in pairs(params) do cmd:addParam(param) end
 	cmd:defaultAccess(access)
@@ -59,11 +59,11 @@ local numParam = { type = ULib.cmds.NumArg }
 local strParam = { type = ULib.cmds.StringArg }
 local optionalStrParam = { type = ULib.cmds.StringArg, ULib.cmds.optional }
 
-registerAdminCmd("ZombiesCount", numParam, function(caller, num)
-	local formerAdditionalZombiesCount = AzBot.AdditionalZombiesCount
-	local additionalZombiesCount = math.max(1, num)
-	AzBot.AdditionalZombiesCount = additionalZombiesCount
-	caller:ChatPrint("Zombies count changed from " .. formerAdditionalZombiesCount .. " to " .. additionalZombiesCount .. ".")
+registerAdminCmd("BotMod", numParam, function(caller, num)
+	local formerZombiesCountAddition = AzBot.ZombiesCountAddition
+	AzBot.ZombiesCountAddition = math.Round(num)
+	local function format(num) return "[formula + (" .. num .. ")]" end
+	caller:ChatPrint("Zombies count changed from " .. format(formerZombiesCountAddition) .. " to " .. format(AzBot.ZombiesCountAddition) .. ".")
 end)
 
 registerSuperadminCmd("ViewMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.SetMapNavMeshUiSubscription(pl, "view") end end)

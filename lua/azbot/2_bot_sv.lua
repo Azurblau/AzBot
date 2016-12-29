@@ -1,6 +1,7 @@
 
 return function(lib)
 	lib.IsEnabled = engine.ActiveGamemode() == "zombiesurvival"
+	lib.NextBotConfigUpdate = 0
 	lib.BotPosMilestoneUpdateDelay = 25
 	lib.BotPosMilestoneDistMin = 200
 	lib.BotTgtFixationDistMin = 250
@@ -10,6 +11,8 @@ return function(lib)
 		maxs = Vector(15, 15, 15),
 		mask = MASK_PLAYERSOLID }
 	lib.BotAttackDistMin = 100
+	lib.PotentialBotTgtClss = { "prop_*turret", "prop_purifier", "prop_arsenalcrate", "prop_manhack*", "prop_relay" }
+	lib.PotentialBotTgts = {}
 	lib.RandomLinkCostRange = 20000
 	lib.BotMinSpdFactor = 0.75
 	lib.BotAngOffshoot = 45
@@ -17,16 +20,32 @@ return function(lib)
 	lib.BotAngLerpFactor = 0.25
 	lib.BotAimPosVelocityOffshoot = 0.2
 	lib.BotJumpAntichance = 25
-	lib.DesiredZombieHumanRatio = 0.15
-	lib.AdditionalZombiesCount = 1
+	lib.ZombieHumanRatioMin = 0.15
+	lib.ZombiesCountAddition = 1
 	lib.HasMapNavMesh = table.Count(lib.MapNavMesh.ItemById) > 0
 	lib.MaintainBotRolesAutomatically = lib.HasMapNavMesh
 	lib.IsSelfRedeemEnabled = lib.HasMapNavMesh
 	lib.IsBonusEnabled = lib.HasMapNavMesh
 	lib.SelfRedeemWaveMax = 4
 	lib.BotHooksId = tostring({})
-	lib.BotClasses = { "Zombie", "Zombie", "Ghoul", "Bloated Zombie", "Bloated Zombie", "Scratcher", "Poison Zombie", "Poison Zombie", "Zombine", "Zombine" }
+	lib.BotClasses = {
+		"Zombie", "Zombie", "Zombie",
+		"Ghoul",
+		"Wraith",
+		"Bloated Zombie", "Bloated Zombie", "Bloated Zombie",
+		"Fast Zombie", "Fast Zombie",
+		"Scratcher", "Scratcher",
+		"Poison Zombie", "Poison Zombie", "Poison Zombie",
+		"Screamer",
+		"Zombine", "Zombine", "Zombine" }
+	lib.BotKickReason = "I did my job. :)"
+	lib.SurvivorBotKickReason = "I'm not supposed to be a survivor. :O"
 	
+	hook.Add("Think", lib.BotHooksId, function()
+		if lib.NextBotConfigUpdate > CurTime() then return end
+		lib.NextBotConfigUpdate = CurTime() + 0.2
+		lib.UpdateBotConfig()
+	end)
 	hook.Add("PlayerInitialSpawn", lib.BotHooksId, function(pl) if lib.IsEnabled and pl:IsBot() then lib.InitializeBot(pl) end end)
 	local hadBonusByPl = {}
 	hook.Add("PlayerSpawn", lib.BotHooksId, function(pl)
@@ -37,10 +56,8 @@ return function(lib)
 			hadBonusByPl[pl] = true
 			pl:SetPoints(hadBonus and 0 or 50)
 		end
-		if lib.MaintainBotRolesAutomatically then lib.MaintainBotRoles() end
 	end)
 	hook.Add("PreRestartRound", lib.BotHooksId, function() hadBonusByPl = {} end)
-	hook.Add("EntityRemoved", lib.BotHooksId, function(ent) if lib.IsEnabled and lib.MaintainBotRolesAutomatically and ent:IsPlayer() then timer.Simple(0, lib.MaintainBotRoles) end end)
 	hook.Add("StartCommand", lib.BotHooksId, function(pl, cmd) if lib.IsEnabled and pl:IsBot() then lib.UpdateBotCmd(pl, cmd) end end)
 	hook.Add("EntityTakeDamage", lib.BotHooksId, function(ent, dmg) if lib.IsEnabled and ent:IsPlayer() and ent:IsBot() then lib.HandleBotDamage(ent, dmg) end end)
 	
@@ -84,26 +101,38 @@ return function(lib)
 		bot:SetZombieClass(class.Index)
 	end
 	
-	function lib.GetDesiredZombiesCount() return math.ceil(#player.GetHumans() * lib.DesiredZombieHumanRatio * math.max(1, GAMEMODE:GetWave())) + lib.AdditionalZombiesCount end
+	function lib.GetDesiredZombiesCount()
+		return math.Clamp(math.ceil(#player.GetHumans() * lib.ZombieHumanRatioMin * math.max(1, GAMEMODE:GetWave())) + lib.ZombiesCountAddition, 0, game.MaxPlayers() - 2)
+	end
 	
 	function lib.MaintainBotRoles()
+		if #player.GetHumans() == 0 then return end
 		local desiredZombiesCount = lib.GetDesiredZombiesCount()
 		local zombiesCount = #team.GetPlayers(TEAM_UNDEAD)
 		while zombiesCount < desiredZombiesCount do
 			RunConsoleCommand("bot")
-			if lib.MaintainBotRolesAutomatically then return end -- unavoidably loops by itself in this case
 			zombiesCount = zombiesCount + 1
 		end
 		for idx, bot in ipairs(player.GetBots()) do
 			if bot:Team() == TEAM_UNDEAD then
 				if zombiesCount > desiredZombiesCount then
-					bot:Kick()
+					bot:Kick(lib.BotKickReason)
 					zombiesCount = zombiesCount - 1
 				end
 			else
-				bot:Kick()
+				bot:Kick(lib.SurvivorBotKickReason)
 			end
 		end
+	end
+	
+	function lib.UpdatePotentialBotTgts() lib.PotentialBotTgts = table.Add(team.GetPlayers(TEAM_HUMAN), lib.GetEntsOfClss(lib.PotentialBotTgtClss)) end
+	function lib.ResetBotTgtOrNil(bot) memByBot[bot].TgtOrNil = table.Random(lib.PotentialBotTgts) end
+	function lib.UpdateBotTgtOrNil(bot) if not lib.CanBeBotTgt(memByBot[bot].TgtOrNil) then lib.ResetBotTgtOrNil(bot) end end
+	function lib.CanBeBotTgt(tgtOrNil) return IsValid(tgtOrNil) and (not tgtOrNil:IsPlayer() or tgtOrNil:Team() == TEAM_HUMAN) end
+	
+	function lib.UpdateBotConfig()
+		lib.UpdatePotentialBotTgts()
+		if lib.MaintainBotRolesAutomatically then lib.MaintainBotRoles() end
 	end
 	
 	function lib.InitializeBot(bot)
@@ -172,11 +201,6 @@ return function(lib)
 		bot:Kill()
 		lib.ResetBotPosMilestone(bot)
 	end
-	
-	function lib.GetPotentialBotTgts(bot) return team.GetPlayers(TEAM_HUMAN) end
-	function lib.ResetBotTgtOrNil(bot) memByBot[bot].TgtOrNil = table.Random(lib.GetPotentialBotTgts(bot)) end
-	function lib.UpdateBotTgtOrNil(bot) if not lib.CanBeBotTgt(memByBot[bot].TgtOrNil) then lib.ResetBotTgtOrNil(bot) end end
-	function lib.CanBeBotTgt(tgtOrNil) return IsValid(tgtOrNil) and tgtOrNil:IsPlayer() and tgtOrNil:Team() == TEAM_HUMAN end
 	
 	function lib.UpdateBotTgtProximity(bot)
 		local mem = memByBot[bot]
