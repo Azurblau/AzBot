@@ -2,14 +2,14 @@
 if engine.ActiveGamemode() == "zombiesurvival" then
 	hook.Add("PlayerSpawn", "!human info", function(pl)
 		if not AzBot.IsSelfRedeemEnabled or pl:Team() ~= TEAM_UNDEAD or GAMEMODE:GetWave() > AzBot.SelfRedeemWaveMax then return end
-		local hint = "You can type !human to play as survivor."
+		local hint = "You can type !human before wave " .. (AzBot.SelfRedeemWaveMax + 1) .. " to play as survivor."
 		pl:PrintMessage(HUD_PRINTCENTER, hint)
 		pl:ChatPrint(hint)
 	end)
 	
 	function ulx.giveHumanLoadout(pl)
 		pl:Give("weapon_zs_axe")
-		pl:Give("weapon_zs_owens")
+		pl:Give("weapon_zs_peashooter")
 		pl:GiveAmmo(50, "pistol")
 	end
 	function ulx.human(pl)
