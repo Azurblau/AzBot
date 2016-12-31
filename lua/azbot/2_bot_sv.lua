@@ -1,5 +1,7 @@
 
 return function(lib)
+	local from = lib.From
+	
 	lib.IsEnabled = engine.ActiveGamemode() == "zombiesurvival"
 	lib.NextBotConfigUpdate = 0
 	lib.BotPosMilestoneUpdateDelay = 25
@@ -12,8 +14,9 @@ return function(lib)
 		maxs = Vector(15, 15, 15),
 		mask = MASK_PLAYERSOLID }
 	lib.BotAttackDistMin = 100
-	lib.PotentialBotTgtClss = { "prop_*turret", "prop_purifier", "prop_arsenalcrate", "prop_manhack*", "prop_relay" }
-	lib.PotentialBotTgts = {}
+	lib.PotBotTgtClss = { "prop_*turret", "prop_purifier", "prop_arsenalcrate", "prop_manhack*", "prop_relay" }
+	lib.IsPotBotTgtClsOrNilByName = from(lib.PotBotTgtClss):VsSet().R
+	lib.PotBotTgts = {}
 	lib.LinkDeathCostRaise = 1000
 	lib.DeathCostOrNilByLink = {}
 	lib.BotConsideringDeathCostAntichance = 3
@@ -135,13 +138,13 @@ return function(lib)
 		end
 	end
 	
-	function lib.UpdatePotentialBotTgts() lib.PotentialBotTgts = table.Add(team.GetPlayers(TEAM_HUMAN), lib.GetEntsOfClss(lib.PotentialBotTgtClss)) end
-	function lib.ResetBotTgtOrNil(bot) memByBot[bot].TgtOrNil = table.Random(lib.PotentialBotTgts) end
+	function lib.UpdatePotBotTgts() lib.PotBotTgts = table.Add(team.GetPlayers(TEAM_HUMAN), lib.GetEntsOfClss(lib.PotBotTgtClss)) end
+	function lib.ResetBotTgtOrNil(bot) memByBot[bot].TgtOrNil = table.Random(lib.PotBotTgts) end
 	function lib.UpdateBotTgtOrNil(bot) if not lib.CanBeBotTgt(memByBot[bot].TgtOrNil) then lib.ResetBotTgtOrNil(bot) end end
-	function lib.CanBeBotTgt(tgtOrNil) return IsValid(tgtOrNil) and (not tgtOrNil:IsPlayer() or tgtOrNil:Team() == TEAM_HUMAN) end
+	function lib.CanBeBotTgt(tgtOrNil) return IsValid(tgtOrNil) and ((tgtOrNil:IsPlayer() and tgtOrNil:Team() == TEAM_HUMAN) or lib.IsPotBotTgtClsOrNilByName[tgtOrNil:GetClass()]) end
 	
 	function lib.UpdateBotConfig()
-		lib.UpdatePotentialBotTgts()
+		lib.UpdatePotBotTgts()
 		if lib.MaintainBotRolesAutomatically then lib.MaintainBotRoles() end
 	end
 	
@@ -307,11 +310,11 @@ return function(lib)
 		local nodeOrNil = mem.NodeOrNil
 		local nextNodeOrNil = mem.NextNodeOrNil
 		
-		if	nodeOrNil and
-			nextNodeOrNil and
-			nextNodeOrNil.Pos.z > nodeOrNil.Pos.z + 55 then
-			local linkOrNil = nodeOrNil.LinkByLinkedNode[nextNodeOrNil]
-			if linkOrNil and linkOrNil:GetParam("Wall") == "Suicide" then
+		if nodeOrNil and nextNodeOrNil and nextNodeOrNil.Pos.z > nodeOrNil.Pos.z + 55 then
+			local wallParam = nextNodeOrNil.Params.Wall
+			if wallParam == "Retarget" then
+				lib.ResetBotTgtOrNil(bot)
+			elseif wallParam == "Suicide" then
 				bot:Kill()
 				return
 			end

@@ -12,20 +12,43 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 		pl:Give("weapon_zs_peashooter")
 		pl:GiveAmmo(50, "pistol")
 	end
+	
+	function ulx.tryBringToHumans(pl)
+		local potSpawnTgts = team.GetPlayers(TEAM_HUMAN)
+		for i = 1, 5 do
+			local potSpawnTgtOrNil = table.Random(potSpawnTgts)
+			if IsValid(potSpawnTgtOrNil) and not util.TraceHull{
+				start = potSpawnTgtOrNil:GetPos(),
+				endpos = potSpawnTgtOrNil:GetPos(),
+				mins = potSpawnTgtOrNil:OBBMins(),
+				maxs = potSpawnTgtOrNil:OBBMaxs(),
+				filter = potSpawnTgts,
+				mask = MASK_PLAYERSOLID }.Hit then
+				pl:SetPos(potSpawnTgtOrNil:GetPos())
+				break
+			end
+		end
+	end
+	
 	function ulx.human(pl)
 		if not AzBot.IsSelfRedeemEnabled then return end
 		if GAMEMODE:GetWave() > AzBot.SelfRedeemWaveMax then
-			pl:ChatPrint("It's too late to self-redeem.")
+			local response = "It's too late to self-redeem (can only be done before wave " .. (AzBot.SelfRedeemWaveMax + 1) .. ")."
+			pl:ChatPrint(response)
+			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
 		if pl:Team() ~= TEAM_UNDEAD then
-			pl:ChatPrint("You're already human!")
+			local response = "You're already human!"
+			pl:ChatPrint(response)
+			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
 		pl:Redeem()
 		pl:StripWeapons()
 		pl:StripAmmo()
 		ulx.giveHumanLoadout(pl)
+		ulx.tryBringToHumans(pl)
 	end
 	local cmd = ulx.command("Zombie Survival", "ulx human", ulx.human, "!human")
 	cmd:defaultAccess(ULib.ACCESS_ALL)

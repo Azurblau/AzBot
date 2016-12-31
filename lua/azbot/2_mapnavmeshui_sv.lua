@@ -13,16 +13,17 @@ return function(lib)
 		return item
 	end
 	
-	local selectedNodeOrNilByPl = {}
-	local function hasSelection(pl) return not not selectedNodeOrNilByPl[pl] end
+	local selectedNodesOrNilByPl = {}
+	local function hasSelection(pl) return selectedNodesOrNilByPl[pl] end
+	local function getSelectedNodes(pl) return selectedNodesOrNilByPl[pl] or {} end
 	local function clearSelection(pl)
-		selectedNodeOrNilByPl[pl] = nil
+		selectedNodesOrNilByPl[pl] = nil
 		pl:SendLua(lib.GlobalK .. ".ClearMapNavMeshViewHighlights()")
 	end
 	local function trySelectCursoredNode(pl)
-		clearSelection(pl)
 		local cursoredNodeOrNil = getCursoredNodeOrNil(pl)
-		selectedNodeOrNilByPl[pl] = cursoredNodeOrNil
+		if not selectedNodesOrNilByPl[pl] then selectedNodesOrNilByPl[pl] = {} end
+		table.insert(selectedNodesOrNilByPl[pl], cursoredNodeOrNil)
 		if not cursoredNodeOrNil then return end
 		pl:SendLua(lib.GlobalK .. ".HighlightInMapNavMeshView(" .. cursoredNodeOrNil.Id .. ")")
 	end
@@ -55,8 +56,9 @@ return function(lib)
 		{	Name = "Link Nodes",
 			FuncByKey = {
 				[IN_ATTACK] = function(pl)
-					local selectedNode = selectedNodeOrNilByPl[pl]
+					local selectedNode = getSelectedNodes(pl)[1]
 					if not selectedNode then
+						clearSelection(pl)
 						trySelectCursoredNode(pl)
 					else
 						local node = getCursoredNodeOrNil(pl)
@@ -69,8 +71,9 @@ return function(lib)
 		{	Name = "Reposition Node",
 			FuncByKey = {
 				[IN_ATTACK] = function(pl)
-					local selectedNode = selectedNodeOrNilByPl[pl]
+					local selectedNode = getSelectedNodes(pl)[1]
 					if not selectedNode then
+						clearSelection(pl)
 						trySelectCursoredNode(pl)
 					else
 						local cursoredPos = getCursoredPosOrNil(pl)
@@ -80,7 +83,7 @@ return function(lib)
 					end
 				end,
 				[IN_ATTACK2] = function(pl)
-					local selectedNode = selectedNodeOrNilByPl[pl]
+					local selectedNode = getSelectedNodes(pl)[1]
 					if not selectedNode then return end
 					local cursoredPos = getCursoredPosOrNil(pl)
 					if not cursoredPos then return end
@@ -90,9 +93,12 @@ return function(lib)
 				end } },
 		{	Name = "Resize Node Area",
 			FuncByKey = {
-				[IN_ATTACK] = trySelectCursoredNode,
+				[IN_ATTACK] = function(pl)
+					clearSelection(pl)
+					trySelectCursoredNode(pl)
+				end,
 				[IN_ATTACK2] = function(pl)
-					local selectedNode = selectedNodeOrNilByPl[pl]
+					local selectedNode = getSelectedNodes(pl)[1]
 					if not selectedNode then return end
 					local cursoredPos = getCursoredPosOrNil(pl)
 					if not cursoredPos then return end
@@ -100,6 +106,32 @@ return function(lib)
 					local cursoredPosKey = cursoredAxisName:lower()
 					local cursoredDimension = round(cursoredPos[cursoredPosKey])
 					selectedNode:SetParam("Area" .. cursoredAxisName .. (cursoredDimension < selectedNode.Pos[cursoredPosKey] and "Min" or "Max"), cursoredDimension)
+					lib.UpdateMapNavMeshUiSubscribers()
+				end } },
+		{	Name = "Copy Nodes",
+			FuncByKey = {
+				[IN_ATTACK] = trySelectCursoredNode,
+				[IN_ATTACK2] = function(pl)
+					local cursoredPos = getCursoredPosOrNil(pl)
+					if not cursoredPos then return end
+					local cursoredAxisName = getCursoredAxisName(pl)
+					local axisOffset
+					local selectedNodes = getSelectedNodes(pl)
+					local newNodeBySelectedNode = {}
+					for idx, selectedNode in ipairs(selectedNodes) do
+						if not axisOffset then axisOffset = round(cursoredPos[cursoredAxisName] - selectedNode.Pos[cursoredAxisName]) end
+						local newNode = lib.MapNavMesh:NewNode()
+						local offsetParamNamesSet = from{ cursoredAxisName, "Area" .. cursoredAxisName .. "Min", "Area" .. cursoredAxisName .. "Max" }:VsSet().R
+						for name, v in pairs(selectedNode.Params) do newNode:SetParam(name, (offsetParamNamesSet[name] and v + axisOffset or v)) end
+						newNodeBySelectedNode[selectedNode] = newNode
+					end
+					for idx, selectedNode in ipairs(selectedNodes) do
+						local newNode = newNodeBySelectedNode[selectedNode]
+						for linkedNode, link in pairs(selectedNode.LinkByLinkedNode) do
+							local linkedNewNodeOrNil = newNodeBySelectedNode[linkedNode]
+							if linkedNewNodeOrNil then lib.MapNavMesh:ForceGetLink(newNode, linkedNewNodeOrNil) end
+						end
+					end
 					lib.UpdateMapNavMeshUiSubscribers()
 				end } },
 		{	Name = "Delete Item or Area",
