@@ -340,12 +340,12 @@ return function(lib)
 		
 		cmd:SetForwardMove(mem.Spd)
 		
-		local isJumpDisabled
+		local jumpParam = nodeOrNil and nodeOrNil.Params.Jump
 		
 		local ternaryButton = 0
 		if bot:GetMoveType() ~= MOVETYPE_LADDER then
 			if bot:IsOnGround() then
-				if facesHindrance then ternaryButton = math.random(lib.BotJumpAntichance) == 1 and IN_JUMP or IN_DUCK end
+				if facesHindrance then ternaryButton = jumpParam == "Always" and IN_JUMP or (math.random(lib.BotJumpAntichance) == 1 and IN_JUMP or IN_DUCK) end
 			else
 				ternaryButton = IN_DUCK
 			end
@@ -353,7 +353,7 @@ return function(lib)
 		
 		cmd:SetButtons(bit.band(
 			bit.bor(IN_FORWARD, (facesTgt or facesHindrance) and IN_ATTACK or 0, ternaryButton, facesHindrance and IN_USE or 0, mem.ButtonsToBeClicked),
-			bit.bnot((nodeOrNil and nodeOrNil.Params.Jump == "Disabled") and IN_JUMP or 0)))
+			bit.bnot((math.random(1, 2) == 1 or jumpParam == "Disabled") and IN_JUMP or 0)))
 		mem.ButtonsToBeClicked = 0
 	end
 	

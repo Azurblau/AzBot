@@ -31,7 +31,12 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 	end
 	
 	function ulx.human(pl)
-		if not AzBot.IsSelfRedeemEnabled then return end
+		if not AzBot.IsSelfRedeemEnabled then
+			local response = "This command is enabled on bot maps only!"
+			pl:ChatPrint(response)
+			pl:PrintMessage(HUD_PRINTCENTER, response)
+			return
+		end
 		if GAMEMODE:GetWave() > AzBot.SelfRedeemWaveMax then
 			local response = "It's too late to self-redeem (can only be done before wave " .. (AzBot.SelfRedeemWaveMax + 1) .. ")."
 			pl:ChatPrint(response)
