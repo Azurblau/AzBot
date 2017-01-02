@@ -47,6 +47,8 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 - Navmeshes can be edited on the fly. Feel free to fix your meshes during testing.
 - Having sized nodes helps locating (= "what node are you in?"). Unsized nodes use a small sphere instead of a rectangular area.
 - Once a bot enters a node's area/sphere, he immediately moves towards the next node's position.
+- It is recommended to use sized nodes for rooms/areas and unsized nodes for doors. Each hallway, intersection and groove should have their own sized node. For ladders, two unsized nodes, one at bottom and one at top, suffice.
+- Locating works by proximity check. If a separate node lies behind a wall but closer to the middle of two distant linked nodes than them, bots may assume wrongly that they are located at the other node if they're in the middle. Avoid that by using a third sized node for the gap between the two linked nodes and re-link them.
 - Once a bot sees the target, he moves straight for it (see also: See = Disabled parameter).
 - All links are bidirectional (see also: Wall = Suicide parameter).
 - Bots can take any route with tendency towards the shortest.
