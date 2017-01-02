@@ -16,6 +16,12 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 ##### Things I won't like:
 - Selling AzBot or its derivatives (I don't plan to sell it either).
 
+# Prerequisites
+- Zombie Survival gamemode
+- Multiplayer (bots use player slots, local server is sufficient)
+- ULX (navmesh editor, !botmod and !human commands)
+- NavMeshes (see "How to create navmeshes" below)
+
 # How to create navmeshes:
 - Use the console command "azbot editmesh \<your name\>" to enter the editor.
   - Use IN_RELOAD to cycle through the edit modes:
@@ -23,6 +29,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
     - Link nodes: Link nodes by selecting the first then the second node, both with IN_ATTACK. Clear selection with IN_RELOAD.
     - Reposition nodes: Select a node with IN_ATTACK and use IN_ATTACK to reposition it or IN_ATTACK2 to reposition it using only the aim axis (X, Y or Z). Clear selection with IN_RELOAD.
     - Resize nodes: Select a node with IN_ATTACK and use IN_ATTACK2 to resize it on the aim axis (X or Y). Clear selection with IN_RELOAD.
+    - Copy nodes: Select nodes with IN_ATTACk and use IN_ATTACK2 to copy them offset to the aim axis (first selected node is used as reference for offset towards cursored position).
     - Delete items: Delete a node or link with IN_ATTACK, clear node areas with IN_ATTACK2.
 - Use "azbot setparam \<id\> \<name\> \<value\>" to set parameters:
   - Node parameters:
@@ -33,6 +40,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 
 ### Notes:
 - Every map that has a navmesh at addon loading time is treated as a bot map (enabling the bot count director, !human command and survivor bonuses). Move the navmesh file if that effect is not desired.
+- Use !botmod to change the desired zombies count. Examples: !botmod -100 for no bots, !botmod 100 for full server minus 2 slots for joining players, default is !botmod 1.
 - Navmeshes can be edited on the fly. Feel free to fix your meshes during testing.
 - Having sized nodes helps locating (= "what node are you in?"). Unsized nodes use a small sphere instead of a rectangular area.
 - Once a bot enters a node's area/sphere, he immediately moves towards the next node's position.
