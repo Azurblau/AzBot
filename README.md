@@ -29,11 +29,14 @@ Though I won't take measures against illegimate usage unless I have reasons to d
     - Link nodes: Link nodes by selecting the first then the second node, both with IN_ATTACK. Clear selection with IN_RELOAD.
     - Reposition nodes: Select a node with IN_ATTACK and use IN_ATTACK to reposition it or IN_ATTACK2 to reposition it using only the aim axis (X, Y or Z). Clear selection with IN_RELOAD.
     - Resize nodes: Select a node with IN_ATTACK and use IN_ATTACK2 to resize it on the aim axis (X or Y). Clear selection with IN_RELOAD.
-    - Copy nodes: Select nodes with IN_ATTACK and use IN_ATTACK2 to copy them offset to the aim axis (first selected node is used as reference for offset towards cursored position).
+    - Copy nodes: Select nodes with IN_ATTACK and use IN_ATTACK2 to copy them offset towards the aim axis (first selected node and cursored position are used as reference for the offset distance).
     - Delete items: Delete a node or link with IN_ATTACK, clear node areas with IN_ATTACK2.
-- Use "azbot setparam \<id\> \<name\> \<value\>" to set parameters:
+- Use "azbot setparam \<id\> \<name\> \<value\>" (example: azbot setparam 1 Jump Disabled) to set special parameters:
   - Node parameters:
-    - Wall = Suicide: Bot suicides if he tries to navigate this link upwards higher than crouch-jumping allows. Use this when respawn is the only way to get to that node.
+    - Jump = Disabled: Bots won't jump if located in this node.
+    - Jump = Always: Bots will always jump if located in this node.
+    - Wall = Suicide: Bots suicide if trying to navigate towards this node higher than crouch-jumping height. Use this when respawn is the only way to get to that node.
+    - Wall = Retarget: Same as Wall = Suicide but target is changed instead of suiciding. If no other targets are available, target remains the same. Use this for unreachable or low priority nodes.
     - See = Disabled: Bot does not approach target in straight line even if target is visible to him unless he is on the same node as the target. Use this on heightened nodes visible to, but not directly accessible from lower nodes.
 - Use "azbot reloadmesh" to discard changes.
 - Use "azbot savemesh" to save the changes to garrysmod/data/azbot/navmesh/map/\<mapname\>.txt.
