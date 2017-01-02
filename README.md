@@ -40,6 +40,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
     - See = Disabled: Bot does not approach target in straight line even if target is visible to him unless he is on the same node as the target. Use this on heightened nodes visible to, but not directly accessible from lower nodes.
 - Use "azbot reloadmesh" to discard changes.
 - Use "azbot savemesh" to save the changes to garrysmod/data/azbot/navmesh/map/\<mapname\>.txt.
+- Prefix a command with an exclamation mark to use it in chat.
 
 ### Notes:
 - Restart the map after saving the mesh for the first time. Every map that has a navmesh at addon loading time is treated as a bot map (enabling the bot count director, !human command and survivor bonuses). Move the navmesh file if that effect is not desired.
