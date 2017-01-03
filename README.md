@@ -1,4 +1,5 @@
 ![](https://raw.githubusercontent.com/Azurblau/AzBot/master/screenshots/20161223225655_1.jpg)
+Server: pussfoot.ovh:27015 [EU] Zombie Survival | AzBot | Custom Content
 
 # AzBot
 A very primitive AI for GMod bots primarily designed to work with Jetboom's Zombie Survival gamemode.
