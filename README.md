@@ -22,6 +22,14 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 - ULX (navmesh editor, !botmod and !human commands)
 - NavMeshes (see "How to create navmeshes" below)
 
+# How to test:
+- Install addon (e.g. garrysmod/addons/azbot/lua/...).
+- Download and install zs_villagehouse.bsp: https://garrysmods.org/download/16130/zs-villagehousezip
+- Move data/azbot/navmesh/map/zs_villagehouse.txt to garrysmod/data/azbot/navmesh/map/zs_villagehouse.txt (the addons/\*/data/ folder didn't seem to work in my tests, making this step necessary).
+- Launch Garry's Mod and start a 32 slot local server game with Zombie Survival gamemode on zs_villagehouse.
+- If 2 bots spawn and chase after you, everything is working as intended.
+- Type !azbot viewmesh \* to see the navmesh (requires ULX).
+
 # How to create navmeshes:
 - Use the console command "azbot editmesh \<your name\>" to enter the editor.
   - Use IN_RELOAD to cycle through the edit modes:
