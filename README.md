@@ -1,3 +1,5 @@
+![](https://raw.githubusercontent.com/Azurblau/AzBot/master/screenshots/20161223225655_1.jpg)
+
 # AzBot
 A very primitive AI for GMod bots primarily designed to work with Jetboom's Zombie Survival gamemode.
 
@@ -29,6 +31,8 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 - Launch Garry's Mod and start a 32 slot local server game with Zombie Survival gamemode on zs_villagehouse.
 - If 2 bots spawn and chase after you, everything is working as intended.
 - Type !azbot viewmesh \* to see the navmesh (requires ULX).
+
+![](https://raw.githubusercontent.com/Azurblau/AzBot/master/screenshots/zs_villagehouse0001.jpg)
 
 # How to create navmeshes:
 - Use the console command "azbot editmesh \<your name\>" to enter the editor.
@@ -62,6 +66,8 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 - All links are bidirectional (see also: Wall = Suicide parameter).
 - Bots can take any route with tendency towards the shortest.
 - Bots stubbornly move towards the next node unless they enter another node at time of path refresh (occurs roughly every second). Link wisely.
+
+![](https://raw.githubusercontent.com/Azurblau/AzBot/master/screenshots/20161230004934_2.jpg)
 
 # Current Project Status
 Not being worked on. ETA for ToDo: +∞. Just bugfixes or dirty changes on contributor's demand.
