@@ -31,7 +31,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 - Move data/azbot/navmesh/map/zs_villagehouse.txt to garrysmod/data/azbot/navmesh/map/zs_villagehouse.txt (the addons/\*/data/ folder didn't seem to work in my tests, making this step necessary).
 - Launch Garry's Mod and start a 32 slot local server game with Zombie Survival gamemode on zs_villagehouse.
 - If 2 bots spawn and chase after you, everything is working as intended.
-- Type !azbot viewmesh \* to see the navmesh (requires ULX).
+- Type !azbot viewmesh \* to see the navmesh and !botmod -999 to kick all bots (both commands require ULX).
 
 ![](https://raw.githubusercontent.com/Azurblau/AzBot/master/screenshots/zs_villagehouse0001.jpg)
 
