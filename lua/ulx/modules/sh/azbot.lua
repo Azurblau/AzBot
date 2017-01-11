@@ -30,6 +30,8 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 		end
 	end
 	
+	local nextByPl = {}
+	local tierByPl = {}
 	function ulx.human(pl)
 		if not AzBot.IsSelfRedeemEnabled then
 			local response = "This command is enabled on bot maps only!"
@@ -49,6 +51,20 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
+		local remainingTime = (nextByPl[pl] or 0) - CurTime()
+		if remainingTime > 0 then
+			local response = "You already self-redeemed recently. Try again in " .. remainingTime .. " seconds!"
+			pl:ChatPrint(response)
+			pl:PrintMessage(HUD_PRINTCENTER, response)
+			return
+		end
+		local nextTier = (tierByPl[pl] or 0) + 1
+		tierByPl[pl] = nextTier
+		local cooldown = nextTier * 30
+		nextByPl[pl] = CurTime() + cooldown
+		local response = "You self-redeemed. Your current cooldown until next self-redeem is " .. cooldown .. " seconds."
+		pl:ChatPrint(response)
+		pl:PrintMessage(HUD_PRINTCENTER, response)
 		pl:Redeem()
 		pl:StripWeapons()
 		pl:StripAmmo()
