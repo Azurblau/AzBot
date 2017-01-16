@@ -162,6 +162,7 @@ registerSuperadminCmd("DebugPath", plsParam, optionalStrParam, function(caller, 
 	for k, pl in pairs(pls) do AzBot.ShowMapNavMeshPath(pl, pl, ent) end
 end)
 registerSuperadminCmd("ResetPath", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.HideMapNavMeshPath(pl) end end)
+
 local modelOrNilByShortModel = {
 	pole = "models/props_c17/signpole001.mdl",
 	crate = "models/props_junk/wood_crate001a.mdl",
@@ -227,6 +228,7 @@ registerAdminCmd("SpawnProp", strParam, function(caller, modelOrShortModel)
 	if cursoredPosOrNil then prop:SetPos(cursoredPosOrNil + Vector(0, 0, 10)) end
 	prop:SetAngles(Angle(0, caller:EyeAngles().y, 0))
 	prop:Spawn()
+	if GAMEMODE.SetupProps then gamemode.Call("SetupProps") end
 end)
 local function getEyeEntity(pl) return pl:GetEyeTrace().Entity end
 local function getNiceName(ent) return IsValid(ent) and "entity #" .. ent:EntIndex() .. " '" .. (ent:GetClass() == "prop_physics" and ent:GetModel() or ent:GetClass()) .. "'" or "invalid entity" end

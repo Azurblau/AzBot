@@ -29,6 +29,7 @@ return function(lib)
 				ent:Spawn()
 			end
 		end
+		if GAMEMODE.SetupProps then gamemode.Call("SetupProps") end
 	end
 	hook.Add("InitPostEntity", tostring({}), function() lib.ReloadExtraProps() end)
 	
