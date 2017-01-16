@@ -1,4 +1,4 @@
-![](https://raw.githubusercontent.com/Azurblau/AzBot/master/screenshots/20161223225655_1.jpg)
+![](https://github.com/Azurblau/AzBot/raw/master/media/screenshot1.jpg)
 Server: pussfoot.ovh:27015 [EU] Zombie Survival | AzBot | Custom Content
 
 # AzBot
@@ -33,7 +33,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 - If 2 bots spawn and chase after you, everything is working as intended.
 - Type !azbot viewmesh \* to see the navmesh and !botmod -999 to kick all bots (both commands require ULX).
 
-![](https://raw.githubusercontent.com/Azurblau/AzBot/master/screenshots/zs_villagehouse0001.jpg)
+![](https://github.com/Azurblau/AzBot/raw/master/media/navmesh1.jpg)
 
 # How to create navmeshes:
 - Use the console command "azbot editmesh \<your name\>" to enter the editor.
@@ -59,7 +59,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 - Restart the map after saving the mesh for the first time. Every map that has a navmesh at addon loading time is treated as a bot map (enabling the bot count director, !human command and survivor bonuses). Move the navmesh file if that effect is not desired.
 - Use !botmod to change the desired zombies count. Examples: !botmod -100 for no bots, !botmod 100 for full server minus 2 slots for joining players, default is !botmod 1.
 - Navmeshes can be edited on the fly. Feel free to fix your meshes during testing.
-- This sketch might help: http://i.imgur.com/0GImiB7.png (Note: Forgot to add links to the top middle sketch)
+- This sketch might help: https://github.com/Azurblau/AzBot/raw/master/media/navmesh2.png
 - Having sized nodes helps locating (= "what node are you in?"). Unsized nodes use a small sphere instead of a rectangular area.
 - Once a bot enters a node's area/sphere, he immediately moves towards the next node's position.
 - It is recommended to use sized nodes for rooms/areas and unsized nodes for doors. Each hallway, intersection and groove should have their own sized node. For ladders, two unsized nodes, one at bottom and one at top, suffice.
@@ -69,7 +69,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 - Bots can take any route with tendency towards the shortest.
 - Bots stubbornly move towards the next node unless they enter another node at time of path refresh (occurs roughly every second). Link wisely.
 
-![](https://raw.githubusercontent.com/Azurblau/AzBot/master/screenshots/20161230004934_2.jpg)
+![](https://github.com/Azurblau/AzBot/raw/master/media/screenshot2.jpg)
 
 # Current Project Status
 Not being worked on. ETA for ToDo: +∞. Just bugfixes or dirty changes on contributor's demand.
