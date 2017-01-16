@@ -1,6 +1,7 @@
 
 AddCSLuaFile()
 include("azbot/azlib.lua")("AzBot", {
+	"azbot/1_extraprop_sv.lua",
 	"azbot/1_navmesh.lua",
 	"azbot/1_navmesh_cl.lua",
 	"azbot/1_navmesh_sv.lua",
