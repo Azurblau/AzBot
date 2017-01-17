@@ -251,6 +251,11 @@ return function(lib)
 	
 	function lib.UpdateBotAngsOffshoot(bot)
 		local mem = memByBot[bot]
+		local nodeOrNil = mem.NodeOrNil
+		if nodeOrNil and nodeOrNil.Params.Aim == "Straight" then
+			mem.AngsOffshoot = Angle()
+			return
+		end
 		local angOffshoot = mem.AngOffshoot
 		mem.AngsOffshoot = Angle(math.random(-angOffshoot, angOffshoot), math.random(-angOffshoot, angOffshoot), 0)
 	end
