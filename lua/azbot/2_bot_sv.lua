@@ -345,12 +345,19 @@ return function(lib)
 		
 		cmd:SetForwardMove(mem.Spd)
 		
+		local duckParam = nodeOrNil and nodeOrNil.Params.Duck
 		local jumpParam = nodeOrNil and nodeOrNil.Params.Jump
 		
 		local ternaryButton = 0
 		if bot:GetMoveType() ~= MOVETYPE_LADDER then
 			if bot:IsOnGround() then
-				if facesHindrance then ternaryButton = jumpParam == "Always" and IN_JUMP or (math.random(lib.BotJumpAntichance) == 1 and IN_JUMP or IN_DUCK) end
+				if jumpParam == "Always" then
+					ternaryButton = IN_JUMP
+				elseif duckParam == "Always" then
+					ternaryButton = IN_DUCK
+				elseif facesHindrance then
+					ternaryButton = math.random(lib.BotJumpAntichance) == 1 and IN_JUMP or IN_DUCK
+				end
 			else
 				ternaryButton = IN_DUCK
 			end
