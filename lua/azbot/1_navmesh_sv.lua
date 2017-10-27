@@ -1,7 +1,13 @@
 
 return function(lib)
 	lib.MapNavMeshDir = "azbot/navmesh/map/"
-	lib.MapNavMeshPath = lib.MapNavMeshDir .. game.GetMap() .. ".txt"
+	function lib.GetMapNavMeshPath(mapName)
+		return lib.MapNavMeshDir .. mapName .. ".txt"
+	end
+	lib.MapNavMeshPath = lib.GetMapNavMeshPath(game.GetMap())
+	function lib.CheckMapNavMesh(mapName)
+		return file.Exists(lib.GetMapNavMeshPath(mapName), "DATA")
+	end
 	
 	util.AddNetworkString(lib.MapNavMeshNetworkStr)
 	function lib.UploadMapNavMesh(plOrPls)
