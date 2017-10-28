@@ -183,11 +183,10 @@ return function(lib)
 		mem.ConsidersPathLethality = math.random(1, lib.BotConsideringDeathCostAntichance) == 1
 		mem.Angs = bot:EyeAngles()
 		mem.NextSlowThinkTime = 0
-		
-		lib.RerollBotClass(bot)
 	end
 	
 	function lib.HandleBotDeath(bot)
+		lib.RerollBotClass(bot)
 		local mem = memByBot[bot]
 		local nodeOrNil = mem.NodeOrNil
 		local nextNodeOrNil = mem.NextNodeOrNil
