@@ -64,6 +64,7 @@ return function(lib)
 			nodeA = idOrNodeA
 			nodeB = nilOrNodeB
 		end
+		if nodeA == nodeB then return nil end
 		local r = nodeA.LinkByLinkedNode[nodeB]
 		if r then return r end
 		local id = nodeA.Id .. lib.NavMeshLinkNodesSeparator .. nodeB.Id
