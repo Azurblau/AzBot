@@ -420,7 +420,7 @@ return function(lib)
 		local getFaceOrigin = lib.GetViewCenter
 		local facesTgt = false
 		local pounce = false
-		local facesHindrance = bot:GetVelocity():Length2D() < 0.25 * bot:GetMaxSpeed()
+		local facesHindrance = bot:GetVelocity():Length2D() < 0.20 * bot:GetMaxSpeed()
 		
 		local aimPos, aimAngle
 		local pounceTargetPos = lib.GetBotAttackPosOrNilFuture(bot, 0, mem.pounceFlightTime or 1)
