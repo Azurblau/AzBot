@@ -39,7 +39,7 @@ return function(lib)
 		"Ghoul",
 		"Wraith",
 		"Bloated Zombie", "Bloated Zombie", "Bloated Zombie",
-		"Fast Zombie",
+		"Fast Zombie", "Fast Zombie", "Fast Zombie",
 		"Mailed Zombie",
 		"Scratcher",
 		"Poison Zombie", "Poison Zombie", "Poison Zombie",
@@ -74,10 +74,100 @@ return function(lib)
 	lib.MemByBot = {}
 	local memByBot = lib.MemByBot
 	
-	function lib.GetBotAttackPosOrNil(bot)
+	function lib.GetBotAttackPosOrNil(bot, fraction)
 		local tgt = memByBot[bot].TgtOrNil
 		if not IsValid(tgt) then return end
-		return tgt:IsPlayer() and LerpVector(0.75, tgt:GetPos(), tgt:EyePos()) or tgt:WorldSpaceCenter()
+		return tgt:IsPlayer() and LerpVector(fraction or 0.75, tgt:GetPos(), tgt:EyePos()) or tgt:WorldSpaceCenter()
+	end
+	
+	function lib.GetBotAttackPosOrNilFuture(bot, fraction, t)
+		local tgt = memByBot[bot].TgtOrNil
+		if not IsValid(tgt) then return end
+		return tgt:IsPlayer() and LerpVector(fraction or 0.75, tgt:GetPos(), tgt:EyePos()) + tgt:GetVelocity()*t or tgt:WorldSpaceCenter()
+	end
+	
+	function lib.GetTrajectories2DParams(g, initVel, distZ, distRad)
+		local trajectories = {}
+		local radix = initVel^4 - g*(g*distRad^2 + 2*distZ*initVel^2)
+		
+		if radix < 0 then return trajectories end
+		local pitch = math.atan((initVel^2 - math.sqrt(radix)) / (g*distRad))
+		local t1 = distRad / (initVel * math.cos(pitch))
+		table.insert(trajectories, {g = g, initVel = initVel, pitch = pitch, t1 = t1})
+		if radix > 0 then
+			local pitch = math.atan((initVel^2 + math.sqrt(radix)) / (g*distRad))
+			local t1 = distRad / (initVel * math.cos(pitch))
+			table.insert(trajectories, {g = g, initVel = initVel, pitch = pitch, t1 = t1})
+		end
+		
+		return trajectories
+	end
+	
+	function lib.GetTrajectory2DPoints(trajectory, segments)
+		trajectory.points = {}
+		for i = 0, segments, 1 do
+			local t = Lerp(i/segments, 0, trajectory.t1)
+			local r = Vector(math.cos(trajectory.pitch)*trajectory.initVel*t, 0, math.sin(trajectory.pitch)*trajectory.initVel*t - trajectory.g/2*t^2)
+			table.insert(trajectory.points, r)
+		end
+		
+		return trajectory
+	end
+	
+	function lib.GetTrajectories(bot, r0, r1, segments)
+		local g = 600 -- Hard coded acceleration, should be read from gmod later
+		
+		local initVel
+		if bot:GetActiveWeapon() and bot:GetActiveWeapon().PounceVelocity then
+			initVel = (1 - 0.5 * (bot:GetLegDamage() / GAMEMODE.MaxLegDamage)) * bot:GetActiveWeapon().PounceVelocity
+		else
+			return {}
+		end
+		
+		local distZ = r1.z - r0.z
+		local distRad = math.sqrt((r1.x - r0.x)^2 + (r1.y - r0.y)^2)
+		local yaw = math.atan2(r1.y - r0.y, r1.x - r0.x)
+		
+		local trajectories = lib.GetTrajectories2DParams(g, initVel, distZ, distRad)
+		for i, trajectory in ipairs(trajectories) do
+			trajectories[i].yaw = yaw
+			trajectories[i].totalTime = trajectories[i].t1 + bot:GetActiveWeapon().PounceStartDelay or 0
+			-- Calculate 2D trajectory from parameters
+			trajectories[i] = lib.GetTrajectory2DPoints(trajectory, segments)
+			-- Rotate and move trajectory into 3D space
+			for k, _ in ipairs(trajectory.points) do
+				trajectory.points[k]:Rotate(Angle(0, math.deg(yaw), 0))
+				trajectory.points[k]:Add(r0)
+			end
+		end
+		
+		return trajectories
+	end
+	
+	function lib.CanBotPounceToTarget(bot, attackPos)
+		if not attackPos then return end
+		local selfPos = bot:GetPos()--LerpVector(0.75, bot:GetPos(), bot:EyePos())
+		local trajectories = lib.GetTrajectories(bot, selfPos, attackPos, 10)
+		local resultTrajectories = {}
+		for _, trajectory in ipairs(trajectories) do
+			local lastPoint = nil
+			local hit = false
+			for _, point in ipairs(trajectory.points) do
+				if lastPoint then
+					local tr = util.TraceEntity({start = point, endpos = lastPoint, filter = player.GetAll()}, bot)
+					if tr.Hit then
+						hit = true
+						break
+					end
+				end
+				lastPoint = point
+			end
+			if not hit then
+				table.insert(resultTrajectories, trajectory)
+			end
+		end
+		if #resultTrajectories == 0 then resultTrajectories = nil end
+		return resultTrajectories
 	end
 	
 	function lib.CanBotSeeTarget(bot)
@@ -326,20 +416,41 @@ return function(lib)
 		
 		local getFaceOrigin = lib.GetViewCenter
 		local facesTgt = false
+		local pounce = false
 		local facesHindrance = bot:GetVelocity():Length2D() < 0.25 * bot:GetMaxSpeed()
 		
-		local aimPos
-		if nextNodeOrNil and not lib.CanBotSeeTarget(bot) then
-			aimPos = nextNodeOrNil.Pos
-			getFaceOrigin = bot.GetPos
-		elseif IsValid(mem.TgtOrNil) then
+		local aimPos, aimAngle
+		local pounceTargetPos = lib.GetBotAttackPosOrNilFuture(bot, 0, mem.pounceFlightTime or 1)
+		local trajectories, timeToTarget
+		if pounceTargetPos then
+			trajectories = lib.CanBotPounceToTarget(bot, pounceTargetPos)
+			timeToTarget = bot:GetPos():Distance(pounceTargetPos) / bot:GetMaxSpeed()
+		end
+		if (trajectories and math.sin(trajectories[1].pitch) <= 0.9 and (timeToTarget > trajectories[1].totalTime or pounceTargetPos.z - bot:GetPos().z > 55)) or (mem.pouncingTimer and mem.pouncingTimer > CurTime()) then
+			if trajectories then
+				mem.pounceAngle = Angle(-math.deg(trajectories[1].pitch), math.deg(trajectories[1].yaw), 0)
+				mem.pounceFlightTime = math.min(trajectories[1].t1 + bot:GetActiveWeapon().PounceStartDelay or 0, 1)
+			end
+			aimAngle = mem.pounceAngle
+			if not (mem.pouncingTimer and mem.pouncingTimer > CurTime()) then
+				pounce = true
+				mem.pouncingTimer = CurTime() + 1
+			end
+		elseif (lib.CanBotSeeTarget(bot) or not nextNodeOrNil) and mem.TgtOrNil then
 			aimPos = lib.GetBotAttackPosOrNil(bot) + mem.TgtOrNil:GetVelocity() * math.Rand(0, lib.BotAimPosVelocityOffshoot)
 			facesTgt = aimPos:Distance(lib.GetViewCenter(bot)) < lib.BotAttackDistMin
+		elseif nextNodeOrNil then
+			aimPos = nextNodeOrNil.Pos
+			getFaceOrigin = bot.GetPos
 		else
 			return
 		end
 		
-		lib.BotFace(bot, aimPos, getFaceOrigin)
+		if aimAngle then
+			mem.Angs = aimAngle
+		elseif aimPos then
+			lib.BotFace(bot, aimPos, getFaceOrigin)
+		end
 		cmd:SetViewAngles(mem.Angs)
 		
 		cmd:SetForwardMove(mem.Spd)
@@ -363,7 +474,7 @@ return function(lib)
 		end
 		
 		cmd:SetButtons(bit.band(
-			bit.bor(IN_FORWARD, (facesTgt or facesHindrance) and IN_ATTACK or 0, ternaryButton, facesHindrance and IN_USE or 0, mem.ButtonsToBeClicked),
+			bit.bor(IN_FORWARD, (facesTgt or facesHindrance) and IN_ATTACK or 0, ternaryButton, facesHindrance and IN_USE or 0, pounce and IN_ATTACK2 or 0, mem.ButtonsToBeClicked),
 			bit.bnot((math.random(1, 2) == 1 or jumpParam == "Disabled") and IN_JUMP or 0)))
 		mem.ButtonsToBeClicked = 0
 	end
