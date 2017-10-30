@@ -197,7 +197,7 @@ return function(lib)
 			lib.RerollBotClass(bot)
 			return
 		end
-		if class.Wave > GAMEMODE:GetWave() then class = GAMEMODE.ZombieClasses.Zombie end
+		if not class.Unlocked then class = GAMEMODE.ZombieClasses[GAMEMODE.DefaultZombieClass] end
 		bot:SetZombieClass(class.Index)
 	end
 	
