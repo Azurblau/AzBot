@@ -101,6 +101,7 @@ local function registerAdminCmd(camelCaseName, ...) registerCmd(camelCaseName, U
 local plsParam = { type = ULib.cmds.PlayersArg }
 local numParam = { type = ULib.cmds.NumArg }
 local strParam = { type = ULib.cmds.StringArg }
+local strRestParam = { type = ULib.cmds.StringArg, ULib.cmds.takeRestOfLine }
 local optionalStrParam = { type = ULib.cmds.StringArg, ULib.cmds.optional }
 
 registerAdminCmd("BotMod", numParam, function(caller, num)
@@ -267,3 +268,19 @@ registerAdminCmd("ReloadExtraProps", function(caller)
 	AzBot.ReloadExtraProps()
 	caller:ChatPrint("Reloaded.")
 end)
+
+if engine.ActiveGamemode() == "zombiesurvival" then
+	registerAdminCmd("ForceClass", strRestParam, function(caller, className)
+		for classKey, class in ipairs(GAMEMODE.ZombieClasses) do
+			if class.Name:lower() == className:lower() then
+				for _, bot in ipairs(player.GetBots()) do
+					if bot:GetZombieClassTable().Index ~= class.Index then
+						bot.DeathClass = class.Index
+						bot:Kill()
+					end
+				end
+				break
+			end
+		end
+	end)
+end
