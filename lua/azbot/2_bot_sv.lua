@@ -37,9 +37,9 @@ return function(lib)
 	lib.BotClasses = {
 		"Zombie", "Zombie", "Zombie",
 		"Ghoul",
-		"Wraith",
+		"Wraith", "Wraith",
 		"Bloated Zombie", "Bloated Zombie", "Bloated Zombie",
-		"Fast Zombie", "Fast Zombie", "Fast Zombie",
+		"Fast Zombie", "Fast Zombie", "Fast Zombie", "Fast Zombie",
 		"Mailed Zombie",
 		"Scratcher",
 		"Poison Zombie", "Poison Zombie", "Poison Zombie",
@@ -190,15 +190,18 @@ return function(lib)
 	function lib.RerollBotClass(bot)
 		if not GAMEMODE:GetWaveActive() then return end
 		if bot:GetZombieClassTable().Name == "Zombie Torso" then return end
-		local classId = table.Random(lib.BotClasses)
-		local class = GAMEMODE.ZombieClasses[classId]
-		if not class then
-			table.RemoveByValue(lib.BotClasses, classId)
-			lib.RerollBotClass(bot)
-			return
+		local zombieClasses = {}
+		for _, class in ipairs(lib.BotClasses) do
+			local zombieClass = GAMEMODE.ZombieClasses[class]
+			if zombieClass then
+				if zombieClass.Unlocked or (zombieClass.Wave <= GAMEMODE:GetWave()) then
+					table.insert(zombieClasses, zombieClass)
+				end
+			end
 		end
-		if not class.Unlocked then class = GAMEMODE.ZombieClasses[GAMEMODE.DefaultZombieClass] end
-		bot:SetZombieClass(class.Index)
+		local zombieClass = table.Random(zombieClasses)
+		if not zombieClass then zombieClass = GAMEMODE.ZombieClasses[GAMEMODE.DefaultZombieClass] end
+		bot:SetZombieClass(zombieClass.Index)
 	end
 	
 	function lib.GetDesiredZombiesCount()
