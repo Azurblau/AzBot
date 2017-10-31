@@ -417,29 +417,52 @@ return function(lib)
 			end
 		end
 		
+		-- Fill table with possible pounce target positions
+		local pounceTargetPositions = {lib.GetBotAttackPosOrNilFuture(bot, 0, mem.pounceFlightTime or 1)}
+		if mem.RemainingNodes[2] then table.insert(pounceTargetPositions, mem.RemainingNodes[2].Pos + Vector(0, 0, 1)) end
+		if mem.RemainingNodes[1] then table.insert(pounceTargetPositions, mem.RemainingNodes[1].Pos + Vector(0, 0, 1)) end
+		if nextNodeOrNil then table.insert(pounceTargetPositions, nextNodeOrNil.Pos + Vector(0, 0, 1)) end
+		
+		-- Find possible trajectory
+		local trajectory
+		if bot:IsOnGround() then
+			for _, pounceTargetPos in ipairs(pounceTargetPositions) do
+				if pounceTargetPos then
+					local trajectories = lib.CanBotPounceToTarget(bot, pounceTargetPos)
+					local timeToTarget = bot:GetPos():Distance(pounceTargetPos) / bot:GetMaxSpeed()
+					if trajectories and (timeToTarget > trajectories[1].totalTime*1.3 or pounceTargetPos.z - bot:GetPos().z > 55) then
+						trajectory = trajectories[1]
+						break
+					end
+				end
+			end
+		end
+		
 		local getFaceOrigin = lib.GetViewCenter
 		local facesTgt = false
 		local pounce = false
 		local facesHindrance = bot:GetVelocity():Length2D() < 0.20 * bot:GetMaxSpeed()
 		
 		local aimPos, aimAngle
-		local pounceTargetPos = lib.GetBotAttackPosOrNilFuture(bot, 0, mem.pounceFlightTime or 1)
-		local trajectories, timeToTarget
-		if pounceTargetPos then
-			trajectories = lib.CanBotPounceToTarget(bot, pounceTargetPos)
-			timeToTarget = bot:GetPos():Distance(pounceTargetPos) / bot:GetMaxSpeed()
-		end
-		if (trajectories and math.sin(trajectories[1].pitch) <= 0.9 and (timeToTarget > trajectories[1].totalTime or pounceTargetPos.z - bot:GetPos().z > 55)) or (mem.pouncingTimer and mem.pouncingTimer > CurTime()) then
-			if trajectories then
-				mem.pounceAngle = Angle(-math.deg(trajectories[1].pitch), math.deg(trajectories[1].yaw), 0)
-				mem.pounceFlightTime = math.min(trajectories[1].t1 + bot:GetActiveWeapon().PounceStartDelay or 0, 1)
+		local weapon = bot:GetActiveWeapon()
+		
+		if (weapon and trajectory and CurTime() >= weapon:GetNextPrimaryFire() and CurTime() >= weapon:GetNextSecondaryFire() and CurTime() >= weapon.NextAllowPounce) or mem.pouncing then
+			if trajectory then
+				mem.pounceAngle = Angle(-math.deg(trajectory.pitch), math.deg(trajectory.yaw), 0)
+				mem.pounceFlightTime = math.min(trajectory.t1 + bot:GetActiveWeapon().PounceStartDelay or 0, 1) -- Store flight time, and use it to iteratively get close to the correct intersection point
 			end
-			aimAngle = mem.pounceAngle
-			if not (mem.pouncingTimer and mem.pouncingTimer > CurTime()) then
+			if not mem.pouncing then
+				-- Started pouncing
 				pounce = true
 				mem.pouncingTimer = CurTime() + 1
+				mem.pouncing = true
+			elseif mem.pouncingTimer and mem.pouncingTimer < CurTime() and (CurTime() - mem.pouncingTimer > 5 or bot:WaterLevel() >= 2 or bot:IsOnGround()) then
+				-- Ended pouncing
+				mem.pouncing = false
+				lib.UpdateBotMem(bot)
 			end
-		elseif (lib.CanBotSeeTarget(bot) or not nextNodeOrNil) and mem.TgtOrNil then
+			aimAngle = mem.pounceAngle
+		elseif (lib.CanBotSeeTarget(bot) or not nextNodeOrNil) and lib.GetBotAttackPosOrNil(bot) then
 			aimPos = lib.GetBotAttackPosOrNil(bot) + mem.TgtOrNil:GetVelocity() * math.Rand(0, lib.BotAimPosVelocityOffshoot)
 			facesTgt = aimPos:Distance(lib.GetViewCenter(bot)) < lib.BotAttackDistMin
 		elseif nextNodeOrNil then
@@ -448,6 +471,8 @@ return function(lib)
 		else
 			return
 		end
+		
+		if mem.pouncing then facesHindrance = false end
 		
 		if aimAngle then
 			mem.Angs = aimAngle
