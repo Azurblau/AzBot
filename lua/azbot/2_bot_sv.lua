@@ -442,7 +442,7 @@ return function(lib)
 		local facesTgt = false
 		local pounce = false
 		local facesHindrance = bot:GetVelocity():Length2D() < 0.20 * bot:GetMaxSpeed()
-		
+		local ternaryButton = 0
 		local aimPos, aimAngle
 		local weapon = bot:GetActiveWeapon()
 		
@@ -465,6 +465,9 @@ return function(lib)
 		elseif (lib.CanBotSeeTarget(bot) or not nextNodeOrNil) and lib.GetBotAttackPosOrNil(bot) then
 			aimPos = lib.GetBotAttackPosOrNil(bot) + mem.TgtOrNil:GetVelocity() * math.Rand(0, lib.BotAimPosVelocityOffshoot)
 			facesTgt = aimPos:Distance(lib.GetViewCenter(bot)) < lib.BotAttackDistMin
+			if facesTgt and aimPos.z - lib.GetViewCenter(bot).z < -20 then
+				ternaryButton = IN_DUCK
+			end
 		elseif nextNodeOrNil then
 			aimPos = nextNodeOrNil.Pos
 			getFaceOrigin = bot.GetPos
@@ -486,7 +489,6 @@ return function(lib)
 		local duckParam = nodeOrNil and nodeOrNil.Params.Duck
 		local jumpParam = nodeOrNil and nodeOrNil.Params.Jump
 		
-		local ternaryButton = 0
 		if bot:GetMoveType() ~= MOVETYPE_LADDER then
 			if bot:IsOnGround() then
 				if jumpParam == "Always" then
