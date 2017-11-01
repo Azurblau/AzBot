@@ -469,7 +469,7 @@ return function(lib)
 				if weapon and weapon.MeleeReach then
 					local tr = util.TraceLine({
 						start = lib.GetViewCenter(bot),
-						endpos = lib.GetViewCenter(bot) + EyeAngles():Forward() * weapon.MeleeReach,
+						endpos = lib.GetViewCenter(bot) + bot:EyeAngles():Forward() * weapon.MeleeReach,
 						filter = bot
 					})
 					facesTgt = tr.Entity == mem.TgtOrNil
