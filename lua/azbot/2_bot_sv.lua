@@ -449,7 +449,7 @@ return function(lib)
 		if (weapon and trajectory and CurTime() >= weapon:GetNextPrimaryFire() and CurTime() >= weapon:GetNextSecondaryFire() and CurTime() >= weapon.NextAllowPounce) or mem.pouncing then
 			if trajectory then
 				mem.pounceAngle = Angle(-math.deg(trajectory.pitch), math.deg(trajectory.yaw), 0)
-				mem.pounceFlightTime = math.min(trajectory.t1 + bot:GetActiveWeapon().PounceStartDelay or 0, 1) -- Store flight time, and use it to iteratively get close to the correct intersection point
+				mem.pounceFlightTime = math.min(trajectory.t1 + weapon.PounceStartDelay or 0, 1) -- Store flight time, and use it to iteratively get close to the correct intersection point. (Path prediction of the target)
 			end
 			if not mem.pouncing then
 				-- Started pouncing
