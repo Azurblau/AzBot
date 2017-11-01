@@ -20,7 +20,8 @@ return function(lib)
 	
 	lib.MapNavMeshNetworkStr = "AzBot Map NavMesh"
 	
-	lib.NavMeshItemsSeparator = ";"
+	lib.NavMeshItemsSeparator = "\n"
+	lib.NavMeshItemsSeparatorOld = ";"
 	lib.NavMeshItemIdParamsPairSeparator = ":"
 	lib.NavMeshItemParamsSeparator = ","
 	lib.NavMeshItemParamNameNumPairSeparator = "="
@@ -164,6 +165,9 @@ return function(lib)
 		end):Join(lib.NavMeshItemsSeparator).R
 	end
 	function lib.DeserializeNavMesh(serialized)
+		--serialized = serialized:gsub("\r\n", "\n")
+		--serialized = serialized:gsub("\r", "\n")
+		serialized = serialized:gsub(lib.NavMeshItemsSeparatorOld, lib.NavMeshItemsSeparator)
 		local navMesh = lib.NewNavMesh()
 		for idx, serializedItem in ipairs(lib.GetSplitStr(serialized, lib.NavMeshItemsSeparator)) do
 			local serializedId, serializedParams = unpack(serializedItem:Split(lib.NavMeshItemIdParamsPairSeparator))
