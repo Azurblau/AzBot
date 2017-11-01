@@ -344,7 +344,8 @@ return function(lib)
 	function lib.UpdateBotAngsOffshoot(bot)
 		local mem = memByBot[bot]
 		local nodeOrNil = mem.NodeOrNil
-		if nodeOrNil and nodeOrNil.Params.Aim == "Straight" then
+		local nextNodeOrNil = mem.NextNodeOrNil
+		if (nodeOrNil and nodeOrNil.Params.Aim == "Straight") or (nextNodeOrNil and nextNodeOrNil.Params.AimTo == "Straight") then
 			mem.AngsOffshoot = Angle()
 			return
 		end
@@ -442,7 +443,7 @@ return function(lib)
 		local facesTgt = false
 		local pounce = false
 		local facesHindrance = bot:GetVelocity():Length2D() < 0.20 * bot:GetMaxSpeed()
-		local ternaryButton = 0
+		local duck, jump
 		local aimPos, aimAngle
 		local weapon = bot:GetActiveWeapon()
 		
@@ -464,9 +465,20 @@ return function(lib)
 			aimAngle = mem.pounceAngle
 		elseif (lib.CanBotSeeTarget(bot) or not nextNodeOrNil) and lib.GetBotAttackPosOrNil(bot) then
 			aimPos = lib.GetBotAttackPosOrNil(bot) + mem.TgtOrNil:GetVelocity() * math.Rand(0, lib.BotAimPosVelocityOffshoot)
-			facesTgt = aimPos:Distance(lib.GetViewCenter(bot)) < lib.BotAttackDistMin
-			if facesTgt and aimPos.z - lib.GetViewCenter(bot).z < -20 then
-				ternaryButton = IN_DUCK
+			if aimPos:Distance(lib.GetViewCenter(bot)) < lib.BotAttackDistMin then
+				if weapon and weapon.MeleeReach then
+					local tr = util.TraceLine({
+						start = lib.GetViewCenter(bot),
+						endpos = lib.GetViewCenter(bot) + EyeAngles():Forward() * weapon.MeleeReach,
+						filter = bot
+					})
+					facesTgt = tr.Entity == mem.TgtOrNil
+				else
+					facesTgt = true
+				end
+				if aimPos.z - lib.GetViewCenter(bot).z < -20 then
+					duck = true
+				end
 			end
 		elseif nextNodeOrNil then
 			aimPos = nextNodeOrNil.Pos
@@ -488,23 +500,30 @@ return function(lib)
 		
 		local duckParam = nodeOrNil and nodeOrNil.Params.Duck
 		local jumpParam = nodeOrNil and nodeOrNil.Params.Jump
+		local jumpToParam = nodeOrNil and nodeOrNil.Params.JumpTo
 		
 		if bot:GetMoveType() ~= MOVETYPE_LADDER then
 			if bot:IsOnGround() then
-				if jumpParam == "Always" then
-					ternaryButton = IN_JUMP
-				elseif duckParam == "Always" then
-					ternaryButton = IN_DUCK
-				elseif facesHindrance then
-					ternaryButton = math.random(lib.BotJumpAntichance) == 1 and IN_JUMP or IN_DUCK
+				if jumpParam == "Always" or jumpToParam == "Always" then
+					jump = true
+				end
+				if duckParam == "Always" then
+					duck = true
+				end
+				if facesHindrance then
+					if math.random(lib.BotJumpAntichance) == 1 then
+						jump = true
+					else
+						duck = true
+					end
 				end
 			else
-				ternaryButton = IN_DUCK
+				duck = true -- This prevents bots from getting out of water. Rewrite jump/crouch logic
 			end
 		end
 		
 		cmd:SetButtons(bit.band(
-			bit.bor(IN_FORWARD, (facesTgt or facesHindrance) and IN_ATTACK or 0, ternaryButton, facesHindrance and IN_USE or 0, pounce and IN_ATTACK2 or 0, mem.ButtonsToBeClicked),
+			bit.bor(IN_FORWARD, (facesTgt or facesHindrance) and IN_ATTACK or 0, duck and IN_DUCK or 0, jump and IN_JUMP or 0, facesHindrance and IN_USE or 0, pounce and IN_ATTACK2 or 0, mem.ButtonsToBeClicked),
 			bit.bnot((math.random(1, 2) == 1 or jumpParam == "Disabled") and IN_JUMP or 0)))
 		mem.ButtonsToBeClicked = 0
 	end
