@@ -194,7 +194,7 @@ return function(lib)
 		for _, class in ipairs(lib.BotClasses) do
 			local zombieClass = GAMEMODE.ZombieClasses[class]
 			if zombieClass then
-				if zombieClass.Unlocked or (zombieClass.Wave <= GAMEMODE:GetWave()) then
+				if zombieClass.Unlocked then
 					table.insert(zombieClasses, zombieClass)
 				end
 			end
