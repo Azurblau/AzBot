@@ -50,6 +50,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
     - Jump = Always: Bots will always jump if located in this node.
 	- JumpTo = Always: Bots will always jump if heading towards this node.
 	- Duck = Always: Bots will always crouch if located in this node.
+	- DuckTo = Always: Bots will always crouch if heading towards this node.
     - Wall = Suicide: Bots suicide if trying to navigate towards this node higher than crouch-jumping height. Use this when respawn is the only way to get to that node.
     - Wall = Retarget: Same as Wall = Suicide but target is changed instead of suiciding. If no other targets are available, target remains the same. Use this for unreachable or low priority nodes.
     - See = Disabled: Bot does not approach target in straight line even if target is visible to him unless he is on the same node as the target. Use this on heightened nodes visible to, but not directly accessible from lower nodes.
