@@ -443,9 +443,9 @@ return function(lib)
 		local facesTgt = false
 		local pounce = false
 		local facesHindrance = bot:GetVelocity():Length2D() < 0.20 * bot:GetMaxSpeed()
-		local duck, jump
 		local aimPos, aimAngle
 		local weapon = bot:GetActiveWeapon()
+		local duck, jump
 		
 		if (weapon and trajectory and CurTime() >= weapon:GetNextPrimaryFire() and CurTime() >= weapon:GetNextSecondaryFire() and CurTime() >= weapon.NextAllowPounce) or mem.pouncing then
 			if trajectory then
@@ -499,15 +499,16 @@ return function(lib)
 		cmd:SetForwardMove(mem.Spd)
 		
 		local duckParam = nodeOrNil and nodeOrNil.Params.Duck
+		local duckToParam = nextNodeOrNil and nextNodeOrNil.Params.DuckTo
 		local jumpParam = nodeOrNil and nodeOrNil.Params.Jump
-		local jumpToParam = nodeOrNil and nodeOrNil.Params.JumpTo
+		local jumpToParam = nextNodeOrNil and nextNodeOrNil.Params.JumpTo
 		
 		if bot:GetMoveType() ~= MOVETYPE_LADDER then
 			if bot:IsOnGround() then
 				if jumpParam == "Always" or jumpToParam == "Always" then
 					jump = true
 				end
-				if duckParam == "Always" then
+				if duckParam == "Always" or duckToParam == "Always" then
 					duck = true
 				end
 				if facesHindrance then
