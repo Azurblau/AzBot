@@ -164,6 +164,13 @@ return function(lib)
 			end):Join(lib.NavMeshItemParamsSeparator).R
 		end):Join(lib.NavMeshItemsSeparator).R
 	end
+	function fallback:SerializeSorted()
+		return from(self.ItemById):SelSort(function(id, item)
+			return nil, id .. lib.NavMeshItemIdParamsPairSeparator .. from(item.Params):SelSort(function(name, numOrStr)
+				return nil, name .. lib.NavMeshItemParamNameNumPairSeparator .. numOrStr
+			end, function(a,b) return tostring(a)<tostring(b) end):Join(lib.NavMeshItemParamsSeparator).R
+		end, function(a,b) return tostring(a)<tostring(b) end):Join(lib.NavMeshItemsSeparator).R
+	end
 	function lib.DeserializeNavMesh(serialized)
 		--serialized = serialized:gsub("\r\n", "\n")
 		--serialized = serialized:gsub("\r", "\n")

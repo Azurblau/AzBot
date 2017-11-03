@@ -42,6 +42,20 @@ return function(globalK, otherLibFilesRelPathEach)
 	
 	function lib.Send(...) (SERVER and net.Send or net.SendToServer)(...) end
 	
+	function lib.PairsByKeys(t, f)
+      local a = {}
+      for n in pairs(t) do table.insert(a, n) end
+      table.sort(a, f)
+      local i = 0				-- iterator variable
+      local iter = function ()	-- iterator function
+        i = i + 1
+        if a[i] == nil then return nil
+        else return a[i], t[a[i]]
+        end
+      end
+      return iter
+    end
+	
 	lib.QueryMeta = { __index = {} }
 	local queryFallback = lib.QueryMeta.__index
 	function lib.From(v) return setmetatable({ R = v }, lib.QueryMeta) end
@@ -77,6 +91,12 @@ return function(globalK, otherLibFilesRelPathEach)
 	function queryFallback:Sel(func)
 		local r = {}
 		for k, v in pairs(self.R) do lib.WriteOrAdd(r, func(k, v)) end
+		self.R = r
+		return self
+	end
+	function queryFallback:SelSort(func, sortFunc)
+		local r = {}
+		for k, v in lib.PairsByKeys(self.R, sortFunc) do lib.WriteOrAdd(r, func(k, v)) end
 		self.R = r
 		return self
 	end

@@ -20,7 +20,7 @@ return function(lib)
 	end
 	
 	file.CreateDir(lib.MapNavMeshDir)
-	function lib.SaveMapNavMesh() file.Write(lib.MapNavMeshPath, lib.MapNavMesh:Serialize()) end
+	function lib.SaveMapNavMesh() file.Write(lib.MapNavMeshPath, lib.MapNavMesh:SerializeSorted()) end
 	function lib.LoadMapNavMesh()
 		local mapNavMesh
 		lib.TryCatch(function()
