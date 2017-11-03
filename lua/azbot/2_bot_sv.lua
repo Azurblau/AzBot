@@ -523,9 +523,16 @@ return function(lib)
 			end
 		end
 		
+		if math.random(1, 2) == 1 or jumpParam == "Disabled" or jumpToParam == "Disabled" then
+			jump = false
+		end
+		if duckParam == "Disabled" or duckToParam == "Disabled" then
+			duck = false
+		end
+		
 		cmd:SetButtons(bit.band(
-			bit.bor(IN_FORWARD, (facesTgt or facesHindrance) and IN_ATTACK or 0, duck and IN_DUCK or 0, jump and IN_JUMP or 0, facesHindrance and IN_USE or 0, pounce and IN_ATTACK2 or 0, mem.ButtonsToBeClicked),
-			bit.bnot((math.random(1, 2) == 1 or jumpParam == "Disabled") and IN_JUMP or 0)))
+			bit.bor(IN_FORWARD, (facesTgt or facesHindrance) and IN_ATTACK or 0, duck and IN_DUCK or 0, jump and IN_JUMP or 0, facesHindrance and IN_USE or 0, pounce and IN_ATTACK2 or 0, mem.ButtonsToBeClicked)
+		))
 		mem.ButtonsToBeClicked = 0
 	end
 	
