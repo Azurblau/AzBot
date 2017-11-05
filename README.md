@@ -48,18 +48,22 @@ Though I won't take measures against illegimate usage unless I have reasons to d
   - Node parameters:
     - Jump = Disabled: Bots won't jump if located in this node.
     - Jump = Always: Bots will always jump if located in this node.
-	- JumpTo = Disabled: Bots won't jump if heading towards this node.
-	- JumpTo = Always: Bots will always jump if heading towards this node.
-	- Duck = Disabled: Bots won't crouch if located in this node.
-	- Duck = Always: Bots will always crouch if located in this node.
-	- DuckTo = Disabled: Bots won't crouch if heading towards this node.
-	- DuckTo = Always: Bots will always crouch if heading towards this node.
+    - JumpTo = Disabled: Bots won't jump if heading towards this node.
+    - JumpTo = Always: Bots will always jump if heading towards this node.
+    - Duck = Disabled: Bots won't crouch if located in this node.
+    - Duck = Always: Bots will always crouch if located in this node.
+    - DuckTo = Disabled: Bots won't crouch if heading towards this node.
+    - DuckTo = Always: Bots will always crouch if heading towards this node.
     - Wall = Suicide: Bots suicide if trying to navigate towards this node higher than crouch-jumping height. Use this when respawn is the only way to get to that node.
     - Wall = Retarget: Same as Wall = Suicide but target is changed instead of suiciding. If no other targets are available, target remains the same. Use this for unreachable or low priority nodes.
     - See = Disabled: Bot does not approach target in straight line even if target is visible to him unless he is on the same node as the target. Use this on heightened nodes visible to, but not directly accessible from lower nodes.
-	- Aim = Straight: Bot goes straight to the next node. Use this if bots need to get through small holes in the floor or walk on narrow paths without falling down.
-	- AimTo = Straight: Bot goes straight to this node. Use this if bots need to get through narrow windows or small holes in the floor.
-	- Cost = Add a penalty for paths using this node. Higher values makes it less likely for bots to use a path containing this node.
+    - Aim = Straight: Bot goes straight to the next node. Use this if bots need to get through small holes in the floor or walk on narrow paths without falling down.
+    - AimTo = Straight: Bot goes straight to this node. Use this if bots need to get through narrow windows or small holes in the floor.
+    - Cost: Add a penalty for paths using this node. Higher values makes it less likely for bots to use a path containing this node.
+  - Link parameters:
+    - Cost: Add a penalty for paths using this link. Higher values makes it less likely for bots to use a path containing this link.
+	- Unidir = Forward: Only allow paths from the first to the second element of the link. "azbot setparam 1-2 Unidir Forward" will only allow the bot to move from 1 to 2.
+	- Unidir = Backward: Same as above, but backwards.
 - Use "azbot reloadmesh" to discard changes.
 - Use "azbot savemesh" to save the changes to garrysmod/data/azbot/navmesh/map/\<mapname\>.txt.
 - Prefix a command with an exclamation mark to use it in chat.
@@ -87,7 +91,7 @@ Not being worked on. ETA for ToDo: +∞. Just bugfixes or dirty changes on contr
 Starting with highest public priority:
 - Making a config.txt for the static variables.
 - Refactoring, e.g. stable API, stable navmesh standard, consistency, bot metatable, gamemode independence by adding hooks usable by gamemodes or gamemode-based plugins, ...
-- Detailed linking e.g. required jump height, movement behaviour (crouch, gap-jumping, ...), unidirectionality, link/node unlock conditions, ...
+- Detailed linking e.g. required jump height, movement behaviour (gap-jumping, ...), link/node unlock conditions, ...
 - Map information in navmeshes using a singleton item type solely for storing parameters (e.g. zombie count multiplier).
 - Leap behaviour for headcrab bots.
 - Sloped nodes for more accurate locating of entities.

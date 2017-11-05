@@ -28,8 +28,8 @@ return function(lib)
 			end
 			
 			for linkedNode, link in pairs(node.LinkByLinkedNode) do
-				if not evaluatedNodesSet[linkedNode] then
-					local linkedNodePathCost = minimalPathCostByNode[node] + node.Pos:Distance(linkedNode.Pos) + (link.Params.Cost or 0) + (additionalCostOrNilByLink[link] or 0)
+				if not evaluatedNodesSet[linkedNode] and not (link.Params.Unidir == "Forward" and link.Nodes[2] == node) and not (link.Params.Unidir == "Backward" and link.Nodes[1] == node) then
+					local linkedNodePathCost = minimalPathCostByNode[node] + node.Pos:Distance(linkedNode.Pos) + (node.Params.Cost or 0) + (link.Params.Cost or 0) + (additionalCostOrNilByLink[link] or 0)
 					if linkedNodePathCost < (minimalPathCostByNode[linkedNode] or math.huge) then
 						entranceByNode[linkedNode] = node
 						minimalPathCostByNode[linkedNode] = linkedNodePathCost
