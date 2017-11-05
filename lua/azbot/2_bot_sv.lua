@@ -13,6 +13,10 @@ return function(lib)
 		mins = Vector(-15, -15, -15),
 		maxs = Vector(15, 15, 15),
 		mask = MASK_PLAYERSOLID }
+	lib.NodeBlocking = {
+		mins = Vector(-1, -1, -1),
+		maxs = Vector(1, 1, 1),
+		classes = {func_breakable = true, prop_physics = true, prop_dynamic = true, prop_door_rotating = true, func_door = true, func_physbox_multiplayer = true, func_movelinear = true} }
 	lib.BotAttackDistMin = 100
 	lib.PotBotTgtClss = { "prop_*turret", "prop_purifier", "prop_arsenalcrate", "prop_manhack*", "prop_relay" }
 	lib.IsPotBotTgtClsOrNilByName = from(lib.PotBotTgtClss):VsSet().R

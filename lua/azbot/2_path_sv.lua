@@ -3,6 +3,8 @@ return function(lib)
 	function lib.GetBestMeshPathOrNil(startNode, endNode, additionalCostOrNilByLink)
 		-- See https://en.wikipedia.org/wiki/A*_search_algorithm
 		
+		if additionalCostOrNilByLink == nil then additionalCostOrNilByLink = {} end
+		
 		local minimalTotalPathCostByNode = {}
 		local minimalPathCostByNode = { [startNode] = 0 }
 		
@@ -28,7 +30,18 @@ return function(lib)
 			end
 			
 			for linkedNode, link in pairs(node.LinkByLinkedNode) do
-				if not evaluatedNodesSet[linkedNode] and not (link.Params.Unidir == "Forward" and link.Nodes[2] == node) and not (link.Params.Unidir == "Backward" and link.Nodes[1] == node) then
+				
+				local blocked = false
+				if linkedNode.Params.Condition == "Unblocked" or linkedNode.Params.Condition == "Blocked" then
+					local ents = ents.FindInBox(linkedNode.Pos + lib.NodeBlocking.mins, linkedNode.Pos + lib.NodeBlocking.maxs)
+					for _, ent in ipairs(ents) do
+						if lib.NodeBlocking.classes[ent:GetClass()] then blocked = true; break end
+					end
+					if linkedNode.Params.Condition == "Blocked" then blocked = not blocked end
+				end
+				
+				if not blocked and not evaluatedNodesSet[linkedNode] and not (link.Params.Unidir == "Forward" and link.Nodes[2] == node) and not (link.Params.Unidir == "Backward" and link.Nodes[1] == node) then
+					
 					local linkedNodePathCost = minimalPathCostByNode[node] + node.Pos:Distance(linkedNode.Pos) + (node.Params.Cost or 0) + (link.Params.Cost or 0) + (additionalCostOrNilByLink[link] or 0)
 					if linkedNodePathCost < (minimalPathCostByNode[linkedNode] or math.huge) then
 						entranceByNode[linkedNode] = node

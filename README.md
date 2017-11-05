@@ -60,6 +60,8 @@ Though I won't take measures against illegimate usage unless I have reasons to d
     - Aim = Straight: Bot goes straight to the next node. Use this if bots need to get through small holes in the floor or walk on narrow paths without falling down.
     - AimTo = Straight: Bot goes straight to this node. Use this if bots need to get through narrow windows or small holes in the floor.
     - Cost: Add a penalty for paths using this node. Higher values makes it less likely for bots to use a path containing this node.
+	- Condition = Unblocked: Only use this node for pathfinding if there is no entity within a range of one inch. Detected entities are func_breakable, prop_physics, prop_dynamic, prop_door_rotating, func_door, func_physbox_multiplayer, func_movelinear.
+	- Condition = Blocked: Opposite of above. Use this for breakable pathways.
   - Link parameters:
     - Cost: Add a penalty for paths using this link. Higher values makes it less likely for bots to use a path containing this link.
 	- Unidir = Forward: Only allow paths from the first to the second element of the link. "azbot setparam 1-2 Unidir Forward" will only allow the bot to move from 1 to 2.
@@ -91,7 +93,7 @@ Not being worked on. ETA for ToDo: +∞. Just bugfixes or dirty changes on contr
 Starting with highest public priority:
 - Making a config.txt for the static variables.
 - Refactoring, e.g. stable API, stable navmesh standard, consistency, bot metatable, gamemode independence by adding hooks usable by gamemodes or gamemode-based plugins, ...
-- Detailed linking e.g. required jump height, movement behaviour (gap-jumping, ...), link/node unlock conditions, ...
+- Detailed linking e.g. required jump height, movement behaviour (gap-jumping, ...), link unlock conditions, ...
 - Map information in navmeshes using a singleton item type solely for storing parameters (e.g. zombie count multiplier).
 - Leap behaviour for headcrab bots.
 - Sloped nodes for more accurate locating of entities.
