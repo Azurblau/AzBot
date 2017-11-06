@@ -87,7 +87,9 @@ return function(lib)
 	function lib.GetBotAttackPosOrNilFuture(bot, fraction, t)
 		local tgt = memByBot[bot].TgtOrNil
 		if not IsValid(tgt) then return end
-		return tgt:IsPlayer() and LerpVector(fraction or 0.75, tgt:GetPos(), tgt:EyePos()) + tgt:GetVelocity()*t or tgt:WorldSpaceCenter()
+		local phys = tgt:GetPhysicsObject() 
+		if not IsValid(phys) then return end
+		return tgt:IsPlayer() and LerpVector(fraction or 0.75, tgt:GetPos(), tgt:EyePos()) + phys:GetVelocity()*t or tgt:WorldSpaceCenter()
 	end
 	
 	function lib.GetTrajectories2DParams(g, initVel, distZ, distRad)
