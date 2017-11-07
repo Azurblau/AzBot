@@ -27,6 +27,48 @@ return function(lib)
 	lib.NavMeshItemParamNameNumPairSeparator = "="
 	lib.NavMeshLinkNodesSeparator = "-"
 	
+	lib.Params = {
+		Correct = {
+			Jump = {"Disabled", "Always"},
+			JumpTo = {"Disabled", "Always"},
+			Duck = {"Disabled", "Always"},
+			DuckTo = {"Disabled", "Always"},
+			Wall = {"Suicide", "Retarget"},
+			See = {"Disabled"},
+			Aim = {"Straight"},
+			AimTo = {"Straight"},
+			Cost = {},
+			Condition = {"Unblocked", "Blocked"},
+			Direction = {"Forward", "Backward"} },
+		Replace = {
+			Unidir = "Direction"} }
+	
+	function lib.NormalizeParam(name, numOrSerializedNumOrStrOrEmpty)
+		-- Replace
+		for k, v in pairs(lib.Params.Replace) do
+			if k:lower() == name:lower() then
+				name = v
+				break
+			end
+		end
+		-- Correct
+		for k, v in pairs(lib.Params.Correct) do
+			if k:lower() == name:lower() then
+				name = k
+				if type(numOrSerializedNumOrStrOrEmpty) == "string" then
+					for _, v2 in pairs(v) do
+						if v2:lower() == numOrSerializedNumOrStrOrEmpty:lower() then
+							numOrSerializedNumOrStrOrEmpty = v2
+							break
+						end
+					end
+				end
+				break
+			end
+		end
+		return name, numOrSerializedNumOrStrOrEmpty
+	end
+	
 	function lib.NewNavMesh() return setmetatable({
 		ItemById = {},
 		NodeById = {},
@@ -88,6 +130,7 @@ return function(lib)
 			itemParamChanged(self, name)
 			return
 		end
+		name, numOrSerializedNumOrStrOrEmpty = lib.NormalizeParam(name, numOrSerializedNumOrStrOrEmpty)
 		local numOrStr = tonumber(numOrSerializedNumOrStrOrEmpty) or numOrSerializedNumOrStrOrEmpty
 		if (name .. (isstring(numOrStr) and numOrStr or "")):find("[^%w_]") then error("Only alphanumeric letters and underscore allowed in name and string values.", 2) end
 		self.Params[name] = numOrStr
