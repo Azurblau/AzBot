@@ -66,6 +66,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
     - Cost: Add a penalty for paths using this link. Higher values makes it less likely for bots to use a path containing this link.
 	- Direction = Forward: Only allow paths from the first to the second element of the link. "azbot setparam 1-2 Unidir Forward" will only allow the bot to move from 1 to 2.
 	- Direction = Backward: Same as above, but backwards.
+	- Pouncing = Needed: Only classes with the ability to pounce/leap can use this link.
 - Use "azbot reloadmesh" to discard changes.
 - Use "azbot savemesh" to save the changes to garrysmod/data/azbot/navmesh/map/\<mapname\>.txt.
 - Prefix a command with an exclamation mark to use it in chat.

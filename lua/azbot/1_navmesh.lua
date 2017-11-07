@@ -39,7 +39,9 @@ return function(lib)
 			AimTo = {"Straight"},
 			Cost = {},
 			Condition = {"Unblocked", "Blocked"},
-			Direction = {"Forward", "Backward"} },
+			Direction = {"Forward", "Backward"},
+			Walking = {"Needed"},
+			Pouncing = {"Needed"} },
 		Replace = {
 			Unidir = "Direction"} }
 	

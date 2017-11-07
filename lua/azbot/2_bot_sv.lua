@@ -366,8 +366,10 @@ return function(lib)
 		local node = mapNavMesh:GetNearestNodeOrNil(bot:GetPos())
 		mem.TgtNodeOrNil = mapNavMesh:GetNearestNodeOrNil(mem.TgtOrNil:GetPos())
 		if not node or not mem.TgtNodeOrNil then return end
-		local path = lib.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, mem.ConsidersPathLethality and lib.DeathCostOrNilByLink or {})
-		if not path then return end
+		local abilities = {Walk = true}
+		if bot:GetActiveWeapon() and bot:GetActiveWeapon().PounceVelocity then abilities.Pounce = true end
+		local path = lib.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, mem.ConsidersPathLethality and lib.DeathCostOrNilByLink or {}, abilities)
+		if not path then lib.ResetBotTgtOrNil(bot); return end
 		mem.NodeOrNil = table.remove(path, 1)
 		mem.NextNodeOrNil = table.remove(path, 1)
 		mem.RemainingNodes = path

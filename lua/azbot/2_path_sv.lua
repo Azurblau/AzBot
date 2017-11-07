@@ -1,6 +1,6 @@
 
 return function(lib)
-	function lib.GetBestMeshPathOrNil(startNode, endNode, additionalCostOrNilByLink)
+	function lib.GetBestMeshPathOrNil(startNode, endNode, additionalCostOrNilByLink, abilities)
 		-- See https://en.wikipedia.org/wiki/A*_search_algorithm
 		
 		if additionalCostOrNilByLink == nil then additionalCostOrNilByLink = {} end
@@ -40,7 +40,11 @@ return function(lib)
 					if linkedNode.Params.Condition == "Blocked" then blocked = not blocked end
 				end
 				
-				if not blocked and not evaluatedNodesSet[linkedNode] and not (link.Params.Direction == "Forward" and link.Nodes[2] == node) and not (link.Params.Direction == "Backward" and link.Nodes[1] == node) then
+				local able = true
+				if link.Params.Walking == "Needed" and abilities and not abilities.Walk then able = false end
+				if link.Params.Pouncing == "Needed" and abilities and not abilities.Pounce then able = false end
+				
+				if able and not blocked and not evaluatedNodesSet[linkedNode] and not (link.Params.Direction == "Forward" and link.Nodes[2] == node) and not (link.Params.Direction == "Backward" and link.Nodes[1] == node) then
 					
 					local linkedNodePathCost = minimalPathCostByNode[node] + node.Pos:Distance(linkedNode.Pos) + (node.Params.Cost or 0) + (link.Params.Cost or 0) + (additionalCostOrNilByLink[link] or 0)
 					if linkedNodePathCost < (minimalPathCostByNode[linkedNode] or math.huge) then
