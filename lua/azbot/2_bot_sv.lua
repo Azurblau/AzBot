@@ -370,6 +370,7 @@ return function(lib)
 		if bot:GetActiveWeapon() and bot:GetActiveWeapon().PounceVelocity then abilities.Pounce = true end
 		local path = lib.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, mem.ConsidersPathLethality and lib.DeathCostOrNilByLink or {}, abilities)
 		if not path then lib.ResetBotTgtOrNil(bot); return end
+		if mem.NextNodeOrNil and mem.NextNodeOrNil == path[1] then table.insert(path, 1, mem.NodeOrNil) end -- Preserve current node if the path starts with the next node
 		mem.NodeOrNil = table.remove(path, 1)
 		mem.NextNodeOrNil = table.remove(path, 1)
 		mem.RemainingNodes = path
