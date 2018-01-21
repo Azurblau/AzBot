@@ -1,3 +1,26 @@
+# Fork
+This is a fork of [/Azurblau/AzBot](https://github.com/Azurblau/AzBot) with new features and some bugfixes.
+
+Here is a list of notable changes compared to the original version:
+- Unidirectional links.
+- Links which are only usable by fast zombies.
+- Some more specific movement instructions for nodes to allow bots to handle obstacles better. (Duck when on a node, duck when moving towards a node, aim straight when on a node, aim straight towards a node, ...)
+- Conditions for nodes. (Allow or disallow the use of a node, if the said node is close to specific entities like doors, breakables, physic props, etc.)
+- Pouncing behaviour for fast zombies or zombies based on that class. This makes these zombies much more dangerous, as they will hit you with a high certainty if you are within their jump range. They'll also use that ability to jump to the next or second next node if possible.
+- Small adjustments to the inner workings of the pathfinding algorithm. For example bots will now walk towards the next node until they are within its reach, and not until they are closest to it. This makes the bots movement behaviour more predictable for nodemesh creators, and also prevents bots from running in circles sometimes.
+- Zombies will only attack if the target is within reach. This makes wraith and fast zombie attacks much more surprising and effective.
+- Fix bots glitching outside of the map if they spawn inside a trigger_zombieclass brush.
+- Fix zombie class selection logic for bots.
+- Bots now crouch when their target is low.
+- Prevent links linking a node to itself.
+- Github friendly navmesh format.
+- More example navmeshes, which make use of all the new features.
+- Some smaller things i possibly forgot.
+
+This fork is backward compatible, but there are some changes which prevents you to use navmeshes from this fork in the original version. To make them work just replace all occurences of `\n` with `;`.
+
+Everything below here is the original readme, but with updated informations:
+
 ![](https://github.com/Azurblau/AzBot/raw/master/media/screenshot1.jpg)
 Server: pussfoot.ovh:27015 [EU] Zombie Survival | AzBot | Custom Content
 
