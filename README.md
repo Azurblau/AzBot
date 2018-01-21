@@ -1,5 +1,10 @@
+##### Note:
+Please check out Dadido3's fork instead (https://github.com/Dadido3/AzBot). He significantly extended AzBot and provides plenty of navmeshes to start with.
+
+-----
+
 ![](https://github.com/Azurblau/AzBot/raw/master/media/screenshot1.jpg)
-Server: pussfoot.ovh:27015 [EU] Zombie Survival | AzBot | Custom Content
+Example Server: zombies.zone (see also: http://zombies.zone)
 
 # AzBot
 A very primitive AI for GMod bots primarily designed to work with Jetboom's Zombie Survival gamemode.
