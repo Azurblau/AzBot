@@ -8,7 +8,6 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 	end)
 	
 	function ulx.giveHumanLoadout(pl)
-		pl:Give("weapon_zs_harpoon")
 		pl:Give("weapon_zs_peashooter")
 		pl:GiveAmmo(50, "pistol")
 	end
