@@ -8,6 +8,7 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 	end)
 	
 	function ulx.giveHumanLoadout(pl)
+		pl:Give("weapon_zs_fists")
 		pl:Give("weapon_zs_peashooter")
 		pl:GiveAmmo(50, "pistol")
 	end
@@ -44,7 +45,7 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
-		if pl:Team() ~= TEAM_UNDEAD then
+		if pl:Team() == TEAM_HUMAN then
 			local response = "You're already human!"
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
