@@ -428,22 +428,39 @@ return function(lib)
 		end
 		
 		-- Fill table with possible pounce target positions
-		local pounceTargetPositions = {lib.GetBotAttackPosOrNilFuture(bot, 0, mem.pounceFlightTime or 1)}
-		if mem.RemainingNodes[2] then table.insert(pounceTargetPositions, mem.RemainingNodes[2].Pos + Vector(0, 0, 1)) end
-		if mem.RemainingNodes[1] then table.insert(pounceTargetPositions, mem.RemainingNodes[1].Pos + Vector(0, 0, 1)) end
-		if nextNodeOrNil then table.insert(pounceTargetPositions, nextNodeOrNil.Pos + Vector(0, 0, 1)) end
+		local tempPos = bot:GetPos()
+		local tempDist = 0
+		local pounceTargetPositions = {}
+		if nextNodeOrNil then
+			tempDist = tempDist + tempPos:Distance(nextNodeOrNil.Pos)
+			tempPos = nextNodeOrNil.Pos
+			table.insert(pounceTargetPositions, {Pos = nextNodeOrNil.Pos + Vector(0, 0, 1),
+												 Dist = tempDist,
+												 TimeFactor = 1.1,
+												 ForcePounce = (nextNodeOrNil.LinkByLinkedNode[nodeOrNil] and nextNodeOrNil.LinkByLinkedNode[nodeOrNil].Params.Pouncing == "Needed")})
+		end
+		for i = 1, 2 do
+			if mem.RemainingNodes[i] then
+				tempDist = tempDist + tempPos:Distance(mem.RemainingNodes[i].Pos)
+				tempPos = mem.RemainingNodes[i].Pos
+				table.insert(pounceTargetPositions, {Pos = mem.RemainingNodes[i].Pos + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1})
+			end
+		end
+		local tempAttackPosOrNil = lib.GetBotAttackPosOrNilFuture(bot, 0, mem.pounceFlightTime or 0)
+		if tempAttackPosOrNil then
+			tempDist = tempDist + bot:GetPos():Distance(tempAttackPosOrNil)
+			table.insert(pounceTargetPositions, {Pos = tempAttackPosOrNil + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.4, HeightDiff = 100})
+		end
 		
 		-- Find possible trajectory
 		local trajectory
 		if bot:IsOnGround() then
-			for _, pounceTargetPos in ipairs(pounceTargetPositions) do
-				if pounceTargetPos then
-					local trajectories = lib.CanBotPounceToTarget(bot, pounceTargetPos)
-					local timeToTarget = bot:GetPos():Distance(pounceTargetPos) / bot:GetMaxSpeed()
-					if trajectories and (timeToTarget > trajectories[1].totalTime*1.3 or pounceTargetPos.z - bot:GetPos().z > 55) then
-						trajectory = trajectories[1]
-						break
-					end
+			for _, pounceTargetPos in ipairs(table.Reverse(pounceTargetPositions)) do
+				local trajectories = lib.CanBotPounceToTarget(bot, pounceTargetPos.Pos)
+				local timeToTarget = pounceTargetPos.Dist / bot:GetMaxSpeed()
+				if trajectories and (pounceTargetPos.ForcePounce or (pounceTargetPos.HeightDiff and pounceTargetPos.Pos.z - bot:GetPos().z > pounceTargetPos.HeightDiff) or timeToTarget > trajectories[1].totalTime*pounceTargetPos.TimeFactor) then
+					trajectory = trajectories[1]
+					break
 				end
 			end
 		end
@@ -469,6 +486,7 @@ return function(lib)
 			elseif mem.pouncingTimer and mem.pouncingTimer < CurTime() and (CurTime() - mem.pouncingTimer > 5 or bot:WaterLevel() >= 2 or bot:IsOnGround()) then
 				-- Ended pouncing
 				mem.pouncing = false
+				mem.pounceFlightTime = nil
 				lib.UpdateBotMem(bot)
 			end
 			aimAngle = mem.pounceAngle
