@@ -212,7 +212,7 @@ return function(lib)
 	
 	function lib.GetDesiredZombiesCount()
 		return math.Clamp(
-			math.ceil(#player.GetHumans() * lib.ZombieHumanRatioMin * math.max(1, GAMEMODE:GetWave())) + lib.ZombiesCountAddition,
+			math.ceil(#player.GetHumans() * lib.ZombieHumanRatioMin * math.max(1, GAMEMODE:GetWave())) + lib.ZombiesCountAddition + (lib.MapNavMesh.Params.BotMod or 0),
 			0,
 			game.MaxPlayers() - #team.GetPlayers(TEAM_HUMAN) - 2)
 	end
