@@ -28,6 +28,9 @@ return function(lib)
 		file.Write(lib.MapNavMeshPath, lib.MapNavMesh:SerializeSorted())
 		file.Write(lib.MapNavMeshParamsPath, lib.MapNavMesh:ParamsSerializeSorted())
 	end
+	function lib.SaveMapNavMeshParams()
+		file.Write(lib.MapNavMeshParamsPath, lib.MapNavMesh:ParamsSerializeSorted())
+	end
 	function lib.LoadMapNavMesh()
 		local mapNavMesh
 		lib.TryCatch(function()
