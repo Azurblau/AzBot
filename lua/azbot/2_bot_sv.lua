@@ -237,10 +237,28 @@ return function(lib)
 		end
 	end
 	
-	function lib.UpdatePotBotTgts() lib.PotBotTgts = table.Add(team.GetPlayers(TEAM_HUMAN), lib.GetEntsOfClss(lib.PotBotTgtClss)) end
-	function lib.ResetBotTgtOrNil(bot) memByBot[bot].TgtOrNil = table.Random(lib.PotBotTgts) end
+	function lib.UpdatePotBotTgts()
+		-- Get humans or non zombie players or any players in that order
+		local players = team.GetPlayers(TEAM_HUMAN)
+		if #players == 0 and TEAM_ZOMBIE then
+			local teams = team.GetAllTeams()
+			table.RemoveByValue(teams, TEAM_ZOMBIE)
+			players = from(teams):SelV(team.GetPlayers):Concat().R
+		end
+		if #players == 0 then
+			players = player.GetAll()
+		end
+		-- Remove spectating and dead players
+		players = from(players):Where(function(k, v) return v:GetObserverMode() == OBS_MODE_NONE and v:Alive() end).R
+		lib.PotBotTgts = table.Add(players, lib.GetEntsOfClss(lib.PotBotTgtClss))
+	end
+	function lib.ResetBotTgtOrNil(bot)
+		local targets = lib.PotBotTgts
+		table.RemoveByValue(targets, bot)
+		memByBot[bot].TgtOrNil = table.Random(targets)
+	end
 	function lib.UpdateBotTgtOrNil(bot) if not lib.CanBeBotTgt(memByBot[bot].TgtOrNil) then lib.ResetBotTgtOrNil(bot) end end
-	function lib.CanBeBotTgt(tgtOrNil) return IsValid(tgtOrNil) and ((tgtOrNil:IsPlayer() and tgtOrNil:Team() == TEAM_HUMAN) or lib.IsPotBotTgtClsOrNilByName[tgtOrNil:GetClass()]) end
+	function lib.CanBeBotTgt(tgtOrNil) return IsValid(tgtOrNil) and table.HasValue(lib.PotBotTgts, tgtOrNil) end
 	
 	function lib.UpdateBotConfig()
 		lib.UpdatePotBotTgts()
