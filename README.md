@@ -85,6 +85,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
     - Cost: Add a penalty for paths using this node. Higher values makes it less likely for bots to use a path containing this node.
 	- Condition = Unblocked: Only use this node for pathfinding if there is no entity within a range of one inch. Detected entities are func_breakable, prop_physics, prop_dynamic, prop_door_rotating, func_door, func_physbox_multiplayer, func_movelinear.
 	- Condition = Blocked: Opposite of above. Use this for breakable pathways.
+    - DMGPerSecond: Apply damage to human players and entities located on this node. The player or entity doesn't need to be close to this node, but closest compared to all the other nodes.
   - Link parameters:
     - Cost: Add a penalty for paths using this link. Higher values makes it less likely for bots to use a path containing this link.
 	- Direction = Forward: Only allow paths from the first to the second element of the link. "azbot setparam 1-2 Unidir Forward" will only allow the bot to move from 1 to 2.
