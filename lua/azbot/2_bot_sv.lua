@@ -237,19 +237,21 @@ return function(lib)
 		end
 	end
 	
+	-- Remove spectating and dead players
+	function lib.RemoveObsDeadTgts(tgts)
+		return from(tgts):Where(function(k, v) return v:GetObserverMode() == OBS_MODE_NONE and v:Alive() end).R
+	end
+	
 	function lib.UpdatePotBotTgts()
 		-- Get humans or non zombie players or any players in that order
-		local players = team.GetPlayers(TEAM_HUMAN)
+		local players = lib.RemoveObsDeadTgts(team.GetPlayers(TEAM_HUMAN))
 		if #players == 0 and TEAM_ZOMBIE then
-			local teams = team.GetAllTeams()
-			table.RemoveByValue(teams, TEAM_ZOMBIE)
-			players = from(teams):SelV(team.GetPlayers):Concat().R
+			players = lib.RemoveObsDeadTgts(player.GetAll())
+			players = from(players):Where(function(k, v) return v:Team() ~= TEAM_ZOMBIE end).R
 		end
 		if #players == 0 then
-			players = player.GetAll()
+			players = lib.RemoveObsDeadTgts(player.GetAll())
 		end
-		-- Remove spectating and dead players
-		players = from(players):Where(function(k, v) return v:GetObserverMode() == OBS_MODE_NONE and v:Alive() end).R
 		lib.PotBotTgts = table.Add(players, lib.GetEntsOfClss(lib.PotBotTgtClss))
 	end
 	function lib.ResetBotTgtOrNil(bot)
