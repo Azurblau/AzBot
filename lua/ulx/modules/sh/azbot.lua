@@ -138,6 +138,15 @@ registerSuperadminCmd("SetParam", strParam, strParam, optionalStrParam, function
 	end)
 end)
 
+registerSuperadminCmd("SetMapParam", strParam, optionalStrParam, function(caller, name, serializedNumOrStrOrEmpty)
+	AzBot.TryCatch(function()
+		AzBot.MapNavMesh:SetParam(name, serializedNumOrStrOrEmpty)
+		AzBot.SaveMapNavMeshParams()
+	end, function(errorMsg)
+		caller:ChatPrint("Error. Re-check your parameters.")
+	end)
+end)
+
 registerSuperadminCmd("ViewPath", plsParam, strParam, strParam, function(caller, pls, startNodeId, endNodeId)
 	local nodeById = AzBot.MapNavMesh.NodeById
 	local startNode = nodeById[AzBot.DeserializeNavMeshItemId(startNodeId)]

@@ -92,6 +92,8 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 	- Pouncing = Needed: Only classes with the ability to pounce/leap can use this link.
 - Use "azbot reloadmesh" to discard changes.
 - Use "azbot savemesh" to save the changes to garrysmod/data/azbot/navmesh/map/\<mapname\>.txt.
+- Use "azbot setmapparam \<name\> \<value\>" (example: azbot setmapparam botmod 5) to set map specific parameters:
+  - BotMod: Map specific zombie count formula offset.
 - Prefix a command with an exclamation mark to use it in chat.
 
 ### Notes:

@@ -45,6 +45,11 @@ return function(lib)
 		Replace = {
 			Unidir = "Direction"} }
 	
+	lib.NavmeshParams = {
+		Correct = {
+			BotMod = {} },
+		Replace = {} }
+	
 	function lib.NormalizeParam(name, numOrSerializedNumOrStrOrEmpty)
 		-- Replace
 		for k, v in pairs(lib.Params.Replace) do
@@ -71,10 +76,37 @@ return function(lib)
 		return name, numOrSerializedNumOrStrOrEmpty
 	end
 	
+	function lib.NormalizeNavmeshParam(name, numOrSerializedNumOrStrOrEmpty)
+		-- Replace
+		for k, v in pairs(lib.NavmeshParams.Replace) do
+			if k:lower() == name:lower() then
+				name = v
+				break
+			end
+		end
+		-- Correct
+		for k, v in pairs(lib.NavmeshParams.Correct) do
+			if k:lower() == name:lower() then
+				name = k
+				if type(numOrSerializedNumOrStrOrEmpty) == "string" then
+					for _, v2 in pairs(v) do
+						if v2:lower() == numOrSerializedNumOrStrOrEmpty:lower() then
+							numOrSerializedNumOrStrOrEmpty = v2
+							break
+						end
+					end
+				end
+				break
+			end
+		end
+		return name, numOrSerializedNumOrStrOrEmpty
+	end
+	
 	function lib.NewNavMesh() return setmetatable({
 		ItemById = {},
 		NodeById = {},
-		LinkById = {} }, lib.NavMeshMeta) end
+		LinkById = {},
+		Params = {} }, lib.NavMeshMeta) end
 	local function newItem(navMesh, id)
 		local r = {
 			NavMesh = navMesh,
@@ -118,6 +150,17 @@ return function(lib)
 		lib.TwoWay(nodeA, nodeB, function(node, linkedNode) node.LinkByLinkedNode[linkedNode] = r end)
 		self.LinkById[id] = r
 		return r
+	end
+	function fallback:SetParam(name, numOrSerializedNumOrStrOrEmpty)
+		if name == "" then error("Name is empty.", 2) end
+		if numOrSerializedNumOrStrOrEmpty == "" then
+			self.Params[name] = nil
+			return
+		end
+		name, numOrSerializedNumOrStrOrEmpty = lib.NormalizeNavmeshParam(name, numOrSerializedNumOrStrOrEmpty)
+		local numOrStr = tonumber(numOrSerializedNumOrStrOrEmpty) or numOrSerializedNumOrStrOrEmpty
+		if (name .. (isstring(numOrStr) and numOrStr or "")):find("[^%w_]") then error("Only alphanumeric letters and underscore allowed in name and string values.", 2) end
+		self.Params[name] = numOrStr
 	end
 	
 	local function itemParamChanged(item, paramName)
@@ -216,6 +259,11 @@ return function(lib)
 			end, function(a,b) return tostring(a)<tostring(b) end):Join(lib.NavMeshItemParamsSeparator).R
 		end, function(a,b) return tostring(a)<tostring(b) end):Join(lib.NavMeshItemsSeparator).R
 	end
+	function fallback:ParamsSerializeSorted()
+		return from(self.Params):SelSort(function(name, numOrStr)
+			return nil, name .. lib.NavMeshItemParamNameNumPairSeparator .. numOrStr
+		end, function(a,b) return tostring(a)<tostring(b) end):Join(lib.NavMeshItemsSeparator).R
+	end
 	function lib.DeserializeNavMesh(serialized)
 		--serialized = serialized:gsub("\r\n", "\n")
 		--serialized = serialized:gsub("\r", "\n")
@@ -229,6 +277,12 @@ return function(lib)
 			end
 		end
 		return navMesh
+	end
+	function fallback:DeserializeNavMeshParams(serialized)
+		for idx, serializedItem in ipairs(lib.GetSplitStr(serialized, lib.NavMeshItemsSeparator)) do
+			local serializedName, serializedNumOrStr = unpack(serializedItem:Split(lib.NavMeshItemParamNameNumPairSeparator))
+			self:SetParam(serializedName, serializedNumOrStr)
+		end
 	end
 	function lib.DeserializeNavMeshItemId(serializedId) return tonumber(serializedId) or serializedId end
 end
