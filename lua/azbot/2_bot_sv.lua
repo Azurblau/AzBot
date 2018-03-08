@@ -591,4 +591,16 @@ return function(lib)
 		mem.TgtOrNil = attacker
 		lib.ResetBotPosMilestone(bot)
 	end
+	
+	timer.Create("AzBot_DMGTimer", 5, 0, function()
+		local players = lib.RemoveObsDeadTgts(player.GetAll())
+		players = from(players):Where(function(k, v) return v:Team() ~= TEAM_ZOMBIE end).R
+		local ents = table.Add(players, lib.GetEntsOfClss(lib.PotBotTgtClss))
+		for i, ent in ipairs(ents) do
+			local nodeOrNil = lib.MapNavMesh:GetNearestNodeOrNil(ent:GetPos()) -- TODO: Don't call GetNearestNodeOrNil that often
+			if nodeOrNil and type(nodeOrNil.Params.DMGPerSecond) == "number" and nodeOrNil.Params.DMGPerSecond > 0 then
+				ent:TakeDamage(nodeOrNil.Params.DMGPerSecond*5, game.GetWorld(), game.GetWorld())
+			end
+		end
+	end)
 end
