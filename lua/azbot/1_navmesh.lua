@@ -41,7 +41,8 @@ return function(lib)
 			Condition = {"Unblocked", "Blocked"},
 			Direction = {"Forward", "Backward"},
 			Walking = {"Needed"},
-			Pouncing = {"Needed"} },
+			Pouncing = {"Needed"},
+			DMGPerSecond = {} },
 		Replace = {
 			Unidir = "Direction"} }
 	
