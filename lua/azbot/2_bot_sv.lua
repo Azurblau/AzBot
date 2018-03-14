@@ -538,7 +538,7 @@ return function(lib)
 				else
 					facesTgt = true
 				end
-				if aimPos.z - lib.GetViewCenter(bot).z < -20 then
+				if aimPos.z - bot:GetPos().z - bot:GetViewOffsetDucked().z < 0 then
 					duck = true
 				end
 			end
