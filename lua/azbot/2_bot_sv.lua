@@ -52,7 +52,6 @@ return function(lib)
 	lib.BotKickReason = "I did my job. :)"
 	lib.SurvivorBotKickReason = "I'm not supposed to be a survivor. :O"
 	
-	hook.Add("Initialize", lib.BotHooksId, function() GAMEMODE.RoundLimit = 1 end)
 	hook.Add("Think", lib.BotHooksId, function()
 		if not lib.IsEnabled then return end
 		if lib.NextBotConfigUpdate > CurTime() then return end
@@ -221,7 +220,7 @@ return function(lib)
 		if #player.GetHumans() == 0 then return end
 		local desiredZombiesCount = lib.GetDesiredZombiesCount()
 		local zombiesCount = #team.GetPlayers(TEAM_UNDEAD)
-		while zombiesCount < desiredZombiesCount do
+		while zombiesCount < desiredZombiesCount and not GAMEMODE.RoundEnded do
 			RunConsoleCommand("bot")
 			zombiesCount = zombiesCount + 1
 		end
