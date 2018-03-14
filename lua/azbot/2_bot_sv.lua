@@ -236,9 +236,11 @@ return function(lib)
 		if #player.GetHumans() == 0 then return end
 		local desiredZombiesCount = lib.GetDesiredZombiesCount()
 		local zombiesCount = #team.GetPlayers(TEAM_UNDEAD)
-		while zombiesCount < desiredZombiesCount and not GAMEMODE.RoundEnded do
+		local counter = 2
+		while zombiesCount < desiredZombiesCount and not GAMEMODE.RoundEnded and counter > 0 do
 			RunConsoleCommand("bot")
 			zombiesCount = zombiesCount + 1
+			counter = counter - 1
 		end
 		for idx, bot in ipairs(player.GetBots()) do
 			if bot:Team() == TEAM_UNDEAD then
