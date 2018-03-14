@@ -466,7 +466,7 @@
 284-283:
 285:See=Disabled,X=1127.3,Y=1398.8,Z=-451.8
 285-284:
-286:AreaXMax=1584,AreaXMin=1179.4,AreaYMax=1440,AreaYMin=1348.5,See=Disabled,X=1393.4,Y=1419.1,Z=-495.4
+286:AimTo=Straight,AreaXMax=1584,AreaXMin=1179.4,AreaYMax=1440,AreaYMin=1348.5,See=Disabled,X=1393.4,Y=1419.1,Z=-495.4
 286-285:
 287:See=Disabled,X=1587.1,Y=1386,Z=-458.4
 287-286:
@@ -592,13 +592,13 @@
 340-339:
 340-341:
 341:AreaXMax=2151.8,AreaXMin=1864,AreaYMax=1723.6,AreaYMin=1425.9,See=Disabled,X=1984.2,Y=1486.6,Z=-1009.6
-342:AreaXMax=1864,AreaXMin=1800,AreaYMax=1424.4,AreaYMin=1120,See=Disabled,X=1830.8,Y=1271.7,Z=-1024
+342:AreaXMax=1864,AreaXMin=1800,AreaYMax=1424.4,AreaYMin=1120,See=Disabled,X=1835.7,Y=1235,Z=-1024
 342-340:
 343:AreaXMax=1872,AreaXMin=1792,AreaYMax=1112,AreaYMin=1024,See=Disabled,X=1834.8,Y=1090.2,Z=-1008
 343-342:
-344:See=Disabled,X=1839.4,Y=1260.6,Z=-487.5
+344:AimTo=Straight,See=Disabled,X=1839.4,Y=1260.6,Z=-487.5
 344-345:Direction=Forward
-345:Aim=Straight,AimTo=Straight,See=Disabled,X=1830.6,Y=1156.1,Z=-720
+345:Aim=Straight,AimTo=Straight,AreaXMax=1872,AreaXMin=1792,AreaYMax=1352.5,AreaYMin=1064,See=Disabled,X=1830.6,Y=1156.1,Z=-720
 345-342:Direction=Forward
 346:JumpTo=Always,See=Disabled,X=1434.9,Y=1448.9,Z=40
 346-286:Direction=Forward
