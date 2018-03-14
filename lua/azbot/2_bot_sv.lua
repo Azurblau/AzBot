@@ -52,9 +52,24 @@ return function(lib)
 	lib.BotKickReason = "I did my job. :)"
 	lib.SurvivorBotKickReason = "I'm not supposed to be a survivor. :O"
 	
-	hook.Add("Initialize", lib.BotHooksId, function() GAMEMODE.RoundLimit = 1 end)
+	function lib.DoNodeDamage()
+		local players = lib.RemoveObsDeadTgts(player.GetAll())
+		players = from(players):Where(function(k, v) return v:Team() ~= TEAM_ZOMBIE end).R
+		local ents = table.Add(players, lib.GetEntsOfClss(lib.PotBotTgtClss))
+		for i, ent in ipairs(ents) do
+			local nodeOrNil = lib.MapNavMesh:GetNearestNodeOrNil(ent:GetPos()) -- TODO: Don't call GetNearestNodeOrNil that often
+			if nodeOrNil and type(nodeOrNil.Params.DMGPerSecond) == "number" and nodeOrNil.Params.DMGPerSecond > 0 then
+				ent:TakeDamage(nodeOrNil.Params.DMGPerSecond*5, game.GetWorld(), game.GetWorld())
+			end
+		end
+	end
+	
 	hook.Add("Think", lib.BotHooksId, function()
 		if not lib.IsEnabled then return end
+		if (lib.NextNodeDamage or 0) < CurTime() then
+			lib.NextNodeDamage = CurTime() + 5
+			lib.DoNodeDamage()
+		end
 		if lib.NextBotConfigUpdate > CurTime() then return end
 		lib.NextBotConfigUpdate = CurTime() + 0.2
 		lib.UpdateBotConfig()
@@ -221,9 +236,11 @@ return function(lib)
 		if #player.GetHumans() == 0 then return end
 		local desiredZombiesCount = lib.GetDesiredZombiesCount()
 		local zombiesCount = #team.GetPlayers(TEAM_UNDEAD)
-		while zombiesCount < desiredZombiesCount do
+		local counter = 2
+		while zombiesCount < desiredZombiesCount and not GAMEMODE.RoundEnded and counter > 0 do
 			RunConsoleCommand("bot")
 			zombiesCount = zombiesCount + 1
+			counter = counter - 1
 		end
 		for idx, bot in ipairs(player.GetBots()) do
 			if bot:Team() == TEAM_UNDEAD then
@@ -239,7 +256,7 @@ return function(lib)
 	
 	-- Remove spectating and dead players
 	function lib.RemoveObsDeadTgts(tgts)
-		return from(tgts):Where(function(k, v) return v:GetObserverMode() == OBS_MODE_NONE and v:Alive() end).R
+		return from(tgts):Where(function(k, v) return IsValid(v) and v:GetObserverMode() == OBS_MODE_NONE and v:Alive() end).R
 	end
 	
 	function lib.UpdatePotBotTgts()
@@ -523,7 +540,7 @@ return function(lib)
 				else
 					facesTgt = true
 				end
-				if aimPos.z - lib.GetViewCenter(bot).z < -20 then
+				if aimPos.z - bot:GetPos().z - bot:GetViewOffsetDucked().z < 0 then
 					duck = true
 				end
 			end
@@ -591,16 +608,4 @@ return function(lib)
 		mem.TgtOrNil = attacker
 		lib.ResetBotPosMilestone(bot)
 	end
-	
-	timer.Create("AzBot_DMGTimer", 5, 0, function()
-		local players = lib.RemoveObsDeadTgts(player.GetAll())
-		players = from(players):Where(function(k, v) return v:Team() ~= TEAM_ZOMBIE end).R
-		local ents = table.Add(players, lib.GetEntsOfClss(lib.PotBotTgtClss))
-		for i, ent in ipairs(ents) do
-			local nodeOrNil = lib.MapNavMesh:GetNearestNodeOrNil(ent:GetPos()) -- TODO: Don't call GetNearestNodeOrNil that often
-			if nodeOrNil and type(nodeOrNil.Params.DMGPerSecond) == "number" and nodeOrNil.Params.DMGPerSecond > 0 then
-				ent:TakeDamage(nodeOrNil.Params.DMGPerSecond*5, game.GetWorld(), game.GetWorld())
-			end
-		end
-	end)
 end
