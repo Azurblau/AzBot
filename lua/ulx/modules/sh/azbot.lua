@@ -2,7 +2,7 @@
 if engine.ActiveGamemode() == "zombiesurvival" then
 	hook.Add("PlayerSpawn", "!human info", function(pl)
 		if not AzBot.IsSelfRedeemEnabled or pl:Team() ~= TEAM_UNDEAD or GAMEMODE:GetWave() > AzBot.SelfRedeemWaveMax then return end
-		local hint = "You can type !human before wave " .. (AzBot.SelfRedeemWaveMax + 1) .. " to play as survivor."
+		local hint = translate.Get("azbot_youcan") .. (AzBot.SelfRedeemWaveMax + 1) .. translate.Get("azbot_youcan2")
 		pl:PrintMessage(HUD_PRINTCENTER, hint)
 		pl:ChatPrint(hint)
 	end)
@@ -34,26 +34,26 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 	local tierByPl = {}
 	function ulx.human(pl)
 		if not AzBot.IsSelfRedeemEnabled then
-			local response = "This command is enabled on bot maps only!"
+			local response = translate.Get("azbot_botmapsonly")
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
 		if GAMEMODE:GetWave() > AzBot.SelfRedeemWaveMax then
-			local response = "It's too late to self-redeem (can only be done before wave " .. (AzBot.SelfRedeemWaveMax + 1) .. ")."
+			local response = translate.Get("azbot_toolate") .. (AzBot.SelfRedeemWaveMax + 1) .. ")."
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
 		if pl:Team() == TEAM_HUMAN then
-			local response = "You're already human!"
+			local response = translate.Get("azbot_alreadyhum")
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
 		local remainingTime = (nextByPl[pl] or 0) - CurTime()
 		if remainingTime > 0 then
-			local response = "You already self-redeemed recently. Try again in " .. remainingTime .. " seconds!"
+			local response = translate.Get("azbot_selfredeemrecenty") .. remainingTime .. "" translate.Get("azbot_selfredeemrecentysec")
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
@@ -62,7 +62,7 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 		tierByPl[pl] = nextTier
 		local cooldown = nextTier * 30
 		nextByPl[pl] = CurTime() + cooldown
-		local response = "You self-redeemed. Your current cooldown until next self-redeem is " .. math.ceil(cooldown) .. " seconds."
+		local response = translate.Get("azbot_selfredeemcooldown") .. math.ceil(cooldown) .. "" translate.Get("azbot_selfredeemrecentysec")
 		pl:ChatPrint(response)
 		pl:PrintMessage(HUD_PRINTCENTER, response)
 		pl:ChangeTeam(TEAM_HUMAN)
