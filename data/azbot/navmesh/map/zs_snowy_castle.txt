@@ -85,7 +85,7 @@
 131:AimTo=Straight,Cost=500,JumpTo=Always,X=1760.3,Y=3493.5,Z=-192
 132:AimTo=Straight,See=Disabled,X=394.5,Y=4708.8,Z=0
 132-84:
-133:Aim=Straight,AreaXMax=935.4,AreaXMin=400.1,AreaYMax=4712,AreaYMin=4704,See=Disabled,X=651.8,Y=4708.6,Z=0
+133:Aim=Straight,AreaXMax=935.4,AreaXMin=400.1,AreaYMax=4727.7,AreaYMin=4704,See=Disabled,X=651.8,Y=4708.6,Z=0
 133-132:
 134:AimTo=Straight,See=Disabled,X=939.8,Y=4707.6,Z=0
 134-133:
