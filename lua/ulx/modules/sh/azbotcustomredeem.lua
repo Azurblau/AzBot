@@ -3,26 +3,26 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 	local tierByPl = {}
 	function ulx.human(pl)
 		if not AzBot.IsSelfRedeemEnabled then
-			local response = translate.Get("azbot_botmapsonly")
+			local response = translate.Format("azbot_botmapsonly")
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
 		if GAMEMODE:GetWave() > AzBot.SelfRedeemWaveMax then
-			local response = translate.Get("azbot_toolate")..(AzBot.SelfRedeemWaveMax + 1)..")."
+			local response = translate.Format("azbot_toolate")..(AzBot.SelfRedeemWaveMax + 1)..")."
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
 		if pl:Team() == TEAM_HUMAN then
-			local response = translate.Get("azbot_alreadyhum")
+			local response = translate.Format("azbot_alreadyhum")
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
 		local remainingTime = (nextByPl[pl] or 0) - CurTime()
 		if remainingTime > 0 then
-			local response = translate.Get("azbot_selfredeemrecenty")..remainingTime..""..translate.Get("azbot_selfredeemrecentysec")
+			local response = translate.Format("azbot_selfredeemrecenty")..remainingTime..""..translate.Format("azbot_selfredeemrecentysec")
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
@@ -31,7 +31,7 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 		tierByPl[pl] = nextTier
 		local cooldown = nextTier * 30
 		nextByPl[pl] = CurTime() + cooldown
-		local response = translate.Get("azbot_selfredeemcooldown").." "..math.ceil(cooldown).." "..translate.Get("azbot_selfredeemrecentysec")
+		local response = translate.Format("azbot_selfredeemcooldown").." "..math.ceil(cooldown).." "..translate.Format("azbot_selfredeemrecentysec")
 		pl:ChatPrint(response)
 		pl:PrintMessage(HUD_PRINTCENTER, response)
 		pl:ChangeTeam(TEAM_HUMAN)
