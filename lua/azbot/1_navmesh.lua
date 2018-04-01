@@ -266,8 +266,8 @@ return function(lib)
 		end, function(a,b) return tostring(a)<tostring(b) end):Join(lib.NavMeshItemsSeparator).R
 	end
 	function lib.DeserializeNavMesh(serialized)
-		--serialized = serialized:gsub("\r\n", "\n")
-		--serialized = serialized:gsub("\r", "\n")
+		serialized = serialized:gsub("\r\n", "\n")
+		serialized = serialized:gsub("\r", "\n")
 		serialized = serialized:gsub(lib.NavMeshItemsSeparatorOld, lib.NavMeshItemsSeparator)
 		local navMesh = lib.NewNavMesh()
 		for idx, serializedItem in ipairs(lib.GetSplitStr(serialized, lib.NavMeshItemsSeparator)) do
