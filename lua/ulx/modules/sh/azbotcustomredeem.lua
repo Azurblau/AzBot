@@ -9,7 +9,7 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 			return
 		end
 		if GAMEMODE:GetWave() > AzBot.SelfRedeemWaveMax then
-			local response = "It's too late to self-redeem (can only be done before wave " .. (AzBot.SelfRedeemWaveMax + 1) .. ")."
+			local response = "It's too late to self-redeem (can only be done before wave "..(AzBot.SelfRedeemWaveMax + 1)..")."
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
@@ -22,7 +22,7 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 		end
 		local remainingTime = (nextByPl[pl] or 0) - CurTime()
 		if remainingTime > 0 then
-			local response = "You already self-redeemed recently. Try again in " .. remainingTime .. " seconds!"
+			local response = "You already self-redeemed recently. Try again in "..remainingTime.." seconds!"
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
@@ -31,7 +31,7 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 		tierByPl[pl] = nextTier
 		local cooldown = nextTier * 30
 		nextByPl[pl] = CurTime() + cooldown
-		local response = "You self-redeemed. Your current cooldown until next self-redeem is " .. math.ceil(cooldown) .. " seconds."
+		local response = "You self-redeemed. Your current cooldown until next self-redeem is ".. math.ceil(cooldown).." seconds."
 		pl:ChatPrint(response)
 		pl:PrintMessage(HUD_PRINTCENTER, response)
 		pl:ChangeTeam(TEAM_HUMAN)
