@@ -134,6 +134,21 @@ return function(lib)
 					end
 					lib.UpdateMapNavMeshUiSubscribers()
 				end } },
+		{	Name = "Set/Unset Last Parameter",
+			FuncByKey = {
+				[IN_ATTACK] = function(pl)
+					local item = lib.MapNavMesh:GetCursoredItemOrNil(pl)
+					if not item or not lib.lastParamKey or not lib.lastParamValue then return end
+					item:SetParam(lib.lastParamKey, lib.lastParamValue)
+					lib.UpdateMapNavMeshUiSubscribers()
+				end,
+				[IN_ATTACK2] = function(pl)
+					local item = lib.MapNavMesh:GetCursoredItemOrNil(pl)
+					if not item then return end
+					if not item or not lib.lastParamKey then return end
+					item:SetParam(lib.lastParamKey, "")
+					lib.UpdateMapNavMeshUiSubscribers()
+				end } },
 		{	Name = "Delete Item or Area",
 			FuncByKey = {
 				[IN_ATTACK] = function(pl)

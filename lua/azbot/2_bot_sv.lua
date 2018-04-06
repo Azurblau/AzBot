@@ -211,6 +211,7 @@ return function(lib)
 	function lib.RerollBotClass(bot)
 		if not GAMEMODE:GetWaveActive() then return end
 		if bot:GetZombieClassTable().Name == "Zombie Torso" then return end
+		if GAMEMODE.ZombieEscape then return end
 		local zombieClasses = {}
 		for _, class in ipairs(lib.BotClasses) do
 			local zombieClass = GAMEMODE.ZombieClasses[class]

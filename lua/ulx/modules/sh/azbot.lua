@@ -142,6 +142,8 @@ end)
 registerSuperadminCmd("SetParam", strParam, strParam, optionalStrParam, function(caller, id, name, serializedNumOrStrOrEmpty)
 	AzBot.TryCatch(function()
 		AzBot.MapNavMesh.ItemById[AzBot.DeserializeNavMeshItemId(id)]:SetParam(name, serializedNumOrStrOrEmpty)
+		AzBot.lastParamKey = name
+		AzBot.lastParamValue = serializedNumOrStrOrEmpty
 		AzBot.UpdateMapNavMeshUiSubscribers()
 	end, function(errorMsg)
 		caller:ChatPrint("Error. Re-check your parameters.")

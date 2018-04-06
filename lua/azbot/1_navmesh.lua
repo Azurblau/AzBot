@@ -171,12 +171,12 @@ return function(lib)
 	end
 	function itemFallback:SetParam(name, numOrSerializedNumOrStrOrEmpty)
 		if name == "" then error("Name is empty.", 2) end
+		name, numOrSerializedNumOrStrOrEmpty = lib.NormalizeParam(name, numOrSerializedNumOrStrOrEmpty)
 		if numOrSerializedNumOrStrOrEmpty == "" then
 			self.Params[name] = nil
 			itemParamChanged(self, name)
 			return
 		end
-		name, numOrSerializedNumOrStrOrEmpty = lib.NormalizeParam(name, numOrSerializedNumOrStrOrEmpty)
 		local numOrStr = tonumber(numOrSerializedNumOrStrOrEmpty) or numOrSerializedNumOrStrOrEmpty
 		if (name .. (isstring(numOrStr) and numOrStr or "")):find("[^%w_]") then error("Only alphanumeric letters and underscore allowed in name and string values.", 2) end
 		self.Params[name] = numOrStr
