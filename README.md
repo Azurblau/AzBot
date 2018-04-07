@@ -86,6 +86,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 	- Condition = Unblocked: Only use this node for pathfinding if there is no entity within a range of one inch. Detected entities are func_breakable, prop_physics, prop_dynamic, prop_door_rotating, func_door, func_physbox_multiplayer, func_movelinear.
 	- Condition = Blocked: Opposite of above. Use this for breakable pathways.
     - DMGPerSecond: Apply damage to human players and entities located on this node. The player or entity doesn't need to be close to this node, but closest compared to all the other nodes.
+	- BotMod: Once a bot passes this node the given offset will be applied to the zombie count target.
   - Link parameters:
     - Cost: Add a penalty for paths using this link. Higher values makes it less likely for bots to use a path containing this link.
 	- Direction = Forward: Only allow paths from the first to the second element of the link. "azbot setparam 1-2 Unidir Forward" will only allow the bot to move from 1 to 2.
@@ -95,6 +96,11 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 - Use "azbot savemesh" to save the changes to garrysmod/data/azbot/navmesh/map/\<mapname\>.txt.
 - Use "azbot setmapparam \<name\> \<value\>" (example: azbot setmapparam botmod 5) to set map specific parameters:
   - BotMod: Map specific zombie count formula offset.
+  - ZPH: Zombie per Human ratio override.
+  - ZPHM: Zombie per Human ratio maximum override. Max amount of the zombie count target. (BotMod can offset the target beyond this limit)
+  - ZPHW: Zombies per (Human * Wave) override.
+  - ZPM: Zombies per minute override.
+  - ZPW: Zombies per wave override.
 - Prefix a command with an exclamation mark to use it in chat.
 
 ### Notes:

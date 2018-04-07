@@ -30,8 +30,12 @@ return function(lib)
 	lib.BotAngLerpFactor = 0.25
 	lib.BotAimPosVelocityOffshoot = 0.2
 	lib.BotJumpAntichance = 25
-	lib.ZombieHumanRatioMin = 0.15
-	lib.ZombiesCountAddition = 1
+	lib.ZombiesPerHuman = 0.3
+	lib.ZombiesPerHumanMax = 1.2			-- Limits maximum amount of zombies to this zombie/human ratio. (ZombiesCountAddition is not calculated in)
+	lib.ZombiesPerHumanWave = 0.10
+	lib.ZombiesPerMinute = 0
+	lib.ZombiesPerWave = 0.4
+	lib.ZombiesCountAddition = 0			-- BotMod
 	lib.HasMapNavMesh = table.Count(lib.MapNavMesh.ItemById) > 0
 	lib.MaintainBotRolesAutomatically = lib.HasMapNavMesh
 	lib.IsSelfRedeemEnabled = lib.HasMapNavMesh
@@ -41,13 +45,10 @@ return function(lib)
 	lib.BotClasses = {
 		"Zombie", "Zombie", "Zombie",
 		"Ghoul",
-		"Wraith", "Wraith",
+		"Wraith", "Wraith", "Wraith",
 		"Bloated Zombie", "Bloated Zombie", "Bloated Zombie",
 		"Fast Zombie", "Fast Zombie", "Fast Zombie", "Fast Zombie",
-		"Mailed Zombie",
-		"Scratcher",
 		"Poison Zombie", "Poison Zombie", "Poison Zombie",
-		"Screamer",
 		"Zombine", "Zombine", "Zombine", "Zombine", "Zombine" }
 	lib.BotKickReason = "I did my job. :)"
 	lib.SurvivorBotKickReason = "I'm not supposed to be a survivor. :O"
@@ -85,8 +86,9 @@ return function(lib)
 			pl:SetPoints(hadBonus and 0 or 25)
 		end
 	end)
+	local roundStartTime = CurTime()
 	hook.Add("PlayerDeath", lib.BotHooksId, function(pl) if lib.IsEnabled and pl:IsBot() then lib.HandleBotDeath(pl) end end)
-	hook.Add("PreRestartRound", lib.BotHooksId, function() hadBonusByPl = {} end)
+	hook.Add("PreRestartRound", lib.BotHooksId, function() hadBonusByPl, roundStartTime, lib.nodeZombiesCountAddition = {}, CurTime(), nil end)
 	hook.Add("StartCommand", lib.BotHooksId, function(pl, cmd) if lib.IsEnabled and pl:IsBot() then lib.UpdateBotCmd(pl, cmd) end end)
 	hook.Add("EntityTakeDamage", lib.BotHooksId, function(ent, dmg) if lib.IsEnabled and ent:IsPlayer() and ent:IsBot() then lib.HandleBotDamage(ent, dmg) end end)
 	
@@ -227,8 +229,11 @@ return function(lib)
 	end
 	
 	function lib.GetDesiredZombiesCount()
+		local wave = math.max(1, GAMEMODE:GetWave())
+		local mapParams = lib.MapNavMesh.Params
+		local formula = ((mapParams.ZPH or lib.ZombiesPerHuman) + (mapParams.ZPHW or lib.ZombiesPerHumanWave) * wave) * #player.GetHumans() + (mapParams.ZPM or lib.ZombiesPerMinute) * (CurTime() - roundStartTime) / 60 + (mapParams.ZPW or lib.ZombiesPerWave) * wave
 		return math.Clamp(
-			math.ceil(#player.GetHumans() * lib.ZombieHumanRatioMin * math.max(1, GAMEMODE:GetWave())) + lib.ZombiesCountAddition + (lib.MapNavMesh.Params.BotMod or 0),
+			math.ceil(math.min(formula, (mapParams.ZPHM or lib.ZombiesPerHumanMax) * #player.GetHumans()) + lib.ZombiesCountAddition + (lib.MapNavMesh.Params.BotMod or 0) + (lib.nodeZombiesCountAddition or 0)),
 			0,
 			game.MaxPlayers() - #team.GetPlayers(TEAM_HUMAN) - 2)
 	end
@@ -412,6 +417,9 @@ return function(lib)
 		mem.NodeOrNil = table.remove(path, 1)
 		mem.NextNodeOrNil = table.remove(path, 1)
 		mem.RemainingNodes = path
+		if mem.NodeOrNil and mem.NodeOrNil.Params.BotMod then
+			lib.nodeZombiesCountAddition = mem.NodeOrNil.Params.BotMod
+		end
 	end
 	function lib.UpdateBotPathProgress(bot)
 		local mem = memByBot[bot]
@@ -419,6 +427,9 @@ return function(lib)
 			if mem.NextNodeOrNil:GetContains(bot:GetPos()) then
 				mem.NodeOrNil = mem.NextNodeOrNil
 				mem.NextNodeOrNil = table.remove(mem.RemainingNodes, 1)
+				if mem.NodeOrNil and mem.NodeOrNil.Params.BotMod then
+					lib.nodeZombiesCountAddition = mem.NodeOrNil.Params.BotMod
+				end
 			else
 				break
 			end

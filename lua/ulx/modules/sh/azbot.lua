@@ -1,7 +1,7 @@
 
 if engine.ActiveGamemode() == "zombiesurvival" then
 	hook.Add("PlayerSpawn", "!human info", function(pl)
-		if not AzBot.IsSelfRedeemEnabled or pl:Team() ~= TEAM_UNDEAD or LASTHUMAN or GAMEMODE:GetWave() > AzBot.SelfRedeemWaveMax then return end
+		if not AzBot.IsSelfRedeemEnabled or pl:Team() ~= TEAM_UNDEAD or LASTHUMAN or GAMEMODE.ZombieEscape or GAMEMODE:GetWave() > AzBot.SelfRedeemWaveMax then return end
 		local hint = translate.ClientFormat(pl, "azbot_redeemwave", AzBot.SelfRedeemWaveMax + 1)
 		pl:PrintMessage(HUD_PRINTCENTER, hint)
 		pl:ChatPrint(hint)
@@ -60,6 +60,12 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 		end
 		if LASTHUMAN and not GAMEMODE.RoundEnded then
 			local response = translate.ClientGet(pl, "azbot_noredeemlasthuman")
+			pl:ChatPrint(response)
+			pl:PrintMessage(HUD_PRINTCENTER, response)
+			return
+		end
+		if GAMEMODE.ZombieEscape then
+			local response = translate.ClientGet(pl, "azbot_noredeemzombieescape")
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return

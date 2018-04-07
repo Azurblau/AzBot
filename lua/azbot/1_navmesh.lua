@@ -42,13 +42,19 @@ return function(lib)
 			Direction = {"Forward", "Backward"},
 			Walking = {"Needed"},
 			Pouncing = {"Needed"},
-			DMGPerSecond = {} },
+			DMGPerSecond = {},
+			BotMod = {} },
 		Replace = {
 			Unidir = "Direction"} }
 	
 	lib.NavmeshParams = {
 		Correct = {
-			BotMod = {} },
+			BotMod = {},
+			ZPH = {},
+			ZPHM = {},
+			ZPHW = {},
+			ZPM = {},
+			ZPW = {} },
 		Replace = {} }
 	
 	function lib.NormalizeParam(name, numOrSerializedNumOrStrOrEmpty)
@@ -154,11 +160,11 @@ return function(lib)
 	end
 	function fallback:SetParam(name, numOrSerializedNumOrStrOrEmpty)
 		if name == "" then error("Name is empty.", 2) end
+		name, numOrSerializedNumOrStrOrEmpty = lib.NormalizeNavmeshParam(name, numOrSerializedNumOrStrOrEmpty)
 		if numOrSerializedNumOrStrOrEmpty == "" then
 			self.Params[name] = nil
 			return
 		end
-		name, numOrSerializedNumOrStrOrEmpty = lib.NormalizeNavmeshParam(name, numOrSerializedNumOrStrOrEmpty)
 		local numOrStr = tonumber(numOrSerializedNumOrStrOrEmpty) or numOrSerializedNumOrStrOrEmpty
 		if (name .. (isstring(numOrStr) and numOrStr or "")):find("[^%w_]") then error("Only alphanumeric letters and underscore allowed in name and string values.", 2) end
 		self.Params[name] = numOrStr
