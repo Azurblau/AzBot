@@ -27,8 +27,9 @@ return function(lib)
 	lib.BotMinSpdFactor = 0.75
 	lib.BotAngOffshoot = 45
 	lib.BotAdditionalAngOffshoot = 30
-	lib.BotAngLerpFactor = 0.25
-	lib.BotAimPosVelocityOffshoot = 0.2
+	lib.BotAngLerpFactor = 0.125
+	lib.BotAttackAngLerpFactor = 0.5
+	lib.BotAimPosVelocityOffshoot = 0.4
 	lib.BotJumpAntichance = 25
 	lib.ZombiesPerHuman = 0.3
 	lib.ZombiesPerHumanMax = 1.2			-- Limits maximum amount of zombies to this zombie/human ratio. (ZombiesCountAddition is not calculated in)

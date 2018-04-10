@@ -80,9 +80,9 @@ function meta:AzBot_CanSeeTarget()
 	return attackPos and not util.TraceHull(tr).Hit
 end
 
-function meta:AzBot_FaceTo(pos, origin)
+function meta:AzBot_FaceTo(pos, origin, lerpFactor)
 	local mem = self.AzBot_Mem
-	mem.Angs = LerpAngle(AzBot.BotAngLerpFactor, mem.Angs, (pos - origin):Angle() + mem.AngsOffshoot)
+	mem.Angs = LerpAngle(lerpFactor, mem.Angs, (pos - origin):Angle() + mem.AngsOffshoot)
 end
 
 function meta:AzBot_RerollClass()
@@ -243,7 +243,7 @@ end
 function meta:AzBot_UpdatePathProgress()
 	local mem = self.AzBot_Mem
 	while mem.NextNodeOrNil do
-		if mem.NextNodeOrNil:GetContains(self:GetPos()) then
+		if mem.NextNodeOrNil:GetContains2D(self:GetPos()) then
 			mem.NodeOrNil = mem.NextNodeOrNil
 			mem.NextNodeOrNil = table.remove(mem.RemainingNodes, 1)
 			if mem.NodeOrNil and mem.NodeOrNil.Params.BotMod then

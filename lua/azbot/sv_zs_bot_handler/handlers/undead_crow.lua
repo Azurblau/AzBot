@@ -8,27 +8,24 @@ HANDLER.UpdateBotCmdFunction = function(bot, cmd)
 	cmd:ClearButtons()
 	cmd:ClearMovement()
 	
-	print("crowe")
-	
-	if not bot:Alive() then
+	if not bot:Alive() and math.random(1, 50) == 1 then
 		-- Get back into the game
-		--cmd:SetButtons(IN_ATTACK)
-		--return
+		cmd:SetButtons(IN_ATTACK)
+		return
 	end
 	
+	bot:AzBot_UpdateMem()
 	local mem = bot.AzBot_Mem
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
 	
-	local result, buttons, forwardSpeed, aimAngle
+	local result, buttons, forwardSpeed, aimAngle = nil, 0, 0, nil
 	if nextNodeOrNil then
 		result, buttons, forwardSpeed, aimAngle = AzBot.Basics.Walk(bot, nextNodeOrNil.Pos + Vector(0, 0, 64))
 	end
 	
-	bot:AzBot_UpdateMem()
-	AzBot.Basics.SuicideOrRetarget(bot)
-	
-	buttons = bit.bor(buttons, IN_JUMP)
+	buttons = bit.band(buttons, bit.bnot(IN_USE)) -- Prevent crow bots from pressing USE
+	buttons = bit.bor(buttons or 0, (math.random(1, 2) == 1) and result and IN_JUMP or 0)
 	
 	if aimAngle then cmd:SetViewAngles(aimAngle) end
 	if forwardSpeed then cmd:SetForwardMove(forwardSpeed) end

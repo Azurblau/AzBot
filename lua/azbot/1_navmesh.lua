@@ -199,6 +199,10 @@ return function(lib)
 		local params = self.Params
 		return math.abs(pos.z - self.Pos.z) < 50 and pos.x >= params.AreaXMin and pos.x <= params.AreaXMax and pos.y >= params.AreaYMin and pos.y <= params.AreaYMax
 	end
+	function nodeFallback:GetContains2D(pos)
+		local pos = Vector(pos.x, pos.y, self.Pos.z)
+		return self:GetContains(pos)
+	end
 	
 	function fallback:GetCursoredItemOrNil(pl)
 		local relAngMin = 5

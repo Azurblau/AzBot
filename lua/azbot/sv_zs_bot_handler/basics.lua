@@ -27,20 +27,23 @@ function AzBot.Basics.Walk(bot, pos) -- 'pos' should be inside the current or ne
 	local origin = bot:GetPos()
 	local duck, jump
 	
-	bot:AzBot_FaceTo(pos, origin)
+	bot:AzBot_FaceTo(pos, origin, AzBot.BotAngLerpFactor)
 	
 	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
 	local duckToParam = nextNodeOrNil and nextNodeOrNil.Params.DuckTo
 	local jumpParam = nodeOrNil and nodeOrNil.Params.Jump
 	local jumpToParam = nextNodeOrNil and nextNodeOrNil.Params.JumpTo
 	
+	local facesHindrance = bot:GetVelocity():Length2D() < 0.20 * bot:GetMaxSpeed()
+	
+	if duckParam == "Always" or duckToParam == "Always" then
+		duck = true
+	end
+	
 	if bot:GetMoveType() ~= MOVETYPE_LADDER then
 		if bot:IsOnGround() then
 			if jumpParam == "Always" or jumpToParam == "Always" then
 				jump = true
-			end
-			if duckParam == "Always" or duckToParam == "Always" then
-				duck = true
 			end
 			if facesHindrance then
 				if math.random(AzBot.BotJumpAntichance) == 1 then
@@ -78,7 +81,7 @@ function AzBot.Basics.WalkAttackAuto(bot)
 	local facesTgt = false
 	
 	-- TODO: Reduce can see target calls
-	if mem.TgtOrNil and bot:AzBot_CanSeeTarget() or not nextNodeOrNil then
+	if mem.TgtOrNil and (bot:AzBot_CanSeeTarget() or not nextNodeOrNil) then
 		aimPos = bot:AzBot_GetAttackPosOrNilFuture(nil, math.Rand(0, AzBot.BotAimPosVelocityOffshoot))
 		origin = bot:AzBot_GetViewCenter()
 		if aimPos and aimPos:Distance(bot:AzBot_GetViewCenter()) < AzBot.BotAttackDistMin then
@@ -92,7 +95,7 @@ function AzBot.Basics.WalkAttackAuto(bot)
 			else
 				facesTgt = true
 			end
-			if aimPos.z - bot:GetPos().z - bot:GetViewOffsetDucked().z < 0 then
+			if aimPos.z < bot:GetPos().z + bot:GetViewOffsetDucked().z then
 				duck = true
 			end
 		end
@@ -103,10 +106,8 @@ function AzBot.Basics.WalkAttackAuto(bot)
 		return
 	end
 	
-	local facesHindrance = bot:GetVelocity():Length2D() < 0.20 * bot:GetMaxSpeed()
-	
 	if aimPos then
-		bot:AzBot_FaceTo(aimPos, origin)
+		bot:AzBot_FaceTo(aimPos, origin, AzBot.BotAttackAngLerpFactor)
 	end
 	
 	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
@@ -114,13 +115,16 @@ function AzBot.Basics.WalkAttackAuto(bot)
 	local jumpParam = nodeOrNil and nodeOrNil.Params.Jump
 	local jumpToParam = nextNodeOrNil and nextNodeOrNil.Params.JumpTo
 	
+	local facesHindrance = bot:GetVelocity():Length2D() < 0.20 * bot:GetMaxSpeed()
+	
+	if duckParam == "Always" or duckToParam == "Always" then
+		duck = true
+	end
+	
 	if bot:GetMoveType() ~= MOVETYPE_LADDER then
 		if bot:IsOnGround() then
 			if jumpParam == "Always" or jumpToParam == "Always" then
 				jump = true
-			end
-			if duckParam == "Always" or duckToParam == "Always" then
-				duck = true
 			end
 			if facesHindrance then
 				if math.random(AzBot.BotJumpAntichance) == 1 then
@@ -167,17 +171,18 @@ function AzBot.Basics.PounceAuto(bot)
 											 TimeFactor = 1.1,
 											 ForcePounce = (nextNodeOrNil.LinkByLinkedNode[nodeOrNil] and nextNodeOrNil.LinkByLinkedNode[nodeOrNil].Params.Pouncing == "Needed")})
 	end
-	for i = 1, 2 do
-		if mem.RemainingNodes[i] then
-			tempDist = tempDist + tempPos:Distance(mem.RemainingNodes[i].Pos)
-			tempPos = mem.RemainingNodes[i].Pos
-			table.insert(pounceTargetPositions, {Pos = mem.RemainingNodes[i].Pos + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1})
-		end
+	local i = 0
+	for k, v in ipairs(mem.RemainingNodes) do
+		tempDist = tempDist + tempPos:Distance(v.Pos)
+		tempPos = v.Pos
+		table.insert(pounceTargetPositions, {Pos = v.Pos + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1})
+		i = i + 1
+		if i == 2 then break end
 	end
 	local tempAttackPosOrNil = bot:AzBot_GetAttackPosOrNilFuturePlatforms(0, mem.pounceFlightTime or 0)
 	if tempAttackPosOrNil then
 		tempDist = tempDist + bot:GetPos():Distance(tempAttackPosOrNil)
-		table.insert(pounceTargetPositions, {Pos = tempAttackPosOrNil + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.4, HeightDiff = 100})
+		table.insert(pounceTargetPositions, {Pos = tempAttackPosOrNil + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 0.8, HeightDiff = 100}) -- TODO: Global bot 'IQ' level influences TimeFactor, the lower the more likely they will cut off the players path
 	end
 	
 	-- Find best trajectory
@@ -185,7 +190,7 @@ function AzBot.Basics.PounceAuto(bot)
 	for _, pounceTargetPos in ipairs(table.Reverse(pounceTargetPositions)) do
 		local trajectories = bot:AzBot_CanPounceToPos(pounceTargetPos.Pos)
 		local timeToTarget = pounceTargetPos.Dist / bot:GetMaxSpeed()
-		if trajectories then--and (pounceTargetPos.ForcePounce or (pounceTargetPos.HeightDiff and pounceTargetPos.Pos.z - bot:GetPos().z > pounceTargetPos.HeightDiff) or timeToTarget > (trajectories[1].t1 + (mem.pouncingStartTime or CurTime()) - CurTime())*pounceTargetPos.TimeFactor) then
+		if trajectories and (pounceTargetPos.ForcePounce or (pounceTargetPos.HeightDiff and pounceTargetPos.Pos.z - bot:GetPos().z > pounceTargetPos.HeightDiff) or timeToTarget > (trajectories[1].t1 + weapon.PounceStartDelay)*pounceTargetPos.TimeFactor) then
 			trajectory = trajectories[1]
 			break
 		end
@@ -196,7 +201,7 @@ function AzBot.Basics.PounceAuto(bot)
 	if (trajectory and CurTime() >= weapon:GetNextPrimaryFire() and CurTime() >= weapon:GetNextSecondaryFire() and CurTime() >= weapon.NextAllowPounce) or mem.pouncing then
 		if trajectory then
 			mem.Angs = Angle(-math.deg(trajectory.pitch), math.deg(trajectory.yaw), 0)
-			mem.pounceFlightTime = math.min(trajectory.t1 + (mem.pouncingStartTime or CurTime()) - CurTime(), 1) -- Store flight time, and use it to iteratively get close to the correct intersection point.
+			mem.pounceFlightTime = math.Clamp(trajectory.t1 + (mem.pouncingStartTime or CurTime()) - CurTime(), 0, 1) -- Store flight time, and use it to iteratively get close to the correct intersection point.
 		end
 		if not mem.pouncing then
 			-- Started pouncing
@@ -211,7 +216,7 @@ function AzBot.Basics.PounceAuto(bot)
 			bot:AzBot_UpdateMem(bot)
 		end
 		
-		return true, buttons, bot:GetMaxSpeed(), mem.Angs
+		return true, buttons, 0, mem.Angs
 	end
 	
 	return
