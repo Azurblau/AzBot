@@ -33,11 +33,11 @@ function AzBot.GetTrajectories(initVel, r0, r1, segments)
 	local distRad = math.sqrt((r1.x - r0.x)^2 + (r1.y - r0.y)^2)
 	local yaw = math.atan2(r1.y - r0.y, r1.x - r0.x)
 	
-	local trajectories = lib.GetTrajectories2DParams(g, initVel, distZ, distRad)
+	local trajectories = AzBot.GetTrajectories2DParams(g, initVel, distZ, distRad)
 	for i, trajectory in ipairs(trajectories) do
 		trajectories[i].yaw = yaw
 		-- Calculate 2D trajectory from parameters
-		trajectories[i] = lib.GetTrajectory2DPoints(trajectory, segments)
+		trajectories[i] = AzBot.GetTrajectory2DPoints(trajectory, segments)
 		-- Rotate and move trajectory into 3D space
 		for k, _ in ipairs(trajectory.points) do
 			trajectory.points[k]:Rotate(Angle(0, math.deg(yaw), 0))
@@ -50,5 +50,5 @@ end
 
 -- Remove spectating and dead players
 function AzBot.RemoveObsDeadTgts(tgts)
-	return AzBot.from(tgts):Where(function(k, v) return IsValid(v) and v:GetObserverMode() == OBS_MODE_NONE and v:Alive() end).R
+	return AzBot.From(tgts):Where(function(k, v) return IsValid(v) and v:GetObserverMode() == OBS_MODE_NONE and v:Alive() end).R
 end

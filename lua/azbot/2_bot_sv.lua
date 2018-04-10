@@ -92,8 +92,8 @@ return function(lib)
 	hook.Add("EntityTakeDamage", lib.BotHooksId, function(ent, dmg) if lib.IsEnabled and ent:IsPlayer() and ent:IsBot() then lib.HandleBotDamage(ent, dmg) end end)
 	
 	function lib.HandleBotDeath(bot)
-		lib.RerollBotClass(bot)
-		local mem = self.AzBot_Mem
+		bot:AzBot_RerollClass()
+		local mem = bot.AzBot_Mem
 		local nodeOrNil = mem.NodeOrNil
 		local nextNodeOrNil = mem.NextNodeOrNil
 		if not nodeOrNil or not nextNodeOrNil then return end
@@ -105,7 +105,7 @@ return function(lib)
 	function lib.HandleBotDamage(bot, dmg)
 		local attacker = dmg:GetAttacker()
 		if not lib.CanBeBotTgt(attacker) then return end
-		local mem = self.AzBot_Mem
+		local mem = bot.AzBot_Mem
 		if IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(bot:GetPos()) <= lib.BotTgtFixationDistMin then return end
 		mem.TgtOrNil = attacker
 		bot:AzBot_ResetPosMilestone(bot)
@@ -144,6 +144,8 @@ return function(lib)
 		end
 	end
 	
+	function lib.CanBeBotTgt(tgtOrNil) return IsValid(tgtOrNil) and table.HasValue(AzBot.PotBotTgts, tgtOrNil) end
+	
 	function lib.UpdatePotBotTgts()
 		-- Get humans or non zombie players or any players in that order
 		local players = lib.RemoveObsDeadTgts(team.GetPlayers(TEAM_HUMAN))
@@ -157,4 +159,8 @@ return function(lib)
 		lib.PotBotTgts = table.Add(players, lib.GetEntsOfClss(lib.PotBotTgtClss))
 	end
 	
+	function lib.UpdateBotConfig()
+		AzBot.UpdatePotBotTgts()
+		if AzBot.MaintainBotRolesAutomatically then AzBot.MaintainBotRoles() end
+	end
 end

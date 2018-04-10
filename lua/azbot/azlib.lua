@@ -192,8 +192,6 @@ return function(globalK, otherLibFilesRelPathEach)
 	
 	function lib.GetEntsOfClss(clss) return from(clss):SelV(ents.FindByClass):Concat().R end
 	
-	function lib.GetViewCenter(pl) return pl:GetPos() + (pl:Crouching() and pl:GetViewOffsetDucked() or pl:GetViewOffset()) end
-	
 	if SERVER then
 		local relFileInfo = lib.GetFileInfo(debug.getinfo(1, "S").short_src)
 		

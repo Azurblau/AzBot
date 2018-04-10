@@ -32,6 +32,8 @@ function meta:AzBot_GetAttackPosOrNilFuturePlatforms(fraction, t)
 	return tgt:IsPlayer() and LerpVector(fraction or 0.75, tgt:GetPos(), tgt:EyePos()) + phys:GetVelocity()*t or tgt:WorldSpaceCenter()
 end
 
+function meta:AzBot_GetViewCenter() return self:GetPos() + (self:Crouching() and self:GetViewOffsetDucked() or self:GetViewOffset()) end
+
 function meta:AzBot_CanPounceToPos(pos)
 	if not pos then return end
 	
@@ -43,7 +45,7 @@ function meta:AzBot_CanPounceToPos(pos)
 	end
 	
 	local selfPos = self:GetPos()--LerpVector(0.75, self:GetPos(), self:EyePos())
-	local trajectories = AzBot.GetTrajectories(initVel, selfPos, pos)
+	local trajectories = AzBot.GetTrajectories(initVel, selfPos, pos, 8)
 	local resultTrajectories = {}
 	for _, trajectory in ipairs(trajectories) do
 		local lastPoint = nil
@@ -78,9 +80,9 @@ function meta:AzBot_CanSeeTarget()
 	return attackPos and not util.TraceHull(tr).Hit
 end
 
-function meta:AzBot_FaceTo(pos, getOrigin)
+function meta:AzBot_FaceTo(pos, origin)
 	local mem = self.AzBot_Mem
-	mem.Angs = LerpAngle(AzBot.BotAngLerpFactor, mem.Angs, (pos - getOrigin(self)):Angle() + mem.AngsOffshoot)
+	mem.Angs = LerpAngle(AzBot.BotAngLerpFactor, mem.Angs, (pos - origin):Angle() + mem.AngsOffshoot)
 end
 
 function meta:AzBot_RerollClass()
@@ -107,13 +109,7 @@ function meta:AzBot_ResetTgtOrNil()
 	self.AzBot_Mem.TgtOrNil = table.Random(targets)
 end
 
-function meta:AzBot_UpdateTgtOrNil() if not AzBot.CanBeBotTgt(self.AzBot_Mem.TgtOrNil) then self:AzBot_ResetBotTgtOrNil() end end
-function meta:AzBot_CanBeTgt(tgtOrNil) return IsValid(tgtOrNil) and table.HasValue(AzBot.PotBotTgts, tgtOrNil) end
-
-function meta:AzBot_UpdateConfig()
-	AzBot.UpdatePotBotTgts()
-	if AzBot.MaintainBotRolesAutomatically then AzBot.MaintainBotRoles() end
-end
+function meta:AzBot_UpdateTgtOrNil() if not AzBot.CanBeBotTgt(self.AzBot_Mem.TgtOrNil) then self:AzBot_ResetTgtOrNil() end end
 
 function meta:AzBot_Initialize()
 	if AzBot.MaintainBotRolesAutomatically then
@@ -144,7 +140,7 @@ end
 
 function meta:AzBot_SetUp()
 	local mem = self.AzBot_Mem
-	self:AzBot_ResetBotPosMilestone()
+	self:AzBot_ResetPosMilestone()
 	mem.TgtOrNil = nil
 	mem.NextNodeOrNil = nil
 	mem.RemainingNodes = {}
@@ -154,9 +150,9 @@ function meta:AzBot_SetUp()
 end
 
 function meta:AzBot_ResetPosMilestone()
-	self:AzBot_SetBotPosMilestone()
-	self:AzBot_SetBotZeroPosMilestone()
-	self.AzBot_Mem.NextFailPosMilestone = AzBot.FailFirstPosMilestone
+	self:AzBot_SetPosMilestone()
+	self:AzBot_SetZeroPosMilestone()
+	self.AzBot_Mem.NextFailPosMilestone = self.AzBot_FailFirstPosMilestone
 end
 
 function meta:AzBot_UpdatePosMilestone()
@@ -168,48 +164,48 @@ function meta:AzBot_UpdatePosMilestone()
 			-- TODO: Put that somewhere else
 			-- else
 				-- self:Kill()
-				-- self:AzBot_ResetBotPosMilestone()
+				-- self:AzBot_ResetPosMilestone()
 				-- return
 			--end
 		end
-		self:AzBot_SetBotZeroPosMilestone()
+		self:AzBot_SetZeroPosMilestone()
 	end
 	if mem.NextPosMilestoneTime > CurTime() then return end
-	local failed = self:GetPos():Distance(mem.PosMilestone) < lib.BotPosMilestoneDistMin
-	self:AzBot_SetBotPosMilestone()
+	local failed = self:GetPos():Distance(mem.PosMilestone) < AzBot.BotPosMilestoneDistMin
+	self:AzBot_SetPosMilestone()
 	if failed then mem.NextFailPosMilestone(self) end
 end
 
 function meta:AzBot_SetPosMilestone()
 	local mem = self.AzBot_Mem
 	mem.PosMilestone = self:GetPos()
-	mem.NextPosMilestoneTime = CurTime() + lib.BotPosMilestoneUpdateDelay - math.random(0, math.floor(lib.BotPosMilestoneUpdateDelay * 0.5))
+	mem.NextPosMilestoneTime = CurTime() + AzBot.BotPosMilestoneUpdateDelay - math.random(0, math.floor(AzBot.BotPosMilestoneUpdateDelay * 0.5))
 end
 
 function meta:AzBot_SetZeroPosMilestone()
 	local mem = self.AzBot_Mem
 	mem.ZeroPosMilestone = self:GetPos()
-	mem.NextZeroPosMilestoneTime = CurTime() + lib.BotZeroPosMilestoneUpdateDelay
+	mem.NextZeroPosMilestoneTime = CurTime() + AzBot.BotZeroPosMilestoneUpdateDelay
 end
 
 function meta:AzBot_FailFirstPosMilestone()
 	local mem = self.AzBot_Mem
-	self:AzBot_ResetBotTgtOrNil()
-	mem.NextFailPosMilestone = lib.FailSecondPosMilestone
+	self:AzBot_ResetTgtOrNil()
+	mem.NextFailPosMilestone = self.AzBot_FailSecondPosMilestone
 	--mem.ButtonsToBeClicked = bit.bor(mem.ButtonsToBeClicked, IN_JUMP)
 	-- TODO: Put that jump somewhere else
 end
 
 function meta:AzBot_FailSecondPosMilestone()
 	self:Kill()
-	self:AzBot_ResetBotPosMilestone()
+	self:AzBot_ResetPosMilestone()
 end
 
 function meta:AzBot_UpdateTgtProximity()
 	local mem = self.AzBot_Mem
-	local inverseFactor = IsValid(mem.TgtOrNil) and math.min(1, self:GetPos():Distance(mem.TgtOrNil:GetPos()) / lib.BotTgtAreaRadius) or 1
-	mem.Spd = self:GetMaxSpeed() * (lib.BotMinSpdFactor + (1 - lib.BotMinSpdFactor) * inverseFactor)
-	mem.AngOffshoot = lib.BotAngOffshoot + lib.BotAdditionalAngOffshoot * (1 - inverseFactor)
+	local inverseFactor = IsValid(mem.TgtOrNil) and math.min(1, self:GetPos():Distance(mem.TgtOrNil:GetPos()) / AzBot.BotTgtAreaRadius) or 1
+	mem.Spd = self:GetMaxSpeed() * (AzBot.BotMinSpdFactor + (1 - AzBot.BotMinSpdFactor) * inverseFactor)
+	mem.AngOffshoot = AzBot.BotAngOffshoot + AzBot.BotAdditionalAngOffshoot * (1 - inverseFactor)
 end
 
 function meta:AzBot_UpdateAngsOffshoot()
@@ -227,20 +223,20 @@ end
 function meta:AzBot_UpdatePath()
 	local mem = self.AzBot_Mem
 	if not IsValid(mem.TgtOrNil) then return end
-	local mapNavMesh = lib.MapNavMesh
+	local mapNavMesh = AzBot.MapNavMesh
 	local node = mapNavMesh:GetNearestNodeOrNil(self:GetPos())
 	mem.TgtNodeOrNil = mapNavMesh:GetNearestNodeOrNil(mem.TgtOrNil:GetPos())
 	if not node or not mem.TgtNodeOrNil then return end
 	local abilities = {Walk = true}
 	if self:GetActiveWeapon() and self:GetActiveWeapon().PounceVelocity then abilities.Pounce = true end
-	local path = lib.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, mem.ConsidersPathLethality and lib.DeathCostOrNilByLink or {}, abilities)
-	if not path then self:AzBot_ResetBotTgtOrNil(); return end
+	local path = AzBot.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, mem.ConsidersPathLethality and AzBot.DeathCostOrNilByLink or {}, abilities)
+	if not path then self:AzBot_ResetTgtOrNil() return end
 	if mem.NextNodeOrNil and mem.NextNodeOrNil == path[1] then table.insert(path, 1, mem.NodeOrNil) end -- Preserve current node if the path starts with the next node
 	mem.NodeOrNil = table.remove(path, 1)
 	mem.NextNodeOrNil = table.remove(path, 1)
 	mem.RemainingNodes = path
 	if mem.NodeOrNil and mem.NodeOrNil.Params.BotMod then
-		lib.nodeZombiesCountAddition = mem.NodeOrNil.Params.BotMod
+		AzBot.nodeZombiesCountAddition = mem.NodeOrNil.Params.BotMod
 	end
 end
 
@@ -251,7 +247,7 @@ function meta:AzBot_UpdatePathProgress()
 			mem.NodeOrNil = mem.NextNodeOrNil
 			mem.NextNodeOrNil = table.remove(mem.RemainingNodes, 1)
 			if mem.NodeOrNil and mem.NodeOrNil.Params.BotMod then
-				lib.nodeZombiesCountAddition = mem.NodeOrNil.Params.BotMod
+				AzBot.nodeZombiesCountAddition = mem.NodeOrNil.Params.BotMod
 				-- TODO: Change node botmod to trigger on human
 			end
 		else
@@ -262,13 +258,13 @@ end
 
 function meta:AzBot_UpdateMem()
 	local mem = self.AzBot_Mem
-	self:AzBot_UpdateBotPosMilestone()
-	self:AzBot_UpdateBotTgtOrNil()
-	self:AzBot_UpdateBotTgtProximity()
+	self:AzBot_UpdatePosMilestone()
+	self:AzBot_UpdateTgtOrNil()
+	self:AzBot_UpdateTgtProximity()
 	if mem.NextSlowThinkTime <= CurTime() then
 		mem.NextSlowThinkTime = CurTime() + 0.5
-		self:AzBot_UpdateBotAngsOffshoot()
-		self:AzBot_UpdateBotPath()
+		self:AzBot_UpdateAngsOffshoot()
+		self:AzBot_UpdatePath()
 	end
-	self:AzBot_UpdateBotPathProgress()
+	self:AzBot_UpdatePathProgress()
 end

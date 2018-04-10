@@ -24,10 +24,10 @@ function AzBot.Basics.Walk(bot, pos) -- 'pos' should be inside the current or ne
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
 	
-	local getFaceOrigin = bot.GetPos
+	local origin = bot:GetPos()
 	local duck, jump
 	
-	bot:AzBot_FaceTo(pos, getFaceOrigin)
+	bot:AzBot_FaceTo(pos, origin)
 	
 	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
 	local duckToParam = nextNodeOrNil and nextNodeOrNil.Params.DuckTo
@@ -50,7 +50,7 @@ function AzBot.Basics.Walk(bot, pos) -- 'pos' should be inside the current or ne
 				end
 			end
 		else
-			duck = true -- This prevents bots from getting out of water. Rewrite jump/crouch logic
+			duck = true
 		end
 	end
 	
@@ -63,7 +63,7 @@ function AzBot.Basics.Walk(bot, pos) -- 'pos' should be inside the current or ne
 	
 	local buttons = bit.bor(IN_FORWARD, (facesTgt or facesHindrance) and IN_ATTACK or 0, duck and IN_DUCK or 0, jump and IN_JUMP or 0, facesHindrance and IN_USE or 0)
 	
-	return true, buttons, forwardSpeed, mem.Angs
+	return true, buttons, bot:GetMaxSpeed(), mem.Angs
 end
 
 function AzBot.Basics.WalkAttackAuto(bot)
@@ -73,14 +73,15 @@ function AzBot.Basics.WalkAttackAuto(bot)
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
 	
-	local aimPos, getFaceOrigin
+	local aimPos, origin
 	local duck, jump
 	local facesTgt = false
 	
-	if bot:AzBot_CanBotSeeTarget() or not nextNodeOrNil then
+	-- TODO: Reduce can see target calls
+	if mem.TgtOrNil and bot:AzBot_CanSeeTarget() or not nextNodeOrNil then
 		aimPos = bot:AzBot_GetAttackPosOrNilFuture(nil, math.Rand(0, AzBot.BotAimPosVelocityOffshoot))
-		getFaceOrigin = AzBot.GetViewCenter
-		if aimPos:Distance(bot:AzBot_GetViewCenter()) < AzBot.BotAttackDistMin then
+		origin = bot:AzBot_GetViewCenter()
+		if aimPos and aimPos:Distance(bot:AzBot_GetViewCenter()) < AzBot.BotAttackDistMin then
 			if weapon and weapon.MeleeReach then
 				local tr = util.TraceLine({
 					start = bot:AzBot_GetViewCenter(),
@@ -97,14 +98,16 @@ function AzBot.Basics.WalkAttackAuto(bot)
 		end
 	elseif nextNodeOrNil then
 		-- Target not visible, walk towards next node
-		return AzBot.Helper_Walk(bot, nextNodeOrNil.Pos)
+		return AzBot.Basics.Walk(bot, nextNodeOrNil.Pos)
 	else
 		return
 	end
 	
 	local facesHindrance = bot:GetVelocity():Length2D() < 0.20 * bot:GetMaxSpeed()
 	
-	bot:AzBot_BotFace(aimPos, getFaceOrigin)
+	if aimPos then
+		bot:AzBot_FaceTo(aimPos, origin)
+	end
 	
 	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
 	local duckToParam = nextNodeOrNil and nextNodeOrNil.Params.DuckTo
@@ -127,7 +130,7 @@ function AzBot.Basics.WalkAttackAuto(bot)
 				end
 			end
 		else
-			duck = true -- This prevents bots from getting out of water. Rewrite jump/crouch logic
+			duck = true
 		end
 	end
 	
@@ -140,7 +143,7 @@ function AzBot.Basics.WalkAttackAuto(bot)
 	
 	local buttons = bit.bor(IN_FORWARD, (facesTgt or facesHindrance) and IN_ATTACK or 0, duck and IN_DUCK or 0, jump and IN_JUMP or 0, facesHindrance and IN_USE or 0)
 	
-	return true, buttons, forwardSpeed, mem.Angs
+	return true, buttons, bot:GetMaxSpeed(), mem.Angs
 end
 
 function AzBot.Basics.PounceAuto(bot)
@@ -182,19 +185,18 @@ function AzBot.Basics.PounceAuto(bot)
 	for _, pounceTargetPos in ipairs(table.Reverse(pounceTargetPositions)) do
 		local trajectories = bot:AzBot_CanPounceToPos(pounceTargetPos.Pos)
 		local timeToTarget = pounceTargetPos.Dist / bot:GetMaxSpeed()
-		if trajectories and (pounceTargetPos.ForcePounce or (pounceTargetPos.HeightDiff and pounceTargetPos.Pos.z - bot:GetPos().z > pounceTargetPos.HeightDiff) or timeToTarget > (trajectories[1].t1 + (mem.pouncingStartTime or CurTime()) - CurTime())*pounceTargetPos.TimeFactor) then
+		if trajectories then--and (pounceTargetPos.ForcePounce or (pounceTargetPos.HeightDiff and pounceTargetPos.Pos.z - bot:GetPos().z > pounceTargetPos.HeightDiff) or timeToTarget > (trajectories[1].t1 + (mem.pouncingStartTime or CurTime()) - CurTime())*pounceTargetPos.TimeFactor) then
 			trajectory = trajectories[1]
 			break
 		end
 	end
 	
-	local aimAngle
 	local buttons = 0
 	
 	if (trajectory and CurTime() >= weapon:GetNextPrimaryFire() and CurTime() >= weapon:GetNextSecondaryFire() and CurTime() >= weapon.NextAllowPounce) or mem.pouncing then
 		if trajectory then
-			aimAngle = Angle(-math.deg(trajectory.pitch), math.deg(trajectory.yaw), 0)
-			mem.pounceFlightTime = math.min(trajectory.t1 + (mem.pouncingStartTime or CurTime()) - CurTime(), 3) -- Store flight time, and use it to iteratively get close to the correct intersection point. (Path prediction of the target)
+			mem.Angs = Angle(-math.deg(trajectory.pitch), math.deg(trajectory.yaw), 0)
+			mem.pounceFlightTime = math.min(trajectory.t1 + (mem.pouncingStartTime or CurTime()) - CurTime(), 1) -- Store flight time, and use it to iteratively get close to the correct intersection point.
 		end
 		if not mem.pouncing then
 			-- Started pouncing
@@ -206,10 +208,10 @@ function AzBot.Basics.PounceAuto(bot)
 			-- Ended pouncing
 			mem.pouncing = false
 			mem.pounceFlightTime = nil
-			lib.UpdateBotMem(bot)
+			bot:AzBot_UpdateMem(bot)
 		end
 		
-		return true, buttons, forwardSpeed, aimAngle
+		return true, buttons, bot:GetMaxSpeed(), mem.Angs
 	end
 	
 	return
