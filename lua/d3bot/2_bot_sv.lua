@@ -123,13 +123,16 @@ return function(lib)
 		-- TODO: Change player.GetHumans() to only count survivors without bots
 	end
 	
+	local num 
 	function lib.MaintainBotRoles()
 		if #player.GetHumans() == 0 then return end
 		local desiredZombiesCount = lib.GetDesiredZombiesCount()
-		local zombiesCount = #team.GetPlayers(TEAM_UNDEAD)
+		local zombiesCount = #player.GetBots()--#team.GetPlayers(TEAM_UNDEAD)
 		local counter = 2
 		while zombiesCount < desiredZombiesCount and not GAMEMODE.RoundEnded and counter > 0 do
-			RunConsoleCommand("bot")
+			--RunConsoleCommand("bot")
+			num = (num + 1) or 1
+			local bot = player.CreateNextBot( "Bottototo_" .. ( num ) )
 			zombiesCount = zombiesCount + 1
 			counter = counter - 1
 		end
@@ -140,7 +143,7 @@ return function(lib)
 					zombiesCount = zombiesCount - 1
 				end
 			else
-				bot:Kick(lib.SurvivorBotKickReason)
+				--bot:Kick(lib.SurvivorBotKickReason)
 			end
 		end
 	end

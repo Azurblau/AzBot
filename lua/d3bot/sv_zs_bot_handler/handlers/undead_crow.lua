@@ -2,7 +2,8 @@ D3bot.Handlers.Undead_Crow = {}
 HANDLER = D3bot.Handlers.Undead_Crow
 
 HANDLER.ZombieClasses = {Crow = true}
-HANDLER.Team = 3 --TEAM_UNDEAD
+local TEAM_UNDEAD = 3 -- TODO: Create a function for the selection
+HANDLER.Team = {[TEAM_UNDEAD] = true}
 
 HANDLER.UpdateBotCmdFunction = function(bot, cmd)
 	cmd:ClearButtons()
@@ -27,7 +28,7 @@ HANDLER.UpdateBotCmdFunction = function(bot, cmd)
 	buttons = bit.band(buttons, bit.bnot(IN_USE)) -- Prevent crow bots from pressing USE
 	buttons = bit.bor(buttons or 0, (math.random(1, 2) == 1) and result and IN_JUMP or 0)
 	
-	if aimAngle then cmd:SetViewAngles(aimAngle) end
+	if aimAngle then bot:SetEyeAngles(aimAngle) cmd:SetViewAngles(aimAngle) end
 	if forwardSpeed then cmd:SetForwardMove(forwardSpeed) end
 	cmd:SetButtons(buttons)
 end

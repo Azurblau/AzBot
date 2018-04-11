@@ -115,8 +115,8 @@ function meta:D3bot_UpdateTgtOrNil() if not D3bot.CanBeBotTgt(self.D3bot_Mem.Tgt
 
 function meta:D3bot_Initialize()
 	if D3bot.MaintainBotRolesAutomatically then
-		GAMEMODE.PreviouslyDied[self:UniqueID()] = CurTime()
-		GAMEMODE:PlayerInitialSpawn(self)
+		--GAMEMODE.PreviouslyDied[self:UniqueID()] = CurTime()
+		--GAMEMODE:PlayerInitialSpawn(self)
 	end
 	
 	self.D3bot_Mem = {

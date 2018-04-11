@@ -1,9 +1,10 @@
-D3bot.Handlers.Undead_Fallback = {}
-HANDLER = D3bot.Handlers.Undead_Fallback
+D3bot.Handlers.Survivor_Fallback = {}
+HANDLER = D3bot.Handlers.Survivor_Fallback
 
 -- HANDLER.ZombieClasses = {}
-local TEAM_UNDEAD = 3 -- TODO: Create a function for the selection
-HANDLER.Team = {[TEAM_UNDEAD] = true}
+local TEAM_SURVIVOR = 4 -- TODO: Create a function for the selection
+local TEAM_REDEEMER = 5
+HANDLER.Team = {[TEAM_SURVIVOR] = true, [TEAM_REDEEMER] = true}
 
 HANDLER.UpdateBotCmdFunction = function(bot, cmd)
 	cmd:ClearButtons()
