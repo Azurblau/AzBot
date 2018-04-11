@@ -18,7 +18,7 @@ return function(lib)
 	
 	lib.BotNodeMinProximity = 20
 	
-	lib.MapNavMeshNetworkStr = "AzBot Map NavMesh"
+	lib.MapNavMeshNetworkStr = "D3bot Map NavMesh"
 	
 	lib.NavMeshItemsSeparator = "\n"
 	lib.NavMeshItemsSeparatorOld = ";"

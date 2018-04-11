@@ -1,4 +1,4 @@
-# Fork
+# D3bot
 This is a fork of [/Azurblau/AzBot](https://github.com/Azurblau/AzBot) with new features and some bugfixes.
 
 Here is a list of notable changes compared to the original version:

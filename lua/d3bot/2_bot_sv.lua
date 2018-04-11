@@ -76,11 +76,11 @@ return function(lib)
 		lib.NextBotConfigUpdate = CurTime() + 0.2
 		lib.UpdateBotConfig()
 	end)
-	hook.Add("PlayerInitialSpawn", lib.BotHooksId, function(pl) if lib.IsEnabled and pl:IsBot() then pl:AzBot_Initialize() end end)
+	hook.Add("PlayerInitialSpawn", lib.BotHooksId, function(pl) if lib.IsEnabled and pl:IsBot() then pl:D3bot_Initialize() end end)
 	local hadBonusByPl = {}
 	hook.Add("PlayerSpawn", lib.BotHooksId, function(pl)
 		if not lib.IsEnabled then return end
-		if pl:IsBot() then pl:AzBot_SetUp() end
+		if pl:IsBot() then pl:D3bot_SetUp() end
 		if lib.IsBonusEnabled and pl:Team() == TEAM_HUMAN then
 			local hadBonus = hadBonusByPl[pl]
 			hadBonusByPl[pl] = true
@@ -93,8 +93,8 @@ return function(lib)
 	hook.Add("EntityTakeDamage", lib.BotHooksId, function(ent, dmg) if lib.IsEnabled and ent:IsPlayer() and ent:IsBot() then lib.HandleBotDamage(ent, dmg) end end)
 	
 	function lib.HandleBotDeath(bot)
-		bot:AzBot_RerollClass()
-		local mem = bot.AzBot_Mem
+		bot:D3bot_RerollClass()
+		local mem = bot.D3bot_Mem
 		local nodeOrNil = mem.NodeOrNil
 		local nextNodeOrNil = mem.NextNodeOrNil
 		if not nodeOrNil or not nextNodeOrNil then return end
@@ -106,10 +106,10 @@ return function(lib)
 	function lib.HandleBotDamage(bot, dmg)
 		local attacker = dmg:GetAttacker()
 		if not lib.CanBeBotTgt(attacker) then return end
-		local mem = bot.AzBot_Mem
+		local mem = bot.D3bot_Mem
 		if IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(bot:GetPos()) <= lib.BotTgtFixationDistMin then return end
 		mem.TgtOrNil = attacker
-		bot:AzBot_ResetPosMilestone(bot)
+		bot:D3bot_ResetPosMilestone(bot)
 	end
 	
 	function lib.GetDesiredZombiesCount()
@@ -145,7 +145,7 @@ return function(lib)
 		end
 	end
 	
-	function lib.CanBeBotTgt(tgtOrNil) return IsValid(tgtOrNil) and table.HasValue(AzBot.PotBotTgts, tgtOrNil) end
+	function lib.CanBeBotTgt(tgtOrNil) return IsValid(tgtOrNil) and table.HasValue(D3bot.PotBotTgts, tgtOrNil) end
 	
 	function lib.UpdatePotBotTgts()
 		-- Get humans or non zombie players or any players in that order
@@ -161,7 +161,7 @@ return function(lib)
 	end
 	
 	function lib.UpdateBotConfig()
-		AzBot.UpdatePotBotTgts()
-		if AzBot.MaintainBotRolesAutomatically then AzBot.MaintainBotRoles() end
+		D3bot.UpdatePotBotTgts()
+		if D3bot.MaintainBotRolesAutomatically then D3bot.MaintainBotRoles() end
 	end
 end

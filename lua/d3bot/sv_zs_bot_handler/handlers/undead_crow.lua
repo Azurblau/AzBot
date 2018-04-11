@@ -1,5 +1,5 @@
-AzBot.Handlers.Undead_Crow = {}
-HANDLER = AzBot.Handlers.Undead_Crow
+D3bot.Handlers.Undead_Crow = {}
+HANDLER = D3bot.Handlers.Undead_Crow
 
 HANDLER.ZombieClasses = {Crow = true}
 HANDLER.Team = 3 --TEAM_UNDEAD
@@ -14,14 +14,14 @@ HANDLER.UpdateBotCmdFunction = function(bot, cmd)
 		return
 	end
 	
-	bot:AzBot_UpdateMem()
-	local mem = bot.AzBot_Mem
+	bot:D3bot_UpdateMem()
+	local mem = bot.D3bot_Mem
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
 	
 	local result, buttons, forwardSpeed, aimAngle = nil, 0, 0, nil
 	if nextNodeOrNil then
-		result, buttons, forwardSpeed, aimAngle = AzBot.Basics.Walk(bot, nextNodeOrNil.Pos + Vector(0, 0, 64))
+		result, buttons, forwardSpeed, aimAngle = D3bot.Basics.Walk(bot, nextNodeOrNil.Pos + Vector(0, 0, 64))
 	end
 	
 	buttons = bit.band(buttons, bit.bnot(IN_USE)) -- Prevent crow bots from pressing USE

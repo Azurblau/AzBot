@@ -1,7 +1,7 @@
-AzBot.Basics = {}
+D3bot.Basics = {}
 
-function AzBot.Basics.SuicideOrRetarget(bot)
-	local mem = bot.AzBot_Mem
+function D3bot.Basics.SuicideOrRetarget(bot)
+	local mem = bot.D3bot_Mem
 	
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
@@ -9,7 +9,7 @@ function AzBot.Basics.SuicideOrRetarget(bot)
 	if nodeOrNil and nextNodeOrNil and nextNodeOrNil.Pos.z > nodeOrNil.Pos.z + 55 then
 		local wallParam = nextNodeOrNil.Params.Wall
 		if wallParam == "Retarget" then
-			bot:AzBot_ResetTgtOrNil()
+			bot:D3bot_ResetTgtOrNil()
 		elseif wallParam == "Suicide" then
 			bot:Kill()
 			return
@@ -17,8 +17,25 @@ function AzBot.Basics.SuicideOrRetarget(bot)
 	end
 end
 
-function AzBot.Basics.Walk(bot, pos) -- 'pos' should be inside the current or next node
-	local mem = bot.AzBot_Mem
+function D3bot.Basics.CheckStuck(bot)
+	local mem = bot.D3bot_Mem
+	
+	local nodeOrNil = mem.NodeOrNil
+	local nextNodeOrNil = mem.NextNodeOrNil
+	
+	if nodeOrNil and nextNodeOrNil and nextNodeOrNil.Pos.z > nodeOrNil.Pos.z + 55 then
+		local wallParam = nextNodeOrNil.Params.Wall
+		if wallParam == "Retarget" then
+			bot:D3bot_ResetTgtOrNil()
+		elseif wallParam == "Suicide" then
+			bot:Kill()
+			return
+		end
+	end
+end
+
+function D3bot.Basics.Walk(bot, pos) -- 'pos' should be inside the current or next node
+	local mem = bot.D3bot_Mem
 	if not mem then return end
 	
 	local nodeOrNil = mem.NodeOrNil
@@ -27,7 +44,7 @@ function AzBot.Basics.Walk(bot, pos) -- 'pos' should be inside the current or ne
 	local origin = bot:GetPos()
 	local duck, jump
 	
-	bot:AzBot_FaceTo(pos, origin, AzBot.BotAngLerpFactor)
+	bot:D3bot_FaceTo(pos, origin, D3bot.BotAngLerpFactor)
 	
 	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
 	local duckToParam = nextNodeOrNil and nextNodeOrNil.Params.DuckTo
@@ -46,7 +63,7 @@ function AzBot.Basics.Walk(bot, pos) -- 'pos' should be inside the current or ne
 				jump = true
 			end
 			if facesHindrance then
-				if math.random(AzBot.BotJumpAntichance) == 1 then
+				if math.random(D3bot.BotJumpAntichance) == 1 then
 					jump = true
 				else
 					duck = true
@@ -69,8 +86,8 @@ function AzBot.Basics.Walk(bot, pos) -- 'pos' should be inside the current or ne
 	return true, buttons, bot:GetMaxSpeed(), mem.Angs
 end
 
-function AzBot.Basics.WalkAttackAuto(bot)
-	local mem = bot.AzBot_Mem
+function D3bot.Basics.WalkAttackAuto(bot)
+	local mem = bot.D3bot_Mem
 	if not mem then return end
 	
 	local nodeOrNil = mem.NodeOrNil
@@ -81,14 +98,14 @@ function AzBot.Basics.WalkAttackAuto(bot)
 	local facesTgt = false
 	
 	-- TODO: Reduce can see target calls
-	if mem.TgtOrNil and (bot:AzBot_CanSeeTarget() or not nextNodeOrNil) then
-		aimPos = bot:AzBot_GetAttackPosOrNilFuture(nil, math.Rand(0, AzBot.BotAimPosVelocityOffshoot))
-		origin = bot:AzBot_GetViewCenter()
-		if aimPos and aimPos:Distance(bot:AzBot_GetViewCenter()) < AzBot.BotAttackDistMin then
+	if mem.TgtOrNil and (bot:D3bot_CanSeeTarget() or not nextNodeOrNil) then
+		aimPos = bot:D3bot_GetAttackPosOrNilFuture(nil, math.Rand(0, D3bot.BotAimPosVelocityOffshoot))
+		origin = bot:D3bot_GetViewCenter()
+		if aimPos and aimPos:Distance(bot:D3bot_GetViewCenter()) < D3bot.BotAttackDistMin then
 			if weapon and weapon.MeleeReach then
 				local tr = util.TraceLine({
-					start = bot:AzBot_GetViewCenter(),
-					endpos = bot:AzBot_GetViewCenter() + bot:EyeAngles():Forward() * weapon.MeleeReach,
+					start = bot:D3bot_GetViewCenter(),
+					endpos = bot:D3bot_GetViewCenter() + bot:EyeAngles():Forward() * weapon.MeleeReach,
 					filter = bot
 				})
 				facesTgt = tr.Entity == mem.TgtOrNil
@@ -101,13 +118,13 @@ function AzBot.Basics.WalkAttackAuto(bot)
 		end
 	elseif nextNodeOrNil then
 		-- Target not visible, walk towards next node
-		return AzBot.Basics.Walk(bot, nextNodeOrNil.Pos)
+		return D3bot.Basics.Walk(bot, nextNodeOrNil.Pos)
 	else
 		return
 	end
 	
 	if aimPos then
-		bot:AzBot_FaceTo(aimPos, origin, AzBot.BotAttackAngLerpFactor)
+		bot:D3bot_FaceTo(aimPos, origin, D3bot.BotAttackAngLerpFactor)
 	end
 	
 	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
@@ -127,7 +144,7 @@ function AzBot.Basics.WalkAttackAuto(bot)
 				jump = true
 			end
 			if facesHindrance then
-				if math.random(AzBot.BotJumpAntichance) == 1 then
+				if math.random(D3bot.BotJumpAntichance) == 1 then
 					jump = true
 				else
 					duck = true
@@ -150,8 +167,8 @@ function AzBot.Basics.WalkAttackAuto(bot)
 	return true, buttons, bot:GetMaxSpeed(), mem.Angs
 end
 
-function AzBot.Basics.PounceAuto(bot)
-	local mem = bot.AzBot_Mem
+function D3bot.Basics.PounceAuto(bot)
+	local mem = bot.D3bot_Mem
 	if not mem then return end
 	
 	if not bot:IsOnGround() or bot:GetMoveType() == MOVETYPE_LADDER then return end
@@ -179,7 +196,7 @@ function AzBot.Basics.PounceAuto(bot)
 		i = i + 1
 		if i == 2 then break end
 	end
-	local tempAttackPosOrNil = bot:AzBot_GetAttackPosOrNilFuturePlatforms(0, mem.pounceFlightTime or 0)
+	local tempAttackPosOrNil = bot:D3bot_GetAttackPosOrNilFuturePlatforms(0, mem.pounceFlightTime or 0)
 	if tempAttackPosOrNil then
 		tempDist = tempDist + bot:GetPos():Distance(tempAttackPosOrNil)
 		table.insert(pounceTargetPositions, {Pos = tempAttackPosOrNil + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 0.8, HeightDiff = 100}) -- TODO: Global bot 'IQ' level influences TimeFactor, the lower the more likely they will cut off the players path
@@ -188,7 +205,7 @@ function AzBot.Basics.PounceAuto(bot)
 	-- Find best trajectory
 	local trajectory
 	for _, pounceTargetPos in ipairs(table.Reverse(pounceTargetPositions)) do
-		local trajectories = bot:AzBot_CanPounceToPos(pounceTargetPos.Pos)
+		local trajectories = bot:D3bot_CanPounceToPos(pounceTargetPos.Pos)
 		local timeToTarget = pounceTargetPos.Dist / bot:GetMaxSpeed()
 		if trajectories and (pounceTargetPos.ForcePounce or (pounceTargetPos.HeightDiff and pounceTargetPos.Pos.z - bot:GetPos().z > pounceTargetPos.HeightDiff) or timeToTarget > (trajectories[1].t1 + weapon.PounceStartDelay)*pounceTargetPos.TimeFactor) then
 			trajectory = trajectories[1]
@@ -213,7 +230,7 @@ function AzBot.Basics.PounceAuto(bot)
 			-- Ended pouncing
 			mem.pouncing = false
 			mem.pounceFlightTime = nil
-			bot:AzBot_UpdateMem(bot)
+			bot:D3bot_UpdateMem(bot)
 		end
 		
 		return true, buttons, 0, mem.Angs

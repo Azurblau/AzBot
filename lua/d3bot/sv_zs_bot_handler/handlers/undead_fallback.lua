@@ -1,5 +1,5 @@
-AzBot.Handlers.Undead_Fallback = {}
-HANDLER = AzBot.Handlers.Undead_Fallback
+D3bot.Handlers.Undead_Fallback = {}
+HANDLER = D3bot.Handlers.Undead_Fallback
 
 -- HANDLER.ZombieClasses = {}
 HANDLER.Team = 3 --TEAM_UNDEAD
@@ -14,12 +14,12 @@ HANDLER.UpdateBotCmdFunction = function(bot, cmd)
 		return
 	end
 	
-	bot:AzBot_UpdateMem()
-	AzBot.Basics.SuicideOrRetarget(bot)
+	bot:D3bot_UpdateMem()
+	D3bot.Basics.SuicideOrRetarget(bot)
 	
-	local result, buttons, forwardSpeed, aimAngle = AzBot.Basics.PounceAuto(bot)
+	local result, buttons, forwardSpeed, aimAngle = D3bot.Basics.PounceAuto(bot)
 	if not result then
-		result, buttons, forwardSpeed, aimAngle = AzBot.Basics.WalkAttackAuto(bot)
+		result, buttons, forwardSpeed, aimAngle = D3bot.Basics.WalkAttackAuto(bot)
 		if not result then
 			return
 		end

@@ -1,8 +1,8 @@
 
 if engine.ActiveGamemode() == "zombiesurvival" then
 	hook.Add("PlayerSpawn", "!human info", function(pl)
-		if not AzBot.IsSelfRedeemEnabled or pl:Team() ~= TEAM_UNDEAD or LASTHUMAN or GAMEMODE.ZombieEscape or GAMEMODE:GetWave() > AzBot.SelfRedeemWaveMax then return end
-		local hint = translate.ClientFormat(pl, "azbot_redeemwave", AzBot.SelfRedeemWaveMax + 1)
+		if not D3bot.IsSelfRedeemEnabled or pl:Team() ~= TEAM_UNDEAD or LASTHUMAN or GAMEMODE.ZombieEscape or GAMEMODE:GetWave() > D3bot.SelfRedeemWaveMax then return end
+		local hint = translate.ClientFormat(pl, "D3bot_redeemwave", D3bot.SelfRedeemWaveMax + 1)
 		pl:PrintMessage(HUD_PRINTCENTER, hint)
 		pl:ChatPrint(hint)
 	end)
@@ -33,39 +33,39 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 	local nextByPl = {}
 	local tierByPl = {}
 	function ulx.human(pl)
-		if not AzBot.IsSelfRedeemEnabled then
-			local response = translate.ClientGet(pl, "azbot_botmapsonly")
+		if not D3bot.IsSelfRedeemEnabled then
+			local response = translate.ClientGet(pl, "D3bot_botmapsonly")
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
-		if GAMEMODE:GetWave() > AzBot.SelfRedeemWaveMax then
-			local response = translate.ClientFormat(pl, "azbot_toolate", AzBot.SelfRedeemWaveMax + 1)
+		if GAMEMODE:GetWave() > D3bot.SelfRedeemWaveMax then
+			local response = translate.ClientFormat(pl, "D3bot_toolate", D3bot.SelfRedeemWaveMax + 1)
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
 		if pl:Team() == TEAM_HUMAN then
-			local response = translate.ClientGet(pl, "azbot_alreadyhum")
+			local response = translate.ClientGet(pl, "D3bot_alreadyhum")
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
 		local remainingTime = (nextByPl[pl] or 0) - CurTime()
 		if remainingTime > 0 then
-			local response = translate.ClientFormat(pl, "azbot_selfredeemrecenty", math.ceil(remainingTime))
+			local response = translate.ClientFormat(pl, "D3bot_selfredeemrecenty", math.ceil(remainingTime))
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
 		if LASTHUMAN and not GAMEMODE.RoundEnded then
-			local response = translate.ClientGet(pl, "azbot_noredeemlasthuman")
+			local response = translate.ClientGet(pl, "D3bot_noredeemlasthuman")
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
 		end
 		if GAMEMODE.ZombieEscape then
-			local response = translate.ClientGet(pl, "azbot_noredeemzombieescape")
+			local response = translate.ClientGet(pl, "D3bot_noredeemzombieescape")
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return
@@ -74,7 +74,7 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 		tierByPl[pl] = nextTier
 		local cooldown = nextTier * 30
 		nextByPl[pl] = CurTime() + cooldown
-		local response = translate.ClientFormat(pl, "azbot_selfredeemcooldown", math.ceil(cooldown))
+		local response = translate.ClientFormat(pl, "D3bot_selfredeemcooldown", math.ceil(cooldown))
 		pl:ChatPrint(response)
 		pl:PrintMessage(HUD_PRINTCENTER, response)
 		pl:ChangeTeam(TEAM_HUMAN)
@@ -105,9 +105,9 @@ local function registerCmd(camelCaseName, access, ...)
 			break
 		end
 	end
-	ulx["azBot" .. camelCaseName] = func
-	local cmdStr = (access == ULib.ACCESS_SUPERADMIN and "azbot " or "") .. camelCaseName:lower()
-	local cmd = ulx.command("AzBot", cmdStr, func, "!" .. cmdStr)
+	ulx["d3bot" .. camelCaseName] = func
+	local cmdStr = (access == ULib.ACCESS_SUPERADMIN and "bot " or "") .. camelCaseName:lower()
+	local cmd = ulx.command("D3bot", cmdStr, func, "!" .. cmdStr)
 	for k, param in pairs(params) do cmd:addParam(param) end
 	cmd:defaultAccess(access)
 end
@@ -121,64 +121,64 @@ local strRestParam = { type = ULib.cmds.StringArg, ULib.cmds.takeRestOfLine }
 local optionalStrParam = { type = ULib.cmds.StringArg, ULib.cmds.optional }
 
 registerAdminCmd("BotMod", numParam, function(caller, num)
-	local formerZombiesCountAddition = AzBot.ZombiesCountAddition
-	AzBot.ZombiesCountAddition = math.Round(num)
+	local formerZombiesCountAddition = D3bot.ZombiesCountAddition
+	D3bot.ZombiesCountAddition = math.Round(num)
 	local function format(num) return "[formula + (" .. num .. ")]" end
-	caller:ChatPrint("Zombies count changed from " .. format(formerZombiesCountAddition) .. " to " .. format(AzBot.ZombiesCountAddition) .. ".")
+	caller:ChatPrint("Zombies count changed from " .. format(formerZombiesCountAddition) .. " to " .. format(D3bot.ZombiesCountAddition) .. ".")
 end)
 
-registerSuperadminCmd("ViewMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.SetMapNavMeshUiSubscription(pl, "view") end end)
-registerSuperadminCmd("EditMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.SetMapNavMeshUiSubscription(pl, "edit") end end)
-registerSuperadminCmd("HideMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.SetMapNavMeshUiSubscription(pl, nil) end end)
+registerSuperadminCmd("ViewMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do D3bot.SetMapNavMeshUiSubscription(pl, "view") end end)
+registerSuperadminCmd("EditMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do D3bot.SetMapNavMeshUiSubscription(pl, "edit") end end)
+registerSuperadminCmd("HideMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do D3bot.SetMapNavMeshUiSubscription(pl, nil) end end)
 
 registerSuperadminCmd("SaveMesh", function(caller)
-	AzBot.SaveMapNavMesh()
+	D3bot.SaveMapNavMesh()
 	caller:ChatPrint("Saved.")
 end)
 registerSuperadminCmd("ReloadMesh", function(caller)
-	AzBot.LoadMapNavMesh()
-	AzBot.UpdateMapNavMeshUiSubscribers()
+	D3bot.LoadMapNavMesh()
+	D3bot.UpdateMapNavMeshUiSubscribers()
 	caller:ChatPrint("Reloaded.")
 end)
 registerSuperadminCmd("RefreshMeshView", function(caller)
-	AzBot.UpdateMapNavMeshUiSubscribers()
+	D3bot.UpdateMapNavMeshUiSubscribers()
 	caller:ChatPrint("Refreshed.")
 end)
 
 registerSuperadminCmd("SetParam", strParam, strParam, optionalStrParam, function(caller, id, name, serializedNumOrStrOrEmpty)
-	AzBot.TryCatch(function()
-		AzBot.MapNavMesh.ItemById[AzBot.DeserializeNavMeshItemId(id)]:SetParam(name, serializedNumOrStrOrEmpty)
-		AzBot.lastParamKey = name
-		AzBot.lastParamValue = serializedNumOrStrOrEmpty
-		AzBot.UpdateMapNavMeshUiSubscribers()
+	D3bot.TryCatch(function()
+		D3bot.MapNavMesh.ItemById[D3bot.DeserializeNavMeshItemId(id)]:SetParam(name, serializedNumOrStrOrEmpty)
+		D3bot.lastParamKey = name
+		D3bot.lastParamValue = serializedNumOrStrOrEmpty
+		D3bot.UpdateMapNavMeshUiSubscribers()
 	end, function(errorMsg)
 		caller:ChatPrint("Error. Re-check your parameters.")
 	end)
 end)
 
 registerSuperadminCmd("SetMapParam", strParam, optionalStrParam, function(caller, name, serializedNumOrStrOrEmpty)
-	AzBot.TryCatch(function()
-		AzBot.MapNavMesh:SetParam(name, serializedNumOrStrOrEmpty)
-		AzBot.SaveMapNavMeshParams()
+	D3bot.TryCatch(function()
+		D3bot.MapNavMesh:SetParam(name, serializedNumOrStrOrEmpty)
+		D3bot.SaveMapNavMeshParams()
 	end, function(errorMsg)
 		caller:ChatPrint("Error. Re-check your parameters.")
 	end)
 end)
 
 registerSuperadminCmd("ViewPath", plsParam, strParam, strParam, function(caller, pls, startNodeId, endNodeId)
-	local nodeById = AzBot.MapNavMesh.NodeById
-	local startNode = nodeById[AzBot.DeserializeNavMeshItemId(startNodeId)]
-	local endNode = nodeById[AzBot.DeserializeNavMeshItemId(endNodeId)]
+	local nodeById = D3bot.MapNavMesh.NodeById
+	local startNode = nodeById[D3bot.DeserializeNavMeshItemId(startNodeId)]
+	local endNode = nodeById[D3bot.DeserializeNavMeshItemId(endNodeId)]
 	if not startNode or not endNode then
 		caller:ChatPrint("Not all specified nodes exist.")
 		return
 	end
-	local path = AzBot.GetBestMeshPathOrNil(startNode, endNode)
+	local path = D3bot.GetBestMeshPathOrNil(startNode, endNode)
 	if not path then
 		caller:ChatPrint("Couldn't find any path for the two specified nodes.")
 		return
 	end
-	for k, pl in pairs(pls) do AzBot.ShowMapNavMeshPath(pl, path) end
+	for k, pl in pairs(pls) do D3bot.ShowMapNavMeshPath(pl, path) end
 end)
 registerSuperadminCmd("DebugPath", plsParam, optionalStrParam, function(caller, pls, serializedEntIdxOrEmpty)
 	local ent = serializedEntIdxOrEmpty == "" and caller:GetEyeTrace().Entity or Entity(tonumber(serializedEntIdxOrEmpty) or -1)
@@ -187,9 +187,9 @@ registerSuperadminCmd("DebugPath", plsParam, optionalStrParam, function(caller, 
 		return
 	end
 	caller:ChatPrint("Debugging path from player to " .. tostring(ent) .. ".")
-	for k, pl in pairs(pls) do AzBot.ShowMapNavMeshPath(pl, pl, ent) end
+	for k, pl in pairs(pls) do D3bot.ShowMapNavMeshPath(pl, pl, ent) end
 end)
-registerSuperadminCmd("ResetPath", plsParam, function(caller, pls) for k, pl in pairs(pls) do AzBot.HideMapNavMeshPath(pl) end end)
+registerSuperadminCmd("ResetPath", plsParam, function(caller, pls) for k, pl in pairs(pls) do D3bot.HideMapNavMeshPath(pl) end end)
 
 local modelOrNilByShortModel = {
 	pole = "models/props_c17/signpole001.mdl",
@@ -271,28 +271,28 @@ registerAdminCmd("ConfirmRemove", function(caller) removeeByPl[caller]:Remove() 
 registerAdminCmd("PropList", function(caller) for shortModel, model in pairs(modelOrNilByShortModel) do caller:ChatPrint(shortModel .. ": " .. model) end end)
 registerAdminCmd("IsExtraProp", function(caller)
 	local ent = getEyeEntity(caller)
-	caller:ChatPrint(tostring(AzBot.GetIsExtraProp(ent)) .. " (" .. getNiceName(ent) .. ")")
+	caller:ChatPrint(tostring(D3bot.GetIsExtraProp(ent)) .. " (" .. getNiceName(ent) .. ")")
 end)
 registerAdminCmd("ExtraProp", function(caller)
 	local ent = getEyeEntity(caller)
 	caller:ChatPrint(getNiceName(ent) .. ":")
-	if AzBot.GetIsExtraProp(ent) then
+	if D3bot.GetIsExtraProp(ent) then
 		caller:ChatPrint("It's already an extra prop.")
 		return
 	end
-	caller:ChatPrint(AzBot.TrySetExtraProp(ent) and "It's an extra prop now." or "Failed to make it an extra prop.")
+	caller:ChatPrint(D3bot.TrySetExtraProp(ent) and "It's an extra prop now." or "Failed to make it an extra prop.")
 end)
 registerAdminCmd("UnextraProp", function(caller)
 	local ent = getEyeEntity(caller)
 	caller:ChatPrint(getNiceName(ent) .. ":")
-	caller:ChatPrint(AzBot.TryUnsetExtraProp(ent) and "It's not an extra prop anymore." or "Wasn't an extra prop anyway.")
+	caller:ChatPrint(D3bot.TryUnsetExtraProp(ent) and "It's not an extra prop anymore." or "Wasn't an extra prop anyway.")
 end)
 registerAdminCmd("SaveExtraProps", function(caller)
-	AzBot.SaveExtraProps()
+	D3bot.SaveExtraProps()
 	caller:ChatPrint("Saved.")
 end)
 registerAdminCmd("ReloadExtraProps", function(caller)
-	AzBot.ReloadExtraProps()
+	D3bot.ReloadExtraProps()
 	caller:ChatPrint("Reloaded.")
 end)
 

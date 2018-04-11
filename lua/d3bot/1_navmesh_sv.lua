@@ -1,6 +1,6 @@
 
 return function(lib)
-	lib.MapNavMeshDir = "azbot/navmesh/map/"
+	lib.MapNavMeshDir = "d3bot/navmesh/map/"
 	function lib.GetMapNavMeshPath(mapName)
 		return lib.MapNavMeshDir .. mapName .. ".txt"
 	end

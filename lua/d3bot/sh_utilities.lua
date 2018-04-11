@@ -1,4 +1,4 @@
-function AzBot.GetTrajectories2DParams(g, initVel, distZ, distRad)
+function D3bot.GetTrajectories2DParams(g, initVel, distZ, distRad)
 	local trajectories = {}
 	local radix = initVel^4 - g*(g*distRad^2 + 2*distZ*initVel^2)
 	
@@ -15,7 +15,7 @@ function AzBot.GetTrajectories2DParams(g, initVel, distZ, distRad)
 	return trajectories
 end
 
-function AzBot.GetTrajectory2DPoints(trajectory, segments)
+function D3bot.GetTrajectory2DPoints(trajectory, segments)
 	trajectory.points = {}
 	for i = 0, segments, 1 do
 		local t = Lerp(i/segments, 0, trajectory.t1)
@@ -26,18 +26,18 @@ function AzBot.GetTrajectory2DPoints(trajectory, segments)
 	return trajectory
 end
 
-function AzBot.GetTrajectories(initVel, r0, r1, segments)
+function D3bot.GetTrajectories(initVel, r0, r1, segments)
 	local g = 600 -- Hard coded acceleration, should be read from gmod later
 	
 	local distZ = r1.z - r0.z
 	local distRad = math.sqrt((r1.x - r0.x)^2 + (r1.y - r0.y)^2)
 	local yaw = math.atan2(r1.y - r0.y, r1.x - r0.x)
 	
-	local trajectories = AzBot.GetTrajectories2DParams(g, initVel, distZ, distRad)
+	local trajectories = D3bot.GetTrajectories2DParams(g, initVel, distZ, distRad)
 	for i, trajectory in ipairs(trajectories) do
 		trajectories[i].yaw = yaw
 		-- Calculate 2D trajectory from parameters
-		trajectories[i] = AzBot.GetTrajectory2DPoints(trajectory, segments)
+		trajectories[i] = D3bot.GetTrajectory2DPoints(trajectory, segments)
 		-- Rotate and move trajectory into 3D space
 		for k, _ in ipairs(trajectory.points) do
 			trajectory.points[k]:Rotate(Angle(0, math.deg(yaw), 0))
@@ -49,6 +49,6 @@ function AzBot.GetTrajectories(initVel, r0, r1, segments)
 end
 
 -- Remove spectating and dead players
-function AzBot.RemoveObsDeadTgts(tgts)
-	return AzBot.From(tgts):Where(function(k, v) return IsValid(v) and v:GetObserverMode() == OBS_MODE_NONE and v:Alive() end).R
+function D3bot.RemoveObsDeadTgts(tgts)
+	return D3bot.From(tgts):Where(function(k, v) return IsValid(v) and v:GetObserverMode() == OBS_MODE_NONE and v:Alive() end).R
 end
