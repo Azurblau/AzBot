@@ -1,11 +1,12 @@
-D3bot.Handlers.Undead_Crow = {}
+D3bot.Handlers.Undead_Crow = D3bot.Handlers.Undead_Crow or {}
 HANDLER = D3bot.Handlers.Undead_Crow
 
-HANDLER.ZombieClasses = {Crow = true}
-local TEAM_UNDEAD = 3 -- TODO: Create a function for the selection
-HANDLER.Team = {[TEAM_UNDEAD] = true}
+HANDLER.Fallback = false
+function HANDLER.SelectorFunction(zombieClassName, team)
+	return team == TEAM_UNDEAD and zombieClassName == "Crow"
+end
 
-HANDLER.UpdateBotCmdFunction = function(bot, cmd)
+function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	cmd:ClearButtons()
 	cmd:ClearMovement()
 	
@@ -31,4 +32,20 @@ HANDLER.UpdateBotCmdFunction = function(bot, cmd)
 	if aimAngle then bot:SetEyeAngles(aimAngle) cmd:SetViewAngles(aimAngle) end
 	if forwardSpeed then cmd:SetForwardMove(forwardSpeed) end
 	cmd:SetButtons(buttons)
+end
+
+function HANDLER.ThinkFunction(bot)
+	
+end
+
+function HANDLER.OnTakeDamageFunction(bot, dmg)
+	bot:Say("ouch!")
+end
+
+function HANDLER.OnDoDamageFunction(bot, dmg)
+	bot:Say("Gotcha!")
+end
+
+function HANDLER.OnDeathFunction(bot)
+	bot:Say("rip me!")
 end

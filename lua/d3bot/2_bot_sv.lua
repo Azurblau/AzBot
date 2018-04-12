@@ -4,9 +4,6 @@ return function(lib)
 	
 	lib.IsEnabled = engine.ActiveGamemode() == "zombiesurvival"
 	lib.NextBotConfigUpdate = 0
-	lib.BotPosMilestoneUpdateDelay = 25
-	lib.BotZeroPosMilestoneUpdateDelay = 0.25
-	lib.BotPosMilestoneDistMin = 200
 	lib.BotTgtFixationDistMin = 250
 	lib.BotTgtAreaRadius = 100
 	lib.BotSeeTr = {
@@ -31,18 +28,19 @@ return function(lib)
 	lib.BotAttackAngLerpFactor = 0.5
 	lib.BotAimPosVelocityOffshoot = 0.4
 	lib.BotJumpAntichance = 25
-	lib.ZombiesPerHuman = 0.3
-	lib.ZombiesPerHumanMax = 1.2			-- Limits maximum amount of zombies to this zombie/human ratio. (ZombiesCountAddition is not calculated in)
-	lib.ZombiesPerHumanWave = 0.10
+	lib.ZombiesPerPlayer = 0.3
+	lib.ZombiesPerPlayerMax = 1.2			-- Limits amount of zombies to this zombie/player ratio. (ZombiesCountAddition is not calculated in)
+	lib.ZombiesPerPlayerWave = 0.10
 	lib.ZombiesPerMinute = 0
 	lib.ZombiesPerWave = 0.4
 	lib.ZombiesCountAddition = 0			-- BotMod
+	lib.SurvivorsPerPlayer = 1.2			-- Survivor bots per total player (non bot) amount. Will only spawn pre round. But excess bots will be kicked/slain.
+	lib.SurvivorCountAddition = 0
 	lib.HasMapNavMesh = table.Count(lib.MapNavMesh.ItemById) > 0
-	lib.MaintainBotRolesAutomatically = lib.HasMapNavMesh
 	lib.IsSelfRedeemEnabled = lib.HasMapNavMesh
 	lib.IsBonusEnabled = lib.HasMapNavMesh
 	lib.SelfRedeemWaveMax = 4
-	lib.BotHooksId = tostring({})
+	lib.BotHooksId = "D3bot"
 	lib.BotClasses = {
 		"Zombie", "Zombie", "Zombie",
 		"Ghoul",
@@ -87,71 +85,11 @@ return function(lib)
 			pl:SetPoints(hadBonus and 0 or 25)
 		end
 	end)
-	local roundStartTime = CurTime()
-	hook.Add("PlayerDeath", lib.BotHooksId, function(pl) if lib.IsEnabled and pl:IsBot() then lib.HandleBotDeath(pl) end end)
+	
 	hook.Add("PreRestartRound", lib.BotHooksId, function() hadBonusByPl, roundStartTime, lib.nodeZombiesCountAddition = {}, CurTime(), nil end)
-	hook.Add("EntityTakeDamage", lib.BotHooksId, function(ent, dmg) if lib.IsEnabled and ent:IsPlayer() and ent:IsBot() then lib.HandleBotDamage(ent, dmg) end end)
-	
-	function lib.HandleBotDeath(bot)
-		bot:D3bot_RerollClass()
-		local mem = bot.D3bot_Mem
-		local nodeOrNil = mem.NodeOrNil
-		local nextNodeOrNil = mem.NextNodeOrNil
-		if not nodeOrNil or not nextNodeOrNil then return end
-		local link = nodeOrNil.LinkByLinkedNode[nextNodeOrNil]
-		if not link then return end
-		lib.DeathCostOrNilByLink[link] = (lib.DeathCostOrNilByLink[link] or 0) + lib.LinkDeathCostRaise
-	end
-	
-	function lib.HandleBotDamage(bot, dmg)
-		local attacker = dmg:GetAttacker()
-		if not lib.CanBeBotTgt(attacker) then return end
-		local mem = bot.D3bot_Mem
-		if IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(bot:GetPos()) <= lib.BotTgtFixationDistMin then return end
-		mem.TgtOrNil = attacker
-		bot:D3bot_ResetPosMilestone(bot)
-	end
-	
-	function lib.GetDesiredZombiesCount()
-		local wave = math.max(1, GAMEMODE:GetWave())
-		local mapParams = lib.MapNavMesh.Params
-		local formula = ((mapParams.ZPH or lib.ZombiesPerHuman) + (mapParams.ZPHW or lib.ZombiesPerHumanWave) * wave) * #player.GetHumans() + (mapParams.ZPM or lib.ZombiesPerMinute) * (CurTime() - roundStartTime) / 60 + (mapParams.ZPW or lib.ZombiesPerWave) * wave
-		return math.Clamp(
-			math.ceil(math.min(formula, (mapParams.ZPHM or lib.ZombiesPerHumanMax) * #player.GetHumans()) + lib.ZombiesCountAddition + (lib.MapNavMesh.Params.BotMod or 0) + (lib.nodeZombiesCountAddition or 0)),
-			0,
-			game.MaxPlayers() - #team.GetPlayers(TEAM_HUMAN) - 2)
-		-- TODO: Change player.GetHumans() to only count survivors without bots
-	end
-	
-	local num 
-	function lib.MaintainBotRoles()
-		if #player.GetHumans() == 0 then return end
-		local desiredZombiesCount = lib.GetDesiredZombiesCount()
-		local zombiesCount = #player.GetBots()--#team.GetPlayers(TEAM_UNDEAD)
-		local counter = 2
-		while zombiesCount < desiredZombiesCount and not GAMEMODE.RoundEnded and counter > 0 do
-			--RunConsoleCommand("bot")
-			num = (num + 1) or 1
-			local bot = player.CreateNextBot( "Bottototo_" .. ( num ) )
-			zombiesCount = zombiesCount + 1
-			counter = counter - 1
-		end
-		for idx, bot in ipairs(player.GetBots()) do
-			if bot:Team() == TEAM_UNDEAD then
-				if zombiesCount > desiredZombiesCount then
-					bot:Kick(lib.BotKickReason)
-					zombiesCount = zombiesCount - 1
-				end
-			else
-				--bot:Kick(lib.SurvivorBotKickReason)
-			end
-		end
-	end
-	
-	function lib.CanBeBotTgt(tgtOrNil) return IsValid(tgtOrNil) and table.HasValue(D3bot.PotBotTgts, tgtOrNil) end
 	
 	function lib.UpdatePotBotTgts()
-		-- Get humans or non zombie players or any players in that order
+		-- Get humans or non zombie players or any players in this order
 		local players = lib.RemoveObsDeadTgts(team.GetPlayers(TEAM_HUMAN))
 		if #players == 0 and TEAM_ZOMBIE then
 			players = lib.RemoveObsDeadTgts(player.GetAll())
@@ -165,6 +103,6 @@ return function(lib)
 	
 	function lib.UpdateBotConfig()
 		D3bot.UpdatePotBotTgts()
-		if D3bot.MaintainBotRolesAutomatically then D3bot.MaintainBotRoles() end
+		--if D3bot.MaintainBotRolesAutomatically then D3bot.MaintainBotRoles() end
 	end
 end

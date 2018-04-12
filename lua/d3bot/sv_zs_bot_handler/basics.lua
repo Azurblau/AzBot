@@ -18,32 +18,39 @@ function D3bot.Basics.SuicideOrRetarget(bot)
 end
 
 function D3bot.Basics.CheckStuck(bot)
+	local posList = bot.D3bot_PosList
+	if not posList then return end
 	local mem = bot.D3bot_Mem
 	
-	local nodeOrNil = mem.NodeOrNil
-	local nextNodeOrNil = mem.NextNodeOrNil
+	local pos_1, pos_2, pos_10 = posList[1], posList[2], posList[10]
 	
-	if nodeOrNil and nextNodeOrNil and nextNodeOrNil.Pos.z > nodeOrNil.Pos.z + 55 then
-		local wallParam = nextNodeOrNil.Params.Wall
-		if wallParam == "Retarget" then
-			bot:D3bot_ResetTgtOrNil()
-		elseif wallParam == "Suicide" then
-			bot:Kill()
-			return
+	local minorStuck = pos_1 and pos_2 and pos_1:Distance(pos_2) < 1		-- Stuck on ladder
+	local preMajorStuck = pos_1 and pos_10 and pos_1:Distance(pos_10) < 300	-- Running circles, stuck on object, ...
+	local majorStuck
+	
+	if preMajorStuck and (bot.D3bot_LastDamage and bot.D3bot_LastDamage < CurTime() - 5 or not bot.D3bot_LastDamage) then
+		mem.MajorStuckCounter = mem.MajorStuckCounter and mem.MajorStuckCounter + 1 or 1
+		if mem.MajorStuckCounter > 15 then
+			majorStuck, mem.MajorStuckCounter = true, nil
 		end
+	else
+		mem.MajorStuckCounter = nil
 	end
+	
+	return minorStuck, majorStuck
 end
 
 function D3bot.Basics.Walk(bot, pos) -- 'pos' should be inside the current or next node
 	local mem = bot.D3bot_Mem
-	if not mem then return end
 	
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
 	
 	local origin = bot:GetPos()
-	local duck, jump
+	local duck, jump, use
 	
+	-- TODO: Recalculate offshoot when outside of current area (2D), to make it face inside that area again. (Borders towards 'pos' are ignored)
+	-- This will prevent bots from falling over edges
 	bot:D3bot_FaceTo(pos, origin, D3bot.BotAngLerpFactor)
 	
 	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
@@ -52,6 +59,11 @@ function D3bot.Basics.Walk(bot, pos) -- 'pos' should be inside the current or ne
 	local jumpToParam = nextNodeOrNil and nextNodeOrNil.Params.JumpTo
 	
 	local facesHindrance = bot:GetVelocity():Length2D() < 0.20 * bot:GetMaxSpeed()
+	local minorStuck, majorStuck
+	if mem.nextCheckStuck and mem.nextCheckStuck < CurTime() or not mem.nextCheckStuck then
+		mem.nextCheckStuck = CurTime() + 1
+		minorStuck, majorStuck = D3bot.Basics.CheckStuck(bot)
+	end
 	
 	if duckParam == "Always" or duckToParam == "Always" then
 		duck = true
@@ -72,6 +84,11 @@ function D3bot.Basics.Walk(bot, pos) -- 'pos' should be inside the current or ne
 		else
 			duck = true
 		end
+	elseif minorStuck then
+		jump = true
+		duck = true
+		use = true
+		print("antistuck")
 	end
 	
 	if math.random(1, 2) == 1 or jumpParam == "Disabled" or jumpToParam == "Disabled" then
@@ -81,9 +98,9 @@ function D3bot.Basics.Walk(bot, pos) -- 'pos' should be inside the current or ne
 		duck = false
 	end
 	
-	local buttons = bit.bor(IN_FORWARD, (facesTgt or facesHindrance) and IN_ATTACK or 0, duck and IN_DUCK or 0, jump and IN_JUMP or 0, facesHindrance and IN_USE or 0)
+	local buttons = bit.bor(IN_FORWARD, (facesTgt or facesHindrance) and IN_ATTACK or 0, duck and IN_DUCK or 0, jump and IN_JUMP or 0, (facesHindrance or use) and IN_USE or 0)
 	
-	return true, buttons, bot:GetMaxSpeed(), mem.Angs
+	return true, buttons, bot:GetMaxSpeed(), mem.Angs, majorStuck
 end
 
 function D3bot.Basics.WalkAttackAuto(bot)
@@ -94,7 +111,7 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	local nextNodeOrNil = mem.NextNodeOrNil
 	
 	local aimPos, origin
-	local duck, jump
+	local duck, jump, use
 	local facesTgt = false
 	
 	-- TODO: Reduce can see target calls
@@ -133,6 +150,11 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	local jumpToParam = nextNodeOrNil and nextNodeOrNil.Params.JumpTo
 	
 	local facesHindrance = bot:GetVelocity():Length2D() < 0.20 * bot:GetMaxSpeed()
+	local minorStuck, majorStuck
+	if mem.nextCheckStuck and mem.nextCheckStuck < CurTime() or not mem.nextCheckStuck then
+		mem.nextCheckStuck = CurTime() + 1
+		minorStuck, majorStuck = D3bot.Basics.CheckStuck(bot)
+	end
 	
 	if duckParam == "Always" or duckToParam == "Always" then
 		duck = true
@@ -153,6 +175,10 @@ function D3bot.Basics.WalkAttackAuto(bot)
 		else
 			duck = true
 		end
+	elseif minorStuck then
+		jump = true
+		duck = true
+		use = true
 	end
 	
 	if math.random(1, 2) == 1 or jumpParam == "Disabled" or jumpToParam == "Disabled" then
@@ -162,9 +188,9 @@ function D3bot.Basics.WalkAttackAuto(bot)
 		duck = false
 	end
 	
-	local buttons = bit.bor(IN_FORWARD, (facesTgt or facesHindrance) and IN_ATTACK or 0, duck and IN_DUCK or 0, jump and IN_JUMP or 0, facesHindrance and IN_USE or 0)
+	local buttons = bit.bor(IN_FORWARD, (facesTgt or facesHindrance) and IN_ATTACK or 0, duck and IN_DUCK or 0, jump and IN_JUMP or 0, (facesHindrance or use) and IN_USE or 0)
 	
-	return true, buttons, bot:GetMaxSpeed(), mem.Angs
+	return true, buttons, bot:GetMaxSpeed(), mem.Angs, majorStuck
 end
 
 function D3bot.Basics.PounceAuto(bot)
@@ -189,7 +215,7 @@ function D3bot.Basics.PounceAuto(bot)
 											 ForcePounce = (nextNodeOrNil.LinkByLinkedNode[nodeOrNil] and nextNodeOrNil.LinkByLinkedNode[nodeOrNil].Params.Pouncing == "Needed")})
 	end
 	local i = 0
-	for k, v in ipairs(mem.RemainingNodes) do
+	for k, v in ipairs(mem.RemainingNodes) do -- TODO: Check if it behaves as expected
 		tempDist = tempDist + tempPos:Distance(v.Pos)
 		tempPos = v.Pos
 		table.insert(pounceTargetPositions, {Pos = v.Pos + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1})
@@ -233,7 +259,7 @@ function D3bot.Basics.PounceAuto(bot)
 			bot:D3bot_UpdateMem(bot)
 		end
 		
-		return true, buttons, 0, mem.Angs
+		return true, buttons, 0, mem.Angs, false
 	end
 	
 	return

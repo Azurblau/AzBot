@@ -1,12 +1,12 @@
-D3bot.Handlers.Survivor_Fallback = {}
+D3bot.Handlers.Survivor_Fallback = D3bot.Handlers.Survivor_Fallback or {}
 HANDLER = D3bot.Handlers.Survivor_Fallback
 
--- HANDLER.ZombieClasses = {}
-local TEAM_SURVIVOR = 4 -- TODO: Create a function for the selection
-local TEAM_REDEEMER = 5
-HANDLER.Team = {[TEAM_SURVIVOR] = true, [TEAM_REDEEMER] = true}
+HANDLER.Fallback = true
+function HANDLER.SelectorFunction(zombieClassName, team)
+	return team == TEAM_SURVIVOR or team == TEAM_REDEEMER
+end
 
-HANDLER.UpdateBotCmdFunction = function(bot, cmd)
+function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	cmd:ClearButtons()
 	cmd:ClearMovement()
 	
@@ -19,16 +19,29 @@ HANDLER.UpdateBotCmdFunction = function(bot, cmd)
 	bot:D3bot_UpdateMem()
 	D3bot.Basics.SuicideOrRetarget(bot)
 	
-	local result, buttons, forwardSpeed, aimAngle = D3bot.Basics.PounceAuto(bot)
+	local result, buttons, forwardSpeed, aimAngle = D3bot.Basics.WalkAttackAuto(bot)
 	if not result then
-		result, buttons, forwardSpeed, aimAngle = D3bot.Basics.WalkAttackAuto(bot)
-		if not result then
-			return
-		end
+		return
 	end
 	
 	bot:SetEyeAngles(aimAngle)
 	cmd:SetViewAngles(aimAngle)
 	cmd:SetForwardMove(forwardSpeed)
 	cmd:SetButtons(buttons)
+end
+
+function HANDLER.ThinkFunction(bot)
+	
+end
+
+function HANDLER.OnTakeDamageFunction(bot, dmg)
+	bot:Say("Stop that")
+end
+
+function HANDLER.OnDoDamageFunction(bot, dmg)
+	bot:Say("Gotcha!")
+end
+
+function HANDLER.OnDeathFunction(bot)
+	bot:Say("rip me!")
 end

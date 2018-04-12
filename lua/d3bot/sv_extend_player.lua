@@ -83,8 +83,6 @@ end
 function meta:D3bot_FaceTo(pos, origin, lerpFactor)
 	local mem = self.D3bot_Mem
 	mem.Angs = LerpAngle(lerpFactor, mem.Angs, (pos - origin):Angle() + mem.AngsOffshoot)
-	-- TODO: Recalculate offshoot when outside of current area (2D), to make it face inside that area again. (Borders towards the next node are ignored)
-	-- This will prevent bots from falling over edges
 end
 
 function meta:D3bot_RerollClass()
@@ -102,7 +100,8 @@ function meta:D3bot_RerollClass()
 	end
 	local zombieClass = table.Random(zombieClasses)
 	if not zombieClass then zombieClass = GAMEMODE.ZombieClasses[GAMEMODE.DefaultZombieClass] end
-	self:SetZombieClass(zombieClass.Index)
+	--self:SetZombieClass(zombieClass.Index)
+	self.DeathClass = zombieClass.Index
 end
 
 function meta:D3bot_ResetTgtOrNil()
@@ -120,11 +119,6 @@ function meta:D3bot_Initialize()
 	end
 	
 	self.D3bot_Mem = {
-		PosMilestone = Vector(),
-		ZeroPosMilestone = Vector(),
-		NextPosMilestoneTime = 0,
-		NextZeroPosMilestoneTime = 0,
-		NextFailPosMilestone = function() end,
 		TgtOrNil = nil,
 		TgtNodeOrNil = nil,
 		NodeOrNil = nil,
@@ -142,65 +136,12 @@ end
 
 function meta:D3bot_SetUp()
 	local mem = self.D3bot_Mem
-	self:D3bot_ResetPosMilestone()
 	mem.TgtOrNil = nil
 	mem.NextNodeOrNil = nil
 	mem.RemainingNodes = {}
 	mem.ConsidersPathLethality = math.random(1, D3bot.BotConsideringDeathCostAntichance) == 1
 	mem.Angs = self:EyeAngles()
 	mem.NextSlowThinkTime = 0
-end
-
-function meta:D3bot_ResetPosMilestone()
-	self:D3bot_SetPosMilestone()
-	self:D3bot_SetZeroPosMilestone()
-	self.D3bot_Mem.NextFailPosMilestone = self.D3bot_FailFirstPosMilestone
-end
-
-function meta:D3bot_UpdatePosMilestone()
-	local mem = self.D3bot_Mem
-	if mem.NextZeroPosMilestoneTime <= CurTime() then
-		if self:GetPos() == mem.ZeroPosMilestone then
-			--if self:GetMoveType() == MOVETYPE_LADDER then
-			--	mem.ButtonsToBeClicked = bit.bor(mem.ButtonsToBeClicked, IN_JUMP)
-			-- TODO: Put that somewhere else
-			-- else
-				-- self:Kill()
-				-- self:D3bot_ResetPosMilestone()
-				-- return
-			--end
-		end
-		self:D3bot_SetZeroPosMilestone()
-	end
-	if mem.NextPosMilestoneTime > CurTime() then return end
-	local failed = self:GetPos():Distance(mem.PosMilestone) < D3bot.BotPosMilestoneDistMin
-	self:D3bot_SetPosMilestone()
-	if failed then mem.NextFailPosMilestone(self) end
-end
-
-function meta:D3bot_SetPosMilestone()
-	local mem = self.D3bot_Mem
-	mem.PosMilestone = self:GetPos()
-	mem.NextPosMilestoneTime = CurTime() + D3bot.BotPosMilestoneUpdateDelay - math.random(0, math.floor(D3bot.BotPosMilestoneUpdateDelay * 0.5))
-end
-
-function meta:D3bot_SetZeroPosMilestone()
-	local mem = self.D3bot_Mem
-	mem.ZeroPosMilestone = self:GetPos()
-	mem.NextZeroPosMilestoneTime = CurTime() + D3bot.BotZeroPosMilestoneUpdateDelay
-end
-
-function meta:D3bot_FailFirstPosMilestone()
-	local mem = self.D3bot_Mem
-	self:D3bot_ResetTgtOrNil()
-	mem.NextFailPosMilestone = self.D3bot_FailSecondPosMilestone
-	--mem.ButtonsToBeClicked = bit.bor(mem.ButtonsToBeClicked, IN_JUMP)
-	-- TODO: Put that jump somewhere else
-end
-
-function meta:D3bot_FailSecondPosMilestone()
-	self:Kill()
-	self:D3bot_ResetPosMilestone()
 end
 
 function meta:D3bot_UpdateTgtProximity()
@@ -260,7 +201,6 @@ end
 
 function meta:D3bot_UpdateMem()
 	local mem = self.D3bot_Mem
-	self:D3bot_UpdatePosMilestone()
 	self:D3bot_UpdateTgtOrNil()
 	self:D3bot_UpdateTgtProximity()
 	if mem.NextSlowThinkTime <= CurTime() then
@@ -269,4 +209,13 @@ function meta:D3bot_UpdateMem()
 		self:D3bot_UpdatePath()
 	end
 	self:D3bot_UpdatePathProgress()
+end
+
+function meta:D3bot_StorePos()
+	self.D3bot_PosList = self.D3bot_PosList or {}
+	local posList = self.D3bot_PosList
+	table.insert(posList, 1, self:GetPos())
+	while #posList > 30 do
+		table.remove(posList)
+	end
 end

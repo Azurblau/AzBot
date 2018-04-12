@@ -302,8 +302,8 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 			if class.Name:lower() == className:lower() then
 				for _, bot in ipairs(player.GetBots()) do
 					if bot:GetZombieClassTable().Index ~= class.Index then
-						bot.DeathClass = class.Index
 						bot:Kill()
+						bot.DeathClass = class.Index
 					end
 				end
 				break

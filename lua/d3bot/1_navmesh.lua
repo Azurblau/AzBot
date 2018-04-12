@@ -50,11 +50,12 @@ return function(lib)
 	lib.NavmeshParams = {
 		Correct = {
 			BotMod = {},
-			ZPH = {},
-			ZPHM = {},
-			ZPHW = {},
+			ZPP = {},
+			ZPPM = {},
+			ZPPW = {},
 			ZPM = {},
-			ZPW = {} },
+			ZPW = {},
+			SPP = {} },
 		Replace = {} }
 	
 	function lib.NormalizeParam(name, numOrSerializedNumOrStrOrEmpty)
