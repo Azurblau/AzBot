@@ -1,5 +1,5 @@
 D3bot.Handlers.Undead_Fallback = D3bot.Handlers.Undead_Fallback or {}
-HANDLER = D3bot.Handlers.Undead_Fallback
+local HANDLER = D3bot.Handlers.Undead_Fallback
 
 HANDLER.Fallback = true
 function HANDLER.SelectorFunction(zombieClassName, team)
@@ -16,15 +16,20 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 		return
 	end
 	
-	bot:D3bot_UpdateMem()
+	bot:D3bot_UpdatePathProgress()
 	D3bot.Basics.SuicideOrRetarget(bot)
 	
-	local result, buttons, forwardSpeed, aimAngle, majorStuck = D3bot.Basics.PounceAuto(bot)
+	local result, actions, forwardSpeed, aimAngle, majorStuck = D3bot.Basics.PounceAuto(bot)
 	if not result then
-		result, buttons, forwardSpeed, aimAngle, majorStuck = D3bot.Basics.WalkAttackAuto(bot)
+		result, actions, forwardSpeed, aimAngle, majorStuck = D3bot.Basics.WalkAttackAuto(bot)
 		if not result then
 			return
 		end
+	end
+	
+	local buttons
+	if actions then
+		buttons = bit.bor(actions.Attack and IN_ATTACK or 0, actions.Attack2 and IN_ATTACK2 or 0, actions.Duck and IN_DUCK or 0, actions.Jump and IN_JUMP or 0, actions.Use and IN_USE or 0)
 	end
 	
 	if majorStuck and GAMEMODE:GetWaveActive() then bot:Kill() end
@@ -36,25 +41,65 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 end
 
 function HANDLER.ThinkFunction(bot)
+	local mem = bot.D3bot_Mem
 	
-	--D3bot.Basics.CheckStuck(bot)
+	if mem.nextCheckTarget and mem.nextCheckTarget < CurTime() or not mem.nextCheckTarget then
+		mem.nextCheckTarget = CurTime() + 1
+		if not HANDLER.CanBeTgt(bot, mem.TgtOrNil) then
+			HANDLER.RerollTarget(bot)
+		end
+	end
+	
+	if mem.nextUpdateOffshoot and mem.nextUpdateOffshoot < CurTime() or not mem.nextUpdateOffshoot then
+		mem.nextUpdateOffshoot = CurTime() + 0.4 + math.random() * 0.2
+		bot:D3bot_UpdateAngsOffshoot()
+	end
+	
+	if mem.nextUpdatePath and mem.nextUpdatePath < CurTime() or not mem.nextUpdatePath then
+		mem.nextUpdatePath = CurTime() + 0.9 + math.random() * 0.2
+		bot:D3bot_UpdatePath()
+	end
 end
 
 function HANDLER.OnTakeDamageFunction(bot, dmg)
 	local attacker = dmg:GetAttacker()
-	if not D3bot.CanBeBotTgt(attacker) then return end
+	if not HANDLER.CanBeTgt(bot, attacker) then return end
 	local mem = bot.D3bot_Mem
 	if IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(bot:GetPos()) <= D3bot.BotTgtFixationDistMin then return end
 	mem.TgtOrNil = attacker
-	bot:Say("Ouch! Fuck you "..attacker:GetName().."! Gonna kill you!")
+	--bot:Say("Ouch! Fuck you "..attacker:GetName().."! I'm gonna kill you!")
 end
 
 function HANDLER.OnDoDamageFunction(bot, dmg)
 	local mem = bot.D3bot_Mem
-	bot:Say("Gotcha!")
+	--bot:Say("Gotcha!")
 end
 
 function HANDLER.OnDeathFunction(bot)
-	bot:Say("rip me!")
+	--bot:Say("rip me!")
 	bot:D3bot_RerollClass()
+	HANDLER.RerollTarget(bot)
+end
+
+local potTargetEntClasses = {"prop_*turret", "prop_arsenalcrate", "prop_manhack*"}
+local potEntTargets = nil
+function HANDLER.CanBeTgt(bot, target)
+	if not target or not IsValid(target) then return end
+	if IsValid(target) and target:IsPlayer() and target ~= bot and target:Team() ~= TEAM_UNDEAD and target:GetObserverMode() == OBS_MODE_NONE and target:Alive() then return true end
+	if table.HasValue(potEntTargets, target) then return true end
+end
+
+function HANDLER.RerollTarget(bot)
+	-- Get humans or non zombie players or any players in this order
+	local players = D3bot.RemoveObsDeadTgts(team.GetPlayers(TEAM_HUMAN))
+	if #players == 0 and TEAM_UNDEAD then
+		players = D3bot.RemoveObsDeadTgts(player.GetAll())
+		players = D3bot.From(players):Where(function(k, v) return v:Team() ~= TEAM_UNDEAD end).R
+	end
+	if #players == 0 then
+		players = D3bot.RemoveObsDeadTgts(player.GetAll())
+	end
+	potEntTargets = D3bot.GetEntsOfClss(potTargetEntClasses)
+	local potTargets = table.Add(players, potEntTargets)
+	bot:D3bot_SetTgtOrNil(table.Random(potTargets))
 end

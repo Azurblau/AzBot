@@ -16,7 +16,7 @@ return function(lib)
 	local nodeFallback = lib.NavMeshNodeMeta.__index
 	local linkFallback = lib.NavMeshLinkMeta.__index
 	
-	lib.BotNodeMinProximity = 20
+	lib.BotNodeMinProximity = 40
 	
 	lib.MapNavMeshNetworkStr = "D3bot Map NavMesh"
 	

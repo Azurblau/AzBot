@@ -7,7 +7,7 @@ end
 
 local handlerLookup = {}
 
-local function findHandler(zombieClass, team)
+function findHandler(zombieClass, team)
 	if handlerLookup[team] and handlerLookup[team][zombieClass] then -- TODO: Put cached handler into bot object
 		return handlerLookup[team][zombieClass]
 	end
@@ -22,6 +22,7 @@ local function findHandler(zombieClass, team)
 		end
 	end
 end
+local findHandler = findHandler
 
 hook.Add("StartCommand", D3bot.BotHooksId, function(pl, cmd)
 	if D3bot.IsEnabled and pl:IsBot() then
@@ -65,12 +66,12 @@ end)
 hook.Add("EntityTakeDamage", D3bot.BotHooksId.."TakeDamage", function(ent, dmg)
 	if D3bot.IsEnabled then
 		if ent:IsPlayer() and ent:IsBot() then
-			-- Bot got damaged
+			-- Bot got damaged or damaged itself
 			local handler = findHandler(ent:GetZombieClass(), ent:Team())
 			handler.OnTakeDamageFunction(ent, dmg)
 		end
 		local attacker = dmg:GetAttacker()
-		if attacker:IsPlayer() and attacker:IsBot() then
+		if attacker ~= ent and attacker:IsPlayer() and attacker:IsBot() then
 			-- A Bot did damage something
 			local handler = findHandler(attacker:GetZombieClass(), attacker:Team())
 			handler.OnDoDamageFunction(attacker, dmg)
@@ -89,9 +90,7 @@ hook.Add("PlayerDeath", D3bot.BotHooksId.."PlayerDeath", function(pl)
 		local nextNodeOrNil = mem.NextNodeOrNil
 		if nodeOrNil and nextNodeOrNil then
 			local link = nodeOrNil.LinkByLinkedNode[nextNodeOrNil]
-			if link then
-				D3bot.DeathCostOrNilByLink[link] = (D3bot.DeathCostOrNilByLink[link] or 0) + D3bot.LinkDeathCostRaise
-			end
+			if link then D3bot.LinkMetadata_ZombieDeath(link, D3bot.LinkDeathCostRaise) end
 		end
 	end
 end)

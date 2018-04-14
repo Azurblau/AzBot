@@ -14,7 +14,7 @@ function meta:D3bot_GetAttackPosOrNil(fraction)
 	return tgt:IsPlayer() and LerpVector(fraction or 0.75, tgt:GetPos(), tgt:EyePos()) or tgt:WorldSpaceCenter()
 end
 
--- Position prediction
+-- Linear extrapolated position of the player entity
 function meta:D3bot_GetAttackPosOrNilFuture(fraction, t)
 	local mem = self.D3bot_Mem
 	local tgt = mem.TgtOrNil
@@ -22,7 +22,7 @@ function meta:D3bot_GetAttackPosOrNilFuture(fraction, t)
 	return tgt:IsPlayer() and LerpVector(fraction or 0.75, tgt:GetPos(), tgt:EyePos()) + tgt:GetVelocity()*t or tgt:WorldSpaceCenter()
 end
 
--- Position prediction with platform physics
+-- Linear extrapolated position of the player entity. (Works with platform physics)
 function meta:D3bot_GetAttackPosOrNilFuturePlatforms(fraction, t)
 	local mem = self.D3bot_Mem
 	local tgt = mem.TgtOrNil
@@ -32,7 +32,9 @@ function meta:D3bot_GetAttackPosOrNilFuturePlatforms(fraction, t)
 	return tgt:IsPlayer() and LerpVector(fraction or 0.75, tgt:GetPos(), tgt:EyePos()) + phys:GetVelocity()*t or tgt:WorldSpaceCenter()
 end
 
-function meta:D3bot_GetViewCenter() return self:GetPos() + (self:Crouching() and self:GetViewOffsetDucked() or self:GetViewOffset()) end
+function meta:D3bot_GetViewCenter()
+	return self:GetPos() + (self:Crouching() and self:GetViewOffsetDucked() or self:GetViewOffset())
+end
 
 function meta:D3bot_CanPounceToPos(pos)
 	if not pos then return end
@@ -80,9 +82,9 @@ function meta:D3bot_CanSeeTarget()
 	return attackPos and not util.TraceHull(tr).Hit
 end
 
-function meta:D3bot_FaceTo(pos, origin, lerpFactor)
+function meta:D3bot_FaceTo(pos, origin, lerpFactor, offshootFactor)
 	local mem = self.D3bot_Mem
-	mem.Angs = LerpAngle(lerpFactor, mem.Angs, (pos - origin):Angle() + mem.AngsOffshoot)
+	mem.Angs = LerpAngle(lerpFactor, mem.Angs, (pos - origin):Angle() + mem.AngsOffshoot * (offshootFactor or 1))
 end
 
 function meta:D3bot_RerollClass()
@@ -104,51 +106,67 @@ function meta:D3bot_RerollClass()
 	self.DeathClass = zombieClass.Index
 end
 
-function meta:D3bot_ResetTgtOrNil()
-	local targets = D3bot.PotBotTgts
-	table.RemoveByValue(targets, self)
-	self.D3bot_Mem.TgtOrNil = table.Random(targets)
+function meta:D3bot_ResetTgt() -- Reset all kind of targets
+	local mem = self.D3bot_Mem
+	mem.TgtOrNil = nil
+	mem.PosTgtOrNil, mem.PosTgtProximity = nil, nil
+	mem.NodeTgtOrNil = nil
+	mem.NodeOrNil = nil
+	mem.NextNodeOrNil = nil
+	mem.RemainingNodes = {}
 end
 
-function meta:D3bot_UpdateTgtOrNil() if not D3bot.CanBeBotTgt(self.D3bot_Mem.TgtOrNil) then self:D3bot_ResetTgtOrNil() end end
+function meta:D3bot_SetTgtOrNil(target) -- Set the entity or player as target, bot will move to and attack. TODO: Add "should attack" and proximity parameter.
+	local mem = self.D3bot_Mem
+	mem.TgtOrNil = target
+	mem.PosTgtOrNil, mem.PosTgtProximity = nil, nil
+	mem.NodeTgtOrNil = nil
+end
+
+function meta:D3bot_SetPosTgtOrNil(targetPos, proximity) -- Set the position as target, bot will then move to it
+	local mem = self.D3bot_Mem
+	mem.TgtOrNil = nil
+	mem.PosTgtOrNil, mem.PosTgtProximity = targetPos, proximity
+	mem.NodeTgtOrNil = nil
+end
+
+function meta:D3bot_SetNodeTgtOrNil(targetNode) -- Set the node as target, bot will then move to it
+	local mem = self.D3bot_Mem
+	mem.TgtOrNil = nil
+	mem.PosTgtOrNil, mem.PosTgtProximity = nil, nil
+	mem.NodeTgtOrNil = targetNode
+end
 
 function meta:D3bot_Initialize()
 	if D3bot.MaintainBotRolesAutomatically then
 		--GAMEMODE.PreviouslyDied[self:UniqueID()] = CurTime()
 		--GAMEMODE:PlayerInitialSpawn(self)
+		-- TODO: Make bots spawn as zombie when round started and there is need for more zombies
 	end
 	
 	self.D3bot_Mem = {
-		TgtOrNil = nil,
-		TgtNodeOrNil = nil,
-		NodeOrNil = nil,
-		NextNodeOrNil = nil,
-		RemainingNodes = {},
+		TgtOrNil = nil,					-- Target entity to walk to and attack
+		PosTgtOrNil = nil,				-- Target position to walk to
+		NodeTgtOrNil = nil,				-- Target node
+		TgtNodeOrNil = nil,				-- Node of the target entity or position
+		NodeOrNil = nil,				-- The node the bot is inside of (or nearest to)
+		NextNodeOrNil = nil,			-- Next node of the current path
+		RemainingNodes = {},			-- All remaining nodes of the current path
 		ConsidersPathLethality = false,
-		Spd = 0,
-		Angs = Angle(),
-		AngOffshoot = 0,
-		AngsOffshoot = Angle(),
-		NextSlowThinkTime = 0,
-		ButtonsToBeClicked = 0
+		Angs = Angle(),					-- Current angle, used to smooth out movement
+		AngsOffshoot = Angle()			-- Offshoot angle, to make bots movement more random
 	}
 end
 
 function meta:D3bot_SetUp()
 	local mem = self.D3bot_Mem
 	mem.TgtOrNil = nil
+	mem.PosTgtOrNil = nil
+	mem.NodeTgtOrNil = nil
 	mem.NextNodeOrNil = nil
 	mem.RemainingNodes = {}
 	mem.ConsidersPathLethality = math.random(1, D3bot.BotConsideringDeathCostAntichance) == 1
 	mem.Angs = self:EyeAngles()
-	mem.NextSlowThinkTime = 0
-end
-
-function meta:D3bot_UpdateTgtProximity()
-	local mem = self.D3bot_Mem
-	local inverseFactor = IsValid(mem.TgtOrNil) and math.min(1, self:GetPos():Distance(mem.TgtOrNil:GetPos()) / D3bot.BotTgtAreaRadius) or 1
-	mem.Spd = self:GetMaxSpeed() * (D3bot.BotMinSpdFactor + (1 - D3bot.BotMinSpdFactor) * inverseFactor)
-	mem.AngOffshoot = D3bot.BotAngOffshoot + D3bot.BotAdditionalAngOffshoot * (1 - inverseFactor)
 end
 
 function meta:D3bot_UpdateAngsOffshoot()
@@ -159,27 +177,36 @@ function meta:D3bot_UpdateAngsOffshoot()
 		mem.AngsOffshoot = Angle()
 		return
 	end
-	local angOffshoot = mem.AngOffshoot
+	local angOffshoot = D3bot.BotAngOffshoot
 	mem.AngsOffshoot = Angle(math.random(-angOffshoot, angOffshoot), math.random(-angOffshoot, angOffshoot), 0)
 end
 
-function meta:D3bot_UpdatePath()
+function meta:D3bot_SetPath(path)
 	local mem = self.D3bot_Mem
-	if not IsValid(mem.TgtOrNil) then return end
-	local mapNavMesh = D3bot.MapNavMesh
-	local node = mapNavMesh:GetNearestNodeOrNil(self:GetPos())
-	mem.TgtNodeOrNil = mapNavMesh:GetNearestNodeOrNil(mem.TgtOrNil:GetPos())
-	if not node or not mem.TgtNodeOrNil then return end
-	local abilities = {Walk = true}
-	if self:GetActiveWeapon() and self:GetActiveWeapon().PounceVelocity then abilities.Pounce = true end
-	local path = D3bot.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, mem.ConsidersPathLethality and D3bot.DeathCostOrNilByLink or {}, abilities)
-	if not path then self:D3bot_ResetTgtOrNil() return end
 	if mem.NextNodeOrNil and mem.NextNodeOrNil == path[1] then table.insert(path, 1, mem.NodeOrNil) end -- Preserve current node if the path starts with the next node
 	mem.NodeOrNil = table.remove(path, 1)
 	mem.NextNodeOrNil = table.remove(path, 1)
 	mem.RemainingNodes = path
+end
+
+function meta:D3bot_UpdatePath()
+	local mem = self.D3bot_Mem
+	if not IsValid(mem.TgtOrNil) and not mem.PosTgtOrNil and not mem.NodeTgtOrNil then return end
+	local mapNavMesh = D3bot.MapNavMesh
+	local node = mapNavMesh:GetNearestNodeOrNil(self:GetPos())
+	mem.TgtNodeOrNil = mem.NodeTgtOrNil or mapNavMesh:GetNearestNodeOrNil(mem.TgtOrNil and mem.TgtOrNil:GetPos() or mem.PosTgtOrNil)
+	if not node or not mem.TgtNodeOrNil then return end
+	local abilities = {Walk = true}
+	if self:GetActiveWeapon() and self:GetActiveWeapon().PounceVelocity then abilities.Pounce = true end
+	local path = D3bot.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, mem.ConsidersPathLethality and D3bot.DeathCostOrNilByLink or {}, abilities) -- TODO: Consider correct death cost
+	if not path then
+		local handler = findHandler(self:GetZombieClass(), self:Team())
+		if handler and handler.RerollTarget then handler.RerollTarget(self) end
+		return
+	end
+	self:D3bot_SetPath(path)
 	if mem.NodeOrNil and mem.NodeOrNil.Params.BotMod then
-		D3bot.nodeZombiesCountAddition = mem.NodeOrNil.Params.BotMod
+		D3bot.nodeZombiesCountAddition = mem.NodeOrNil.Params.BotMod -- TODO: Trigger noded botmod by human players, not here
 	end
 end
 
@@ -189,9 +216,11 @@ function meta:D3bot_UpdatePathProgress()
 		if mem.NextNodeOrNil:GetContains2D(self:GetPos()) then
 			mem.NodeOrNil = mem.NextNodeOrNil
 			mem.NextNodeOrNil = table.remove(mem.RemainingNodes, 1)
-			if mem.NodeOrNil and mem.NodeOrNil.Params.BotMod then
-				D3bot.nodeZombiesCountAddition = mem.NodeOrNil.Params.BotMod
-				-- TODO: Change node botmod to trigger on human
+			if mem.NodeOrNil then
+				if mem.NodeOrNil.Params.BotMod then
+					D3bot.nodeZombiesCountAddition = mem.NodeOrNil.Params.BotMod
+					-- TODO: Change node botmod to trigger on human
+				end
 			end
 		else
 			break
@@ -199,18 +228,7 @@ function meta:D3bot_UpdatePathProgress()
 	end
 end
 
-function meta:D3bot_UpdateMem()
-	local mem = self.D3bot_Mem
-	self:D3bot_UpdateTgtOrNil()
-	self:D3bot_UpdateTgtProximity()
-	if mem.NextSlowThinkTime <= CurTime() then
-		mem.NextSlowThinkTime = CurTime() + 0.5
-		self:D3bot_UpdateAngsOffshoot()
-		self:D3bot_UpdatePath()
-	end
-	self:D3bot_UpdatePathProgress()
-end
-
+-- Add to last positions list. Used to check bots being stuck, or to determine the current situation (runners, spawnkillers, caders)
 function meta:D3bot_StorePos()
 	self.D3bot_PosList = self.D3bot_PosList or {}
 	local posList = self.D3bot_PosList
@@ -218,4 +236,33 @@ function meta:D3bot_StorePos()
 	while #posList > 30 do
 		table.remove(posList)
 	end
+end
+
+function meta:D3bot_CheckStuck()
+	local mem = self.D3bot_Mem
+	if mem.nextCheckStuck and mem.nextCheckStuck < CurTime() or not mem.nextCheckStuck then
+		mem.nextCheckStuck = CurTime() + 1
+	else
+		return
+	end
+	
+	local posList = self.D3bot_PosList
+	if not posList then return end
+	
+	local pos_1, pos_2, pos_10 = posList[1], posList[2], posList[10]
+	
+	local minorStuck = pos_1 and pos_2 and pos_1:Distance(pos_2) < 1		-- Stuck on ladder
+	local preMajorStuck = pos_1 and pos_10 and pos_1:Distance(pos_10) < 300	-- Running circles, stuck on object, ...
+	local majorStuck
+	
+	if preMajorStuck and (self.D3bot_LastDamage and self.D3bot_LastDamage < CurTime() - 5 or not self.D3bot_LastDamage) then
+		mem.MajorStuckCounter = mem.MajorStuckCounter and mem.MajorStuckCounter + 1 or 1
+		if mem.MajorStuckCounter > 15 then
+			majorStuck, mem.MajorStuckCounter = true, nil
+		end
+	else
+		mem.MajorStuckCounter = nil
+	end
+	
+	return minorStuck, majorStuck
 end

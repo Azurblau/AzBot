@@ -55,7 +55,6 @@ function D3bot.MaintainBotRoles()
 	end
 end
 
-
 local NextMaintainBotRoles = CurTime()
 function D3bot.SupervisorThinkFunction()
 	if NextMaintainBotRoles < CurTime() then
@@ -63,3 +62,5 @@ function D3bot.SupervisorThinkFunction()
 		D3bot.MaintainBotRoles()
 	end
 end
+
+-- TODO: Detect situations and coordinate bots accordingly (Attacking cades, hunt down runners, spawncamping prevention)

@@ -1,1 +1,0 @@
-function D3bot.CanBeBotTgt(tgtOrNil) return IsValid(tgtOrNil) and table.HasValue(D3bot.PotBotTgts, tgtOrNil) end
