@@ -16,6 +16,7 @@ if SERVER then
 	--include("d3bot/sv_names.lua")
 	include("d3bot/sv_path.lua")
 	include("d3bot/sv_extend_player.lua")
+	include("d3bot/sv_debug.lua")
 	
 	if engine.ActiveGamemode() == "zombiesurvival" then
 		include("d3bot/sv_zs_bot_handler/node_metadata.lua")

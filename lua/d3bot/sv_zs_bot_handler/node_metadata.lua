@@ -1,7 +1,7 @@
 -- Metadata storage. Helps the bots and the supervisor to make decisions.
 --[[
 	Link metadata:
-		- ZombieDeathCost: Additional path searching cost of this link
+		- ZombieDeathCost: Additional cost of this link
 		
 	Node metadata:
 		- ZombieDeathFactor: From nil to 1. Slowly generating deadliness value for zombies. Higher values expected in front of cades.
@@ -19,8 +19,6 @@ hook.Add("PreRestartRound", D3bot.BotHooksId.."MetadataReset", function()
 	D3bot.LinkMetadata = {}
 	nodeMetadata = D3bot.NodeMetadata
 	linkMetadata = D3bot.LinkMetadata
-	
-	D3bot.NodeMetadata_FindDeadEnds()
 end)
 
 local nextNodeMetadataReduce = CurTime()
@@ -28,16 +26,16 @@ local nextNodeMetadataIncrease = CurTime()
 hook.Add("Think", D3bot.BotHooksId.."NodeMetadataThink", function()
 	-- Reduce values over time
 	if nextNodeMetadataReduce < CurTime() then
-		nextNodeMetadataReduce = CurTime() + 30
+		nextNodeMetadataReduce = CurTime() + 5
 		
 		for k, v in pairs(nodeMetadata) do
 			if v.ZombieDeathFactor then
-				v.ZombieDeathFactor = v.ZombieDeathFactor - 0.1
+				v.ZombieDeathFactor = v.ZombieDeathFactor - 0.02
 				if v.ZombieDeathFactor <= 0 then v.ZombieDeathFactor = nil end
 			end
 			if v.PlayerFactorByTeam then
 				for team, _ in pairs(v.PlayerFactorByTeam) do
-					v.PlayerFactorByTeam[team] = v.PlayerFactorByTeam[team] - 0.1
+					v.PlayerFactorByTeam[team] = v.PlayerFactorByTeam[team] - 0.02
 					if v.PlayerFactorByTeam[team] <= 0 then v.PlayerFactorByTeam[team] = nil end
 				end
 				if #v.PlayerFactorByTeam == 0 then v.PlayerFactorByTeam = nil end
@@ -45,21 +43,25 @@ hook.Add("Think", D3bot.BotHooksId.."NodeMetadataThink", function()
 		end
 	end
 	
-	-- Increase counts over time
+	-- Increase counts over time TODO: Check if that is a ressource hog
 	local mapNavMesh = D3bot.MapNavMesh
-	if nextNodeMetadataIncrease < CurTime() then -- Check if that is a ressource hog
+	if nextNodeMetadataIncrease < CurTime() then
 		nextNodeMetadataIncrease = CurTime() + 1
-		local player = table.Random(D3bot.RemoveObsDeadTgts(player.GetAll())) 
-		if player then
-			local team = player:Team()
-			local node = mapNavMesh:GetNearestNodeOrNil(player:GetPos())
-			if node then
-				if not nodeMetadata[node] then nodeMetadata[node] = {} end
-				local metadata = nodeMetadata[node]
-				if not metadata.PlayerFactorByTeam then metadata.PlayerFactorByTeam = {} end
-				metadata.PlayerFactorByTeam[team] = math.Clamp((metadata.PlayerFactorByTeam[team] or 0) + 0.5, 0, 1)
+		local players = D3bot.RemoveObsDeadTgts(player.GetAll())
+		for _, player in pairs(players) do
+			if player:Alive() then
+				local team = player:Team()
+				local node = mapNavMesh:GetNearestNodeOrNil(player:GetPos())
+				if node then
+					if not nodeMetadata[node] then nodeMetadata[node] = {} end
+					local metadata = nodeMetadata[node]
+					if not metadata.PlayerFactorByTeam then metadata.PlayerFactorByTeam = {} end
+					metadata.PlayerFactorByTeam[team] = math.Clamp((metadata.PlayerFactorByTeam[team] or 0) + 0.1/15 * (player:IsBot() and 2 or 1), 0, 1)
+				end
 			end
 		end
+		
+		--D3bot.Debug.DrawNodeMetadata(GetPlayerByName("D3"), nodeMetadata)
 	end
 end)
 

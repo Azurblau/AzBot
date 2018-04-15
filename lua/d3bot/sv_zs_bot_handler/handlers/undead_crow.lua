@@ -61,15 +61,15 @@ function HANDLER.ThinkFunction(bot)
 end
 
 function HANDLER.OnTakeDamageFunction(bot, dmg)
-	bot:Say("ouch!")
+	--bot:Say("ouch!")
 end
 
 function HANDLER.OnDoDamageFunction(bot, dmg)
-	bot:Say("Gotcha!")
+	--bot:Say("Gotcha!")
 end
 
 function HANDLER.OnDeathFunction(bot)
-	bot:Say("rip me!")
+	--bot:Say("rip me!")
 	HANDLER.RerollTarget(bot)
 end
 

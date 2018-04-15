@@ -260,7 +260,7 @@ function D3bot.Basics.Aim(bot, target)
 	if weapon:Clip1() == 0 then actions.Reload = math.random(10) == 1 end
 	
 	local origin = bot:D3bot_GetViewCenter()
-	local targetPos = LerpVector(math.random(5, 10)/10, target:GetPos(), target:EyePos())
+	local targetPos = LerpVector(math.random(10, 10)/10, target:GetPos(), target:EyePos())
 	
 	if targetPos then
 		bot:D3bot_FaceTo(targetPos, origin, D3bot.BotAttackAngLerpFactor * 2, 0)

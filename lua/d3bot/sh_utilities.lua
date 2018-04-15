@@ -52,3 +52,19 @@ end
 function D3bot.RemoveObsDeadTgts(tgts)
 	return D3bot.From(tgts):Where(function(k, v) return IsValid(v) and v:GetObserverMode() == OBS_MODE_NONE and v:Alive() end).R
 end
+
+function D3bot.NeighbourNodeFalloff(startNode, iterations, startValue, falloff, nodes)
+	if not startNode then return end
+	local nodes = nodes or {}
+	local queue = {startNode}
+	nodes[startNode] = (nodes[startNode] or 0) + startValue
+	while #queue > 0 and iterations > 0 do
+		local node = table.remove(queue)
+		iterations = iterations - 1
+		for linkedNode, link in pairs(node.LinkByLinkedNode) do
+			nodes[linkedNode] = nodes[node] * falloff
+			table.insert(queue, linkedNode)
+		end
+	end
+	return nodes
+end
