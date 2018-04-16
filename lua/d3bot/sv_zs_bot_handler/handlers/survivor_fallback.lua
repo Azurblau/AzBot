@@ -66,11 +66,11 @@ function HANDLER.FindEscapePath(node, enemies)
 		--end
 		return cost-- + node.Pos:Distance(linkedNode.Pos) * 2
 	end
-	local function heuristicCostFunction(node, linkedNode, link)
-		local nodeMetadata = D3bot.NodeMetadata[linkedNode]
+	local function heuristicCostFunction(node)
+		local nodeMetadata = D3bot.NodeMetadata[node]
 		--local playerFactorBySurvivors = nodeMetadata and nodeMetadata.PlayerFactorByTeam and nodeMetadata.PlayerFactorByTeam[TEAM_SURVIVOR] or 0
 		local playerFactorByUndead = nodeMetadata and nodeMetadata.PlayerFactorByTeam and nodeMetadata.PlayerFactorByTeam[TEAM_UNDEAD] or 0
-		return playerFactorByUndead * 150 + (tempNodePenalty[linkedNode] or 0) * 10
+		return playerFactorByUndead * 150 + (tempNodePenalty[node] or 0) * 10
 	end
 	return D3bot.GetEscapeMeshPathOrNil(node, 50, pathCostFunction, heuristicCostFunction, {Walk = true})
 end
@@ -79,8 +79,8 @@ function HANDLER.FindPathToHuman(node)
 	local function pathCostFunction(node, linkedNode, link)
 		return node.Pos:Distance(linkedNode.Pos)
 	end
-	local function heuristicCostFunction(node, linkedNode, link)
-		local nodeMetadata = D3bot.NodeMetadata[linkedNode]
+	local function heuristicCostFunction(node)
+		local nodeMetadata = D3bot.NodeMetadata[node]
 		local playerFactorBySurvivors = nodeMetadata and nodeMetadata.PlayerFactorByTeam and nodeMetadata.PlayerFactorByTeam[TEAM_SURVIVOR] or 0
 		local playerFactorByUndead = nodeMetadata and nodeMetadata.PlayerFactorByTeam and nodeMetadata.PlayerFactorByTeam[TEAM_UNDEAD] or 0
 		return - playerFactorBySurvivors * 10 + playerFactorByUndead * 150

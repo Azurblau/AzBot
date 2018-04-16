@@ -30,13 +30,13 @@ hook.Add("Think", D3bot.BotHooksId.."NodeMetadataThink", function()
 		
 		for k, v in pairs(nodeMetadata) do
 			if v.ZombieDeathFactor then
-				v.ZombieDeathFactor = v.ZombieDeathFactor - 0.02
-				if v.ZombieDeathFactor <= 0 then v.ZombieDeathFactor = nil end
+				v.ZombieDeathFactor = v.ZombieDeathFactor * 0.85
+				if v.ZombieDeathFactor <= 0.1 then v.ZombieDeathFactor = nil end
 			end
 			if v.PlayerFactorByTeam then
 				for team, _ in pairs(v.PlayerFactorByTeam) do
-					v.PlayerFactorByTeam[team] = v.PlayerFactorByTeam[team] - 0.02
-					if v.PlayerFactorByTeam[team] <= 0 then v.PlayerFactorByTeam[team] = nil end
+					v.PlayerFactorByTeam[team] = v.PlayerFactorByTeam[team] * 0.85
+					if v.PlayerFactorByTeam[team] <= 0.1 then v.PlayerFactorByTeam[team] = nil end
 				end
 				if #v.PlayerFactorByTeam == 0 then v.PlayerFactorByTeam = nil end
 			end

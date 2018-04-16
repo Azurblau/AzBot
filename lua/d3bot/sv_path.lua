@@ -58,7 +58,8 @@ function D3bot.GetEscapeMeshPathOrNil(startNode, iterations, pathCostFunction, h
 	local minimalPathCostByNode = { [startNode] = 0 }
 	
 	local entranceByNode = {}
-	local bestNode, bestNodeCost = nil, math.huge
+	local heuristic = (heuristicCostFunction and heuristicCostFunction(startNode) or 0)
+	local bestNode, bestNodeCost = startNode, heuristic
 	
 	local evaluationNodeQueue = D3bot.NewSortedQueue(function(nodeA, nodeB) return (minimalTotalPathCostByNode[nodeA] or math.huge) > (minimalTotalPathCostByNode[nodeB] or math.huge) end)
 	evaluationNodeQueue:Enqueue(startNode)
@@ -99,7 +100,7 @@ function D3bot.GetEscapeMeshPathOrNil(startNode, iterations, pathCostFunction, h
 				if linkedNodePathCost < (minimalPathCostByNode[linkedNode] or math.huge) then
 					entranceByNode[linkedNode] = node
 					minimalPathCostByNode[linkedNode] = linkedNodePathCost
-					local heuristic = (heuristicCostFunction and heuristicCostFunction(node, linkedNode, link) or 0) -- Negative costs are allowed here
+					local heuristic = (heuristicCostFunction and heuristicCostFunction(linkedNode) or 0) -- Negative costs are allowed here
 					minimalTotalPathCostByNode[linkedNode] = linkedNodePathCost + heuristic
 					if bestNodeCost >= heuristic then
 						bestNodeCost = heuristic
