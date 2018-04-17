@@ -311,3 +311,5 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 		end
 	end)
 end
+
+-- TODO: Add user command to check the version of D3bot

@@ -1,15 +1,15 @@
 local meta = FindMetaTable("Player")
 
-function meta:D3bot_GetAttackPosOrNil(fraction)
+function meta:D3bot_GetAttackPosOrNil(fraction, target)
 	local mem = self.D3bot_Mem
-	local tgt = mem.TgtOrNil
+	local tgt = target or mem.TgtOrNil
 	if not IsValid(tgt) then return end
 	return tgt:IsPlayer() and LerpVector(fraction or 0.75, tgt:GetPos(), tgt:EyePos()) or tgt:WorldSpaceCenter()
 end
 
-function meta:D3bot_GetAttackPosOrNil(fraction)
+function meta:D3bot_GetAttackPosOrNil(fraction, target)
 	local mem = self.D3bot_Mem
-	local tgt = mem.TgtOrNil
+	local tgt = target or mem.TgtOrNil
 	if not IsValid(tgt) then return end
 	return tgt:IsPlayer() and LerpVector(fraction or 0.75, tgt:GetPos(), tgt:EyePos()) or tgt:WorldSpaceCenter()
 end
@@ -70,8 +70,8 @@ function meta:D3bot_CanPounceToPos(pos)
 	return resultTrajectories
 end
 
-function meta:D3bot_CanSeeTarget()
-	local attackPos = self:D3bot_GetAttackPosOrNil()
+function meta:D3bot_CanSeeTarget(fraction, target)
+	local attackPos = self:D3bot_GetAttackPosOrNil(fraction, target)
 	if not attackPos then return false end
 	local mem = self.D3bot_Mem
 	if mem.TgtNodeOrNil and mem.NodeOrNil ~= mem.TgtNodeOrNil and mem.TgtNodeOrNil.Params.See == "Disabled" then return false end

@@ -21,6 +21,7 @@ return function(lib)
 	lib.BotAdditionalAngOffshoot = 30
 	lib.BotAngLerpFactor = 0.125
 	lib.BotAttackAngLerpFactor = 0.125--0.5
+	lib.BotAimAngLerpFactor = 0.5
 	lib.BotAimPosVelocityOffshoot = 0.4
 	lib.BotJumpAntichance = 25
 	lib.ZombiesPerPlayer = 0.3

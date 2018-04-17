@@ -248,22 +248,34 @@ function D3bot.Basics.PounceAuto(bot)
 	return
 end
 
-function D3bot.Basics.Aim(bot, target)
+function D3bot.Basics.AimAndShoot(bot, target)
 	local mem = bot.D3bot_Mem
 	if not mem then return end
 	
 	local actions = {}
 	
 	if not IsValid(target) then return end
-	local weapon = bot:GetActiveWeapon()
+	local weapon = bot:GetActiveWeapon() -- TODO: Make bot aware of the different weapons
 	if not IsValid(weapon) then return end
-	if weapon:Clip1() == 0 then actions.Reload = math.random(10) == 1 end
+	if weapon:Clip1() == 0 then actions.Reload = math.random(10) == 1 end -- TODO: Implement reload mechanic
 	
 	local origin = bot:D3bot_GetViewCenter()
-	local targetPos = LerpVector(math.random(10, 10)/10, target:GetPos(), target:EyePos())
+	local targetPos = LerpVector(math.random(7, 10)/10, target:GetPos(), target:EyePos())
 	
-	if targetPos then
-		bot:D3bot_FaceTo(targetPos, origin, D3bot.BotAttackAngLerpFactor * 2, 0)
+	-- TODO: Use fewer traces, cache result for a few frames.
+	local tr = util.TraceLine({
+		start = origin,
+		endpos = targetPos,
+		filter = player.GetAll(),
+		mask = MASK_SHOT_HULL
+	})
+	local CanShoot = not tr.Hit
+	
+	-- TODO: Check if bot is aiming, then pew pew.
+	actions.Attack = CanShoot and math.random(10) == 1
+	
+	if targetPos and CanShoot then
+		bot:D3bot_FaceTo(targetPos, origin, D3bot.BotAimAngLerpFactor, 0)
 	end
 	
 	return true, actions, 0, mem.Angs, false

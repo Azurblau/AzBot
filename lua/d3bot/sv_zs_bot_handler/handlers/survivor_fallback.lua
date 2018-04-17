@@ -20,23 +20,13 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	local mem = bot.D3bot_Mem
 	
 	local result, actions, forwardSpeed, aimAngle = D3bot.Basics.WalkAttackAuto(bot)
-	if not result then
-		result, actions, forwardSpeed, aimAngle = D3bot.Basics.Aim(bot, mem.AttackTgtOrNil) -- TODO: Only aim when target is visible
-	else
+	if result then
 		actions.Attack = false
-	end
-	
-	local target = mem.AttackTgtOrNil
-	
-	if IsValid(target) then
-		local tr = util.TraceLine({
-			start = bot:GetShootPos(),
-			endpos = bot:GetShootPos() + (aimAngle and aimAngle:Forward() or bot:GetAimVector()) * (bot:GetShootPos():Distance(target:D3bot_GetViewCenter())),
-			filter = player.GetAll(),
-			mask = MASK_SHOT_HULL
-		})
-		--local tr = bot:GetEyeTraceNoCursor()
-		actions.Attack = ((not tr.Hit) or IsValid(tr.Entity) and tr.Entity:IsPlayer() and HANDLER.IsEnemy(tr.Entity)) and math.random(10) == 1
+	else
+		result, actions, forwardSpeed, aimAngle = D3bot.Basics.AimAndShoot(bot, mem.AttackTgtOrNil)
+		if not result then
+			return
+		end
 	end
 	
 	local buttons
@@ -110,12 +100,13 @@ function HANDLER.ThinkFunction(bot)
 	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
 		mem.nextUpdateSurroundingPlayers = CurTime() + 0.5
 		local enemies = D3bot.From(player.GetAll()):Where(function(k, v) return HANDLER.IsEnemy(v) end).R
-		local closeEnemies = D3bot.From(enemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 3000 end).R -- TODO: Constant for the distance
+		local closeEnemies = D3bot.From(enemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 1000 end).R -- TODO: Constant for the distance
 		local closerEnemies = D3bot.From(closeEnemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 600 end).R -- TODO: Constant for the distance
 		local dangerouscloseEnemies = D3bot.From(closerEnemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 300 end).R -- TODO: Constant for the distance
 		if table.Count(dangerouscloseEnemies) > 0 then
 			mem.AttackTgtOrNil = table.Random(dangerouscloseEnemies)
-			if (not mem.NextNodeOrNil or mem.lastEscapePath and mem.lastEscapePath < CurTime() - 2 or not mem.lastEscapePath) then
+			-- Check if undead can see/walk to bot, and then calculate escape path.
+			if mem.AttackTgtOrNil:D3bot_CanSeeTarget(nil, bot) and (not mem.NextNodeOrNil or mem.lastEscapePath and mem.lastEscapePath < CurTime() - 2 or not mem.lastEscapePath) then
 				mem.lastEscapePath = CurTime()
 				escapePath = HANDLER.FindEscapePath(D3bot.MapNavMesh:GetNearestNodeOrNil(botPos), closeEnemies)
 				if escapePath then
@@ -141,10 +132,6 @@ function HANDLER.ThinkFunction(bot)
 				end
 			end
 		end
-	end
-	
-	if bot:Health() < 30 or not mem.AttackTgtOrNil then
-		-- TODO: Let the bot go to a crowd of survivors
 	end
 	
 	if mem.nextUpdateOffshoot and mem.nextUpdateOffshoot < CurTime() or not mem.nextUpdateOffshoot then
@@ -174,7 +161,6 @@ end
 
 function HANDLER.OnDeathFunction(bot)
 	--bot:Say("rip me!")
-	HANDLER.RerollTarget(bot)
 end
 
 function HANDLER.IsEnemy(ply)
@@ -184,18 +170,4 @@ end
 function HANDLER.CanBeShootTgt(bot, target)
 	if not target or not IsValid(target) then return end
 	if target:IsPlayer() and target ~= bot and target:Team() ~= TEAM_SURVIVOR and target:GetObserverMode() == OBS_MODE_NONE and target:Alive() then return true end
-end
-
-function HANDLER.RerollTarget(bot) -- This should set the target to move to (Either an entity or a position).
-	local mem = bot.D3bot_Mem
-	-- Get all non human players
-	local players = D3bot.RemoveObsDeadTgts(player.GetHumans())
-	players = D3bot.From(players):Where(function(k, v) return v:Team() == TEAM_SURVIVOR end).R
-	local potTargets = players
-	local humanFollowTarget = table.Random(potTargets)
-	if humanFollowTarget then
-		local targetNode = D3bot.MapNavMesh:GetNearestNodeOrNil(humanFollowTarget:GetPos())
-		bot:D3bot_SetNodeTgtOrNil(targetNode)
-		--bot:D3bot_SetPosTgtOrNil(humanFollowTarget:GetPos(), 100)
-	end
 end
