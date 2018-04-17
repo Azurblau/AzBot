@@ -248,16 +248,21 @@ function D3bot.Basics.PounceAuto(bot)
 	return
 end
 
-function D3bot.Basics.AimAndShoot(bot, target)
+function D3bot.Basics.AimAndShoot(bot, target, weaponHelper)
 	local mem = bot.D3bot_Mem
 	if not mem then return end
 	
 	local actions = {}
+	local reloading
 	
 	if not IsValid(target) then return end
-	local weapon = bot:GetActiveWeapon() -- TODO: Make bot aware of the different weapons
+	local weapon = bot:GetActiveWeapon()
 	if not IsValid(weapon) then return end
-	if weapon:Clip1() == 0 then actions.Reload = math.random(10) == 1 end -- TODO: Implement reload mechanic
+	if weapon:Clip1() == 0 then reloading = true end
+	if (weapon.GetNextReload and weapon:GetNextReload() or 0) > CurTime() - 0.5 then -- Subtract half a second, so it will retrigger reloading if possible
+		reloading = true
+	end
+	actions.Reload = reloading and math.random(5) == 1
 	
 	local origin = bot:D3bot_GetViewCenter()
 	local targetPos = LerpVector(math.random(7, 10)/10, target:GetPos(), target:EyePos())
@@ -269,12 +274,12 @@ function D3bot.Basics.AimAndShoot(bot, target)
 		filter = player.GetAll(),
 		mask = MASK_SHOT_HULL
 	})
-	local CanShoot = not tr.Hit
+	local canShootTarget = not tr.Hit
 	
 	-- TODO: Check if bot is aiming, then pew pew.
-	actions.Attack = CanShoot and math.random(10) == 1
+	actions.Attack = not reloading and canShootTarget and math.random(5) == 1
 	
-	if targetPos and CanShoot then
+	if targetPos and canShootTarget then
 		bot:D3bot_FaceTo(targetPos, origin, D3bot.BotAimAngLerpFactor, 0)
 	end
 	
