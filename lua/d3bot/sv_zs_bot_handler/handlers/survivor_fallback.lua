@@ -6,8 +6,29 @@ function HANDLER.SelectorFunction(zombieClassName, team)
 	return team == TEAM_SURVIVOR or (TEAM_REDEEMER and team == TEAM_REDEEMER)
 end
 
+HANDLER.Weapon_Types = {}
 HANDLER.Weapon_Types.RANGED = 1
 HANDLER.Weapon_Types.MELEE = 2
+
+function HANDLER.WeaponRatingFunction(weapon, distance)
+	local sweptable = weapons.GetStored(weapon.ClassName)
+	local weaponType = HANDLER.Weapon_Types.MELEE
+	if weapon.Base == "weapon_zs_base" then
+		weaponType = HANDLER.Weapon_Types.RANGED
+	end
+	
+	local damage = sweptable.Damage or sweptable.Primary.Damage or 0
+	local delay = sweptable.Primary.Delay or 1
+	local cone = ((weapon.ConeMax or 45) + (weapon.ConeMin or 45)*10) / 11
+	local dmgPerSec = damage / delay -- TODO: Use more parameters like reloading time.
+	local maxDistance = 1 / math.tan(math.rad(cone))
+	
+	local distanceRating = math.Clamp(maxDistance - distance + 100, 3, 200) / 100 -- TODO: Correct distance rating
+	local rating = dmgPerSec * distanceRating
+	--print(weapon, distanceRating)
+	
+	return weaponType, rating, maxDistance
+end
 
 HANDLER.Weapons = { -- TODO: Fix ratings.
 	weapon_zs_annabelle				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 0.7},
@@ -130,7 +151,7 @@ function HANDLER.FindPathToHuman(node)
 		local nodeMetadata = D3bot.NodeMetadata[node]
 		local playerFactorBySurvivors = nodeMetadata and nodeMetadata.PlayerFactorByTeam and nodeMetadata.PlayerFactorByTeam[TEAM_SURVIVOR] or 0
 		local playerFactorByUndead = nodeMetadata and nodeMetadata.PlayerFactorByTeam and nodeMetadata.PlayerFactorByTeam[TEAM_UNDEAD] or 0
-		return - playerFactorBySurvivors * 10 + playerFactorByUndead * 150
+		return - playerFactorBySurvivors * 160 + playerFactorByUndead * 150
 	end
 	return D3bot.GetEscapeMeshPathOrNil(node, 400, pathCostFunction, heuristicCostFunction, {Walk = true})
 end
@@ -152,11 +173,11 @@ function HANDLER.ThinkFunction(bot)
 	local mem = bot.D3bot_Mem
 	local botPos = bot:GetPos()
 	
-	if not HANDLER.IsEnemy(mem.AttackTgtOrNil) then mem.AttackTgtOrNil = nil end
+	if not HANDLER.IsEnemy(bot, mem.AttackTgtOrNil) then mem.AttackTgtOrNil = nil end
 	
 	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
 		mem.nextUpdateSurroundingPlayers = CurTime() + 0.5
-		local enemies = D3bot.From(player.GetAll()):Where(function(k, v) return HANDLER.IsEnemy(v) end).R
+		local enemies = D3bot.From(player.GetAll()):Where(function(k, v) return HANDLER.IsEnemy(bot, v) end).R
 		local closeEnemies = D3bot.From(enemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 1000 end).R -- TODO: Constant for the distance
 		local closerEnemies = D3bot.From(closeEnemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 600 end).R -- TODO: Constant for the distance
 		local dangerouscloseEnemies = D3bot.From(closerEnemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 300 end).R -- TODO: Constant for the distance
@@ -177,7 +198,7 @@ function HANDLER.ThinkFunction(bot)
 			if not mem.holdPathTime or mem.holdPathTime < CurTime() then
 				bot:D3bot_ResetTgt()
 			end
-			if not HANDLER.IsEnemy(mem.AttackTgtOrNil) or not HANDLER.CanShootTarget(bot, mem.AttackTgtOrNil) then mem.AttackTgtOrNil = table.Random(closeEnemies) or table.Random(enemies) or nil end
+			if not HANDLER.IsEnemy(bot, mem.AttackTgtOrNil) or not HANDLER.CanShootTarget(bot, mem.AttackTgtOrNil) then mem.AttackTgtOrNil = table.Random(closeEnemies) or table.Random(enemies) or nil end
 			if (mem.nextHumanPath or 0) < CurTime() then
 				mem.nextHumanPath = CurTime() + 10 + math.random() * 20
 				path = HANDLER.FindPathToHuman(D3bot.MapNavMesh:GetNearestNodeOrNil(botPos))
@@ -200,6 +221,25 @@ function HANDLER.ThinkFunction(bot)
 		mem.nextUpdatePath = CurTime() + 0.9 + math.random() * 0.2
 		bot:D3bot_UpdatePath()
 	end
+	
+	if mem.nextHeldWeaponUpdate and mem.nextHeldWeaponUpdate < CurTime() or not mem.nextHeldWeaponUpdate then
+		mem.nextHeldWeaponUpdate = CurTime() + 1 + math.random() * 1
+		local weapons = bot:GetWeapons()
+		local filteredWeapons = {}
+		local bestRating, bestWeapon = 0, nil
+		local enemyDistance = mem.AttackTgtOrNil and mem.AttackTgtOrNil:GetPos():Distance(bot:GetPos()) or 300
+		for _, v in pairs(weapons) do
+			local weaponType, rating, maxDistance = HANDLER.WeaponRatingFunction(v, enemyDistance)
+			local ammoType = v:GetPrimaryAmmoType()
+			local ammo = v:Clip1() + bot:GetAmmoCount(ammoType)
+			if ammo > 0 and bestRating < rating and weaponType == HANDLER.Weapon_Types.RANGED then
+				bestRating, bestWeapon = rating, v.ClassName
+			end
+		end
+		if bestWeapon then
+			bot:SelectWeapon(bestWeapon)
+		end
+	end
 end
 
 function HANDLER.OnTakeDamageFunction(bot, dmg)
@@ -220,8 +260,8 @@ function HANDLER.OnDeathFunction(bot)
 	--bot:Say("rip me!")
 end
 
-function HANDLER.IsEnemy(ply)
-	if IsValid(ply) and ply:IsPlayer() and ply:Team() ~= TEAM_SURVIVOR and ply:GetObserverMode() == OBS_MODE_NONE and ply:Alive() then return true end
+function HANDLER.IsEnemy(bot, ply)
+	if IsValid(ply) and bot ~= ply and ply:IsPlayer() and ply:Team() ~= TEAM_SURVIVOR and ply:GetObserverMode() == OBS_MODE_NONE and ply:Alive() then return true end
 end
 
 function HANDLER.CanBeShootTgt(bot, target)

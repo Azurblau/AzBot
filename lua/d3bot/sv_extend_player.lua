@@ -74,7 +74,7 @@ function meta:D3bot_CanSeeTarget(fraction, target)
 	local attackPos = self:D3bot_GetAttackPosOrNil(fraction, target)
 	if not attackPos then return false end
 	local mem = self.D3bot_Mem
-	if mem.TgtNodeOrNil and mem.NodeOrNil ~= mem.TgtNodeOrNil and mem.TgtNodeOrNil.Params.See == "Disabled" then return false end
+	if mem and mem.TgtNodeOrNil and mem.NodeOrNil ~= mem.TgtNodeOrNil and mem.TgtNodeOrNil.Params.See == "Disabled" then return false end
 	local tr = D3bot.BotSeeTr
 	tr.start = self:D3bot_GetViewCenter()
 	tr.endpos = attackPos
