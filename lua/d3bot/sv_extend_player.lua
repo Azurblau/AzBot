@@ -36,6 +36,10 @@ function meta:D3bot_GetViewCenter()
 	return self:GetPos() + (self:Crouching() and self:GetViewOffsetDucked() or self:GetViewOffset())
 end
 
+function meta:D3bot_IsLookingAt(targetPos, conditionCos)
+	return self:GetAimVector():Dot((targetPos - self:D3bot_GetViewCenter()):GetNormalized()) < (conditionCos or 0.95)
+end
+
 function meta:D3bot_CanPounceToPos(pos)
 	if not pos then return end
 	

@@ -10,79 +10,31 @@ HANDLER.Weapon_Types = {}
 HANDLER.Weapon_Types.RANGED = 1
 HANDLER.Weapon_Types.MELEE = 2
 
-function HANDLER.WeaponRatingFunction(weapon, distance)
+function HANDLER.WeaponRatingFunction(weapon, targetDistance)
 	local sweptable = weapons.GetStored(weapon.ClassName)
 	local weaponType = HANDLER.Weapon_Types.MELEE
 	if weapon.Base == "weapon_zs_base" then
 		weaponType = HANDLER.Weapon_Types.RANGED
 	end
 	
-	local damage = sweptable.Damage or sweptable.Primary.Damage or 0
+	local targetDiameter = 2
+	local targetArea = math.pi * math.pow(targetDiameter / 2, 2)
+	
+	local numShots = sweptable.Primary.NumShots or 1
+	local damage = (sweptable.Damage or sweptable.Primary.Damage or 0)
 	local delay = sweptable.Primary.Delay or 1
 	local cone = ((weapon.ConeMax or 45) + (weapon.ConeMin or 45)*10) / 11
-	local dmgPerSec = damage / delay -- TODO: Use more parameters like reloading time.
-	local maxDistance = 1 / math.tan(math.rad(cone))
 	
-	local distanceRating = math.Clamp(maxDistance - distance + 100, 3, 200) / 100 -- TODO: Correct distance rating
-	local rating = dmgPerSec * distanceRating
-	--print(weapon, distanceRating)
+	local dmgPerSec = damage * numShots / delay -- TODO: Use more parameters like reload time.
+	local maxDistance = targetDiameter / math.tan(math.rad(cone)) / 2
+	local spreadArea = math.pi * math.pow(math.tan(math.rad(cone)) * targetDistance, 2)
+	
+	local areaIntersection = math.min(targetArea, spreadArea) / spreadArea
+	
+	local rating = dmgPerSec * areaIntersection
 	
 	return weaponType, rating, maxDistance
 end
-
-HANDLER.Weapons = { -- TODO: Fix ratings.
-	weapon_zs_annabelle				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 0.7},
-	weapon_zs_akbar					= {Type = HANDLER.Weapon_Types.RANGED, Rating = 0.7},
-	weapon_zs_battleaxe				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 0.7},
-	weapon_zs_blaster				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 0.4},
-	weapon_zs_boomstick				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 0.7},
-	weapon_zs_bulletstorm			= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_crackler				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_crossbow				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.2},
-	weapon_zs_deagle				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_deagleredeemers		= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_dualboomstick			= {Type = HANDLER.Weapon_Types.RANGED, Rating = 0.7},
-	weapon_zs_ender					= {Type = HANDLER.Weapon_Types.RANGED, Rating = 0.5},
-	weapon_zs_eraser				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_g3sg1					= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_galil					= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_glock3				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_glock9				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_hunter				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.4},
-	weapon_zs_inferno				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_infinity				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 4.0},
-	weapon_zs_infinityboomstick		= {Type = HANDLER.Weapon_Types.RANGED, Rating = 4.0},
-	weapon_zs_infinitydeagle		= {Type = HANDLER.Weapon_Types.RANGED, Rating = 5.0},
-	weapon_zs_infinitym249			= {Type = HANDLER.Weapon_Types.RANGED, Rating = 5.0},
-	weapon_zs_infinochet			= {Type = HANDLER.Weapon_Types.RANGED, Rating = 5.0},
-	weapon_zs_m249					= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_m4					= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_magnum				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_multiinferno			= {Type = HANDLER.Weapon_Types.RANGED, Rating = 2.0},
-	weapon_zs_owens					= {Type = HANDLER.Weapon_Types.RANGED, Rating = 0.8},
-	weapon_zs_peashooter			= {Type = HANDLER.Weapon_Types.RANGED, Rating = 0.7},
-	weapon_zs_pulserifle			= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.5},
-	weapon_zs_redeemers				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_scar					= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_sg550					= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_sg552					= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_silencer				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 0.8},
-	weapon_zs_slugrifle				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.5},
-	weapon_zs_smg					= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_stubber				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 0.5},
-	weapon_zs_sweepershotgun		= {Type = HANDLER.Weapon_Types.RANGED, Rating = 0.6},
-	weapon_zs_tosser				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_uzi					= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_volcanoarm			= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_waraxe				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_z9000					= {Type = HANDLER.Weapon_Types.RANGED, Rating = 0.8},
-	weapon_zs_zeakbar				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_zebulletstorm			= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_zedeagle				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_zesmg					= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_zestubber				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0},
-	weapon_zs_zesweeper				= {Type = HANDLER.Weapon_Types.RANGED, Rating = 1.0}
-}
 
 function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	cmd:ClearButtons()
