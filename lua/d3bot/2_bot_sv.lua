@@ -79,6 +79,6 @@ return function(lib)
 		end
 	end)
 	
-	hook.Add("PreRestartRound", lib.BotHooksId, function() hadBonusByPl, roundStartTime, lib.nodeZombiesCountAddition = {}, CurTime(), nil end)
+	hook.Add("PreRestartRound", lib.BotHooksId, function() hadBonusByPl = {} end)
 	
 end

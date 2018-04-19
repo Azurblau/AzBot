@@ -25,11 +25,16 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	if result then
 		actions.Attack = false
 	else
-		result, actions, forwardSpeed, aimAngle = D3bot.Basics.AimAndShoot(bot, mem.AttackTgtOrNil, mem.maxShootingDistance)
+		result, actions, forwardSpeed, aimAngle = D3bot.Basics.AimAndShoot(bot, mem.AttackTgtOrNil, mem.maxShootingDistance) -- TODO: Make bots walk backwards while shooting
 		if not result then
 			result, actions, forwardSpeed, aimAngle = D3bot.Basics.LookAround(bot)
 			if not result then return end
 		end
+	end
+	
+	if bot:WaterLevel() == 3 and not mem.NextNodeOrNil then
+		actions = actions or {}
+		actions.Jump = true
 	end
 	
 	local buttons
@@ -54,12 +59,14 @@ function HANDLER.ThinkFunction(bot)
 		local closeEnemies = D3bot.From(enemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 1000 end).R -- TODO: Constant for the distance
 		local closerEnemies = D3bot.From(closeEnemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 600 end).R -- TODO: Constant for the distance
 		local dangerouscloseEnemies = D3bot.From(closerEnemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 300 end).R -- TODO: Constant for the distance
+		local newAttackTarget = table.Random(closerEnemies) or table.Random(closeEnemies) or table.Random(enemies)
+		if HANDLER.CanShootTarget(bot, newAttackTarget) then mem.AttackTgtOrNil = newAttackTarget end
 		if table.Count(dangerouscloseEnemies) > 0 then
 			mem.AttackTgtOrNil = table.Random(dangerouscloseEnemies)
 			-- Check if undead can see/walk to bot, and then calculate escape path.
 			if mem.AttackTgtOrNil:D3bot_CanSeeTarget(nil, bot) and (not mem.NextNodeOrNil or mem.lastEscapePath and mem.lastEscapePath < CurTime() - 2 or not mem.lastEscapePath) then
 				mem.lastEscapePath = CurTime()
-				escapePath = HANDLER.FindEscapePath(D3bot.MapNavMesh:GetNearestNodeOrNil(botPos), closeEnemies)
+				escapePath = HANDLER.FindEscapePath(bot, D3bot.MapNavMesh:GetNearestNodeOrNil(botPos), closerEnemies)
 				if escapePath then
 					--D3bot.Debug.DrawPath(GetPlayerByName("D3"), escapePath, nil, nil, true)
 					mem.holdPathTime = CurTime() + 2
@@ -70,7 +77,6 @@ function HANDLER.ThinkFunction(bot)
 			if not mem.holdPathTime or mem.holdPathTime < CurTime() then
 				bot:D3bot_ResetTgt()
 			end
-			if not HANDLER.IsEnemy(bot, mem.AttackTgtOrNil) or not HANDLER.CanShootTarget(bot, mem.AttackTgtOrNil) then mem.AttackTgtOrNil = table.Random(closeEnemies) or table.Random(enemies) or nil end
 			if not mem.NextNodeOrNil and ((mem.nextHumanPath or 0) < CurTime() or bot:WaterLevel() == 3) then
 				mem.nextHumanPath = CurTime() + 10 + math.random() * 20
 				path = HANDLER.FindPathToHuman(D3bot.MapNavMesh:GetNearestNodeOrNil(botPos))
@@ -103,7 +109,7 @@ function HANDLER.ThinkFunction(bot)
 			local weaponType, rating, maxDistance = HANDLER.WeaponRatingFunction(v, enemyDistance)
 			local ammoType = v:GetPrimaryAmmoType()
 			local ammo = v:Clip1() + bot:GetAmmoCount(ammoType)
-			if ammo > 0 and bestRating < rating and weaponType == HANDLER.Weapon_Types.RANGED then
+			if ammo > 0 and enemyDistance < maxDistance and bestRating < rating and weaponType == HANDLER.Weapon_Types.RANGED then
 				bestRating, bestWeapon, bestMaxDistance = rating, v.ClassName, maxDistance
 			end
 		end
@@ -153,7 +159,7 @@ function HANDLER.WeaponRatingFunction(weapon, targetDistance)
 	local numShots = sweptable.Primary.NumShots or 1
 	local damage = (sweptable.Damage or sweptable.Primary.Damage or 0)
 	local delay = sweptable.Primary.Delay or 1
-	local cone = ((weapon.ConeMax or 45) + (weapon.ConeMin or 45)*10) / 11
+	local cone = ((weapon.ConeMax or 45) + (weapon.ConeMin or 45)*6) / 7
 	
 	local dmgPerSec = damage * numShots / delay -- TODO: Use more parameters like reload time.
 	local maxDistance = targetDiameter / math.tan(math.rad(cone)) / 2
@@ -166,18 +172,30 @@ function HANDLER.WeaponRatingFunction(weapon, targetDistance)
 	return weaponType, rating, maxDistance
 end
 
-function HANDLER.FindEscapePath(node, enemies) -- TODO: Fix behaviour when being on the same node as the enemies (Randomly running into the undead)
+function HANDLER.FindEscapePath(bot, startNode, enemies)
 	local tempNodePenalty = {}
+	local escapeDirection = Vector()
+	for _, enemy in pairs(enemies) do
+		tempNodePenalty = D3bot.NeighbourNodeFalloff(D3bot.MapNavMesh:GetNearestNodeOrNil(enemy:GetPos()), 2, 1, 0.5, tempNodePenalty)
+		escapeDirection:Add(bot:GetPos() - enemy:GetPos())
+	end
+	escapeDirection:Normalize()
+	
 	for _, enemy in pairs(enemies) do
 		tempNodePenalty = D3bot.NeighbourNodeFalloff(D3bot.MapNavMesh:GetNearestNodeOrNil(enemy:GetPos()), 2, 1, 0.5, tempNodePenalty)
 	end
 	
 	local function pathCostFunction(node, linkedNode, link)
-		
+		local directionPenalty
+		if node == startNode then
+			local direction = (linkedNode.Pos - node.Pos)
+			directionPenalty = (1 - direction:Dot(escapeDirection)) * 1000
+			--clDebugOverlay.Line(GetPlayerByName("D3"), node.Pos, linkedNode.Pos, nil, Color(directionPenalty/2000*255, 0, 0), true)
+		end
 		local nodeMetadata = D3bot.NodeMetadata[linkedNode]
 		local playerFactorBySurvivors = nodeMetadata and nodeMetadata.PlayerFactorByTeam and nodeMetadata.PlayerFactorByTeam[TEAM_SURVIVOR] or 0
 		local playerFactorByUndead = nodeMetadata and nodeMetadata.PlayerFactorByTeam and nodeMetadata.PlayerFactorByTeam[TEAM_UNDEAD] or 0
-		local cost = -playerFactorBySurvivors * 50 + playerFactorByUndead * 150 + (tempNodePenalty[linkedNode] or 0) * 500
+		local cost = -playerFactorBySurvivors * 50 + playerFactorByUndead * 150 + (tempNodePenalty[linkedNode] or 0) * 500 + (directionPenalty or 0)
 		--for _, enemy in pairs(enemies) do
 		--	cost = cost + 100 / (LerpVector(0.5, node.Pos, linkedNode.Pos):Distance(enemy:GetPos()) + 100) * 0.1 * node.Pos:Distance(linkedNode.Pos) -- Weight by link length
 		--end
@@ -189,7 +207,7 @@ function HANDLER.FindEscapePath(node, enemies) -- TODO: Fix behaviour when being
 		local playerFactorByUndead = nodeMetadata and nodeMetadata.PlayerFactorByTeam and nodeMetadata.PlayerFactorByTeam[TEAM_UNDEAD] or 0
 		return playerFactorByUndead * 150 + (tempNodePenalty[node] or 0) * 10
 	end
-	return D3bot.GetEscapeMeshPathOrNil(node, 50, pathCostFunction, heuristicCostFunction, {Walk = true})
+	return D3bot.GetEscapeMeshPathOrNil(startNode, 50, pathCostFunction, heuristicCostFunction, {Walk = true})
 end
 
 function HANDLER.FindPathToHuman(node)
