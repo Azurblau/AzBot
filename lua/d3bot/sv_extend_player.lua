@@ -37,7 +37,7 @@ function meta:D3bot_GetViewCenter()
 end
 
 function meta:D3bot_IsLookingAt(targetPos, conditionCos)
-	return self:GetAimVector():Dot((targetPos - self:D3bot_GetViewCenter()):GetNormalized()) < (conditionCos or 0.95)
+	return self:GetAimVector():Dot((targetPos - self:D3bot_GetViewCenter()):GetNormalized()) > (conditionCos or 0.95)
 end
 
 function meta:D3bot_CanPounceToPos(pos)
@@ -173,7 +173,7 @@ function meta:D3bot_SetUp()
 	mem.Angs = self:EyeAngles()
 end
 
-function meta:D3bot_UpdateAngsOffshoot()
+function meta:D3bot_UpdateAngsOffshoot(angOffshoot)
 	local mem = self.D3bot_Mem
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
@@ -181,11 +181,11 @@ function meta:D3bot_UpdateAngsOffshoot()
 		mem.AngsOffshoot = Angle()
 		return
 	end
-	local angOffshoot = D3bot.BotAngOffshoot
 	mem.AngsOffshoot = Angle(math.random(-angOffshoot, angOffshoot), math.random(-angOffshoot, angOffshoot), 0)
 end
 
-function meta:D3bot_SetPath(path)
+function meta:D3bot_SetPath(path, noReset)
+	if not noReset then self:D3bot_ResetTgt() end
 	local mem = self.D3bot_Mem
 	if mem.NextNodeOrNil and mem.NextNodeOrNil == path[1] then table.insert(path, 1, mem.NodeOrNil) end -- Preserve current node if the path starts with the next node
 	mem.NodeOrNil = table.remove(path, 1)
@@ -208,7 +208,7 @@ function meta:D3bot_UpdatePath()
 		if handler and handler.RerollTarget then handler.RerollTarget(self) end
 		return
 	end
-	self:D3bot_SetPath(path)
+	self:D3bot_SetPath(path, true)
 	if mem.NodeOrNil and mem.NodeOrNil.Params.BotMod then
 		D3bot.nodeZombiesCountAddition = mem.NodeOrNil.Params.BotMod -- TODO: Trigger noded botmod by human players, not here
 	end

@@ -17,7 +17,6 @@ return function(lib)
 	lib.LinkDeathCostRaise = 1000
 	lib.BotConsideringDeathCostAntichance = 3
 	lib.BotMinSpdFactor = 0.75
-	lib.BotAngOffshoot = 45
 	lib.BotAdditionalAngOffshoot = 30
 	lib.BotAngLerpFactor = 0.125
 	lib.BotAttackAngLerpFactor = 0.125--0.5

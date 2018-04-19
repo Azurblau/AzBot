@@ -19,7 +19,7 @@ function D3bot.Basics.SuicideOrRetarget(bot)
 	end
 end
 
-function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be inside the current or next node
+function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be inside the current or next node.
 	local mem = bot.D3bot_Mem
 	
 	local nodeOrNil = mem.NodeOrNil
@@ -28,9 +28,10 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	local origin = bot:GetPos()
 	local actions = {}
 	
-	-- TODO: Recalculate offshoot when outside of current area (2D), to make it face inside that area again. (Borders towards 'pos' are ignored)
-	-- This will prevent bots from falling over edges
-	bot:D3bot_FaceTo(pos, origin, D3bot.BotAngLerpFactor)
+	-- Make bot aim straight when outside of current node area This should prevent falling down edges.
+	local aimStraight
+	if nodeOrNil and not nodeOrNil:GetContains2D(origin) then aimStraight = true end
+	bot:D3bot_FaceTo(pos, origin, aimStraight and 1 or D3bot.BotAngLerpFactor, aimStraight and 0 or 1)
 	
 	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
 	local duckToParam = nextNodeOrNil and nextNodeOrNil.Params.DuckTo
@@ -42,7 +43,7 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	local invProximity = math.Clamp((origin:Distance(tempPos) - (proximity or 10))/60, 0, 1)
 	local speed = bot:GetMaxSpeed() * (slowdown and invProximity or 1)
 	
-	local facesHindrance = bot:GetVelocity():Length2D() < 0.20 * speed - 10
+	local facesHindrance = bot:GetVelocity():Length2D() < 0.50 * speed - 10
 	local minorStuck, majorStuck = bot:D3bot_CheckStuck()
 	
 	if duckParam == "Always" or duckToParam == "Always" then
@@ -79,6 +80,9 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	
 	actions.Attack = facesHindrance
 	actions.Use = actions.Use or facesHindrance
+	
+	if speed > 0 then actions.Forward = true end
+	if speed < 0 then actions.Backward = true end
 	
 	return true, actions, speed, mem.Angs, majorStuck
 end
@@ -169,6 +173,8 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	
 	actions.Attack = facesTgt or facesHindrance
 	actions.Use = actions.Use or facesHindrance
+	
+	actions.Forward = true
 	
 	return true, actions, bot:GetMaxSpeed(), mem.Angs, majorStuck
 end
@@ -298,7 +304,7 @@ function D3bot.Basics.LookAround(bot)
 	
 	local origin = bot:D3bot_GetViewCenter()
 	
-	bot:D3bot_FaceTo(mem.LookTarget:D3bot_GetViewCenter(), origin, D3bot.BotAngLerpFactor * 0.1, 0)
+	bot:D3bot_FaceTo(mem.LookTarget:D3bot_GetViewCenter(), origin, D3bot.BotAngLerpFactor * 0.3, 0)
 	
 	return true, nil, 0, mem.Angs, false
 end

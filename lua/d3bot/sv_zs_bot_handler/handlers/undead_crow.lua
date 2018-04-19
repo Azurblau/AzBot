@@ -1,6 +1,8 @@
 D3bot.Handlers.Undead_Crow = D3bot.Handlers.Undead_Crow or {}
 local HANDLER = D3bot.Handlers.Undead_Crow
 
+HANDLER.angOffshoot = 40
+
 HANDLER.Fallback = false
 function HANDLER.SelectorFunction(zombieClassName, team)
 	return team == TEAM_UNDEAD and zombieClassName == "Crow"
@@ -51,7 +53,7 @@ function HANDLER.ThinkFunction(bot)
 	
 	if mem.nextUpdateOffshoot and mem.nextUpdateOffshoot < CurTime() or not mem.nextUpdateOffshoot then
 		mem.nextUpdateOffshoot = CurTime() + 0.4 + math.random() * 0.2
-		bot:D3bot_UpdateAngsOffshoot()
+		bot:D3bot_UpdateAngsOffshoot(HANDLER.angOffshoot)
 	end
 	
 	if mem.nextUpdatePath and mem.nextUpdatePath < CurTime() or not mem.nextUpdatePath then

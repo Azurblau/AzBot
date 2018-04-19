@@ -1,6 +1,8 @@
 D3bot.Handlers.Undead_Fallback = D3bot.Handlers.Undead_Fallback or {}
 local HANDLER = D3bot.Handlers.Undead_Fallback
 
+HANDLER.angOffshoot = 45
+
 HANDLER.Fallback = true
 function HANDLER.SelectorFunction(zombieClassName, team)
 	return team == TEAM_UNDEAD
@@ -29,7 +31,7 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	
 	local buttons
 	if actions then
-		buttons = bit.bor(actions.Attack and IN_ATTACK or 0, actions.Attack2 and IN_ATTACK2 or 0, actions.Duck and IN_DUCK or 0, actions.Jump and IN_JUMP or 0, actions.Use and IN_USE or 0)
+		buttons = bit.bor(actions.Forward and IN_FORWARD or 0, actions.Backward and IN_BACKWARD or 0, actions.Attack and IN_ATTACK or 0, actions.Attack2 and IN_ATTACK2 or 0, actions.Duck and IN_DUCK or 0, actions.Jump and IN_JUMP or 0, actions.Use and IN_USE or 0)
 	end
 	
 	if majorStuck and GAMEMODE:GetWaveActive() then bot:Kill() end
@@ -43,6 +45,24 @@ end
 function HANDLER.ThinkFunction(bot)
 	local mem = bot.D3bot_Mem
 	
+	local botPos = bot:GetPos()
+	
+	if not mem.TgtOrNil or mem.TgtOrNil:GetPos():Distance(bot:GetPos()) > D3bot.BotTgtFixationDistMin then
+		if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
+			mem.nextUpdateSurroundingPlayers = CurTime() + 1
+			local targets = player.GetAll() -- TODO: Filter targets before sorting
+			table.sort(targets, function(a, b) return botPos:Distance(a:GetPos()) < botPos:Distance(b:GetPos()) end)
+			for k, v in ipairs(targets) do
+				if IsValid(v) and botPos:Distance(v:GetPos()) < 500 and HANDLER.CanBeTgt(bot, v) and bot:D3bot_CanSeeTarget(nil, v) then
+					bot:D3bot_SetTgtOrNil(v)
+					mem.nextUpdateSurroundingPlayers = CurTime() + 5
+					break
+				end
+				if k > 3 then break end
+			end
+		end
+	end
+	
 	if mem.nextCheckTarget and mem.nextCheckTarget < CurTime() or not mem.nextCheckTarget then
 		mem.nextCheckTarget = CurTime() + 1
 		if not HANDLER.CanBeTgt(bot, mem.TgtOrNil) then
@@ -52,7 +72,7 @@ function HANDLER.ThinkFunction(bot)
 	
 	if mem.nextUpdateOffshoot and mem.nextUpdateOffshoot < CurTime() or not mem.nextUpdateOffshoot then
 		mem.nextUpdateOffshoot = CurTime() + 0.4 + math.random() * 0.2
-		bot:D3bot_UpdateAngsOffshoot()
+		bot:D3bot_UpdateAngsOffshoot(HANDLER.angOffshoot)
 	end
 	
 	if mem.nextUpdatePath and mem.nextUpdatePath < CurTime() or not mem.nextUpdatePath then
@@ -86,7 +106,7 @@ local potEntTargets = nil
 function HANDLER.CanBeTgt(bot, target)
 	if not target or not IsValid(target) then return end
 	if IsValid(target) and target:IsPlayer() and target ~= bot and target:Team() ~= TEAM_UNDEAD and target:GetObserverMode() == OBS_MODE_NONE and target:Alive() then return true end
-	if table.HasValue(potEntTargets, target) then return true end
+	if potEntTargets and table.HasValue(potEntTargets, target) then return true end
 end
 
 function HANDLER.RerollTarget(bot)

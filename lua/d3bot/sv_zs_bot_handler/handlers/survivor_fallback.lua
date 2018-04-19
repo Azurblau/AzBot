@@ -1,10 +1,140 @@
 D3bot.Handlers.Survivor_Fallback = D3bot.Handlers.Survivor_Fallback or {}
 local HANDLER = D3bot.Handlers.Survivor_Fallback
 
+HANDLER.angOffshoot = 20
+
 HANDLER.Fallback = true
 function HANDLER.SelectorFunction(zombieClassName, team)
 	return team == TEAM_SURVIVOR or (TEAM_REDEEMER and team == TEAM_REDEEMER)
 end
+
+function HANDLER.UpdateBotCmdFunction(bot, cmd)
+	cmd:ClearButtons()
+	cmd:ClearMovement()
+	
+	if not bot:Alive() then
+		-- Get back into the game
+		cmd:SetButtons(IN_ATTACK)
+		return
+	end
+	
+	bot:D3bot_UpdatePathProgress()
+	local mem = bot.D3bot_Mem
+	
+	local result, actions, forwardSpeed, aimAngle = D3bot.Basics.WalkAttackAuto(bot)
+	if result then
+		actions.Attack = false
+	else
+		result, actions, forwardSpeed, aimAngle = D3bot.Basics.AimAndShoot(bot, mem.AttackTgtOrNil, mem.maxShootingDistance)
+		if not result then
+			result, actions, forwardSpeed, aimAngle = D3bot.Basics.LookAround(bot)
+			if not result then return end
+		end
+	end
+	
+	local buttons
+	if actions then
+		buttons = bit.bor(actions.Forward and IN_FORWARD or 0, actions.Backward and IN_BACKWARD or 0, actions.Attack and IN_ATTACK or 0, actions.Attack2 and IN_ATTACK2 or 0, actions.Reload and IN_RELOAD or 0, actions.Duck and IN_DUCK or 0, actions.Jump and IN_JUMP or 0, actions.Use and IN_USE or 0)
+	end
+	
+	if aimAngle then bot:SetEyeAngles(aimAngle)	cmd:SetViewAngles(aimAngle) end
+	if forwardSpeed then cmd:SetForwardMove(forwardSpeed) end
+	if buttons then cmd:SetButtons(buttons) end
+end
+
+function HANDLER.ThinkFunction(bot)
+	local mem = bot.D3bot_Mem
+	local botPos = bot:GetPos()
+	
+	if not HANDLER.IsEnemy(bot, mem.AttackTgtOrNil) then mem.AttackTgtOrNil = nil end
+	
+	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
+		mem.nextUpdateSurroundingPlayers = CurTime() + 0.5
+		local enemies = D3bot.From(player.GetAll()):Where(function(k, v) return HANDLER.IsEnemy(bot, v) end).R
+		local closeEnemies = D3bot.From(enemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 1000 end).R -- TODO: Constant for the distance
+		local closerEnemies = D3bot.From(closeEnemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 600 end).R -- TODO: Constant for the distance
+		local dangerouscloseEnemies = D3bot.From(closerEnemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 300 end).R -- TODO: Constant for the distance
+		if table.Count(dangerouscloseEnemies) > 0 then
+			mem.AttackTgtOrNil = table.Random(dangerouscloseEnemies)
+			-- Check if undead can see/walk to bot, and then calculate escape path.
+			if mem.AttackTgtOrNil:D3bot_CanSeeTarget(nil, bot) and (not mem.NextNodeOrNil or mem.lastEscapePath and mem.lastEscapePath < CurTime() - 2 or not mem.lastEscapePath) then
+				mem.lastEscapePath = CurTime()
+				escapePath = HANDLER.FindEscapePath(D3bot.MapNavMesh:GetNearestNodeOrNil(botPos), closeEnemies)
+				if escapePath then
+					--D3bot.Debug.DrawPath(GetPlayerByName("D3"), escapePath, nil, nil, true)
+					mem.holdPathTime = CurTime() + 2
+					bot:D3bot_SetPath(escapePath)
+				end
+			end
+		else
+			if not mem.holdPathTime or mem.holdPathTime < CurTime() then
+				bot:D3bot_ResetTgt()
+			end
+			if not HANDLER.IsEnemy(bot, mem.AttackTgtOrNil) or not HANDLER.CanShootTarget(bot, mem.AttackTgtOrNil) then mem.AttackTgtOrNil = table.Random(closeEnemies) or table.Random(enemies) or nil end
+			if not mem.NextNodeOrNil and ((mem.nextHumanPath or 0) < CurTime() or bot:WaterLevel() == 3) then
+				mem.nextHumanPath = CurTime() + 10 + math.random() * 20
+				path = HANDLER.FindPathToHuman(D3bot.MapNavMesh:GetNearestNodeOrNil(botPos))
+				if path then
+					--D3bot.Debug.DrawPath(GetPlayerByName("D3"), path, nil, Color(0, 0, 255), true)
+					mem.holdPathTime = CurTime() + 20
+					bot:D3bot_SetPath(path)
+				end
+			end
+		end
+	end
+	
+	if mem.nextUpdateOffshoot and mem.nextUpdateOffshoot < CurTime() or not mem.nextUpdateOffshoot then
+		mem.nextUpdateOffshoot = CurTime() + 0.4 + math.random() * 0.2
+		bot:D3bot_UpdateAngsOffshoot(HANDLER.angOffshoot)
+	end
+	
+	if mem.nextUpdatePath and mem.nextUpdatePath < CurTime() or not mem.nextUpdatePath then
+		mem.nextUpdatePath = CurTime() + 0.9 + math.random() * 0.2
+		bot:D3bot_UpdatePath()
+	end
+	
+	if mem.nextHeldWeaponUpdate and mem.nextHeldWeaponUpdate < CurTime() or not mem.nextHeldWeaponUpdate then
+		mem.nextHeldWeaponUpdate = CurTime() + 1 + math.random() * 1
+		local weapons = bot:GetWeapons()
+		local filteredWeapons = {}
+		local bestRating, bestWeapon = 0, nil
+		local enemyDistance = mem.AttackTgtOrNil and mem.AttackTgtOrNil:GetPos():Distance(bot:GetPos()) or 300
+		for _, v in pairs(weapons) do
+			local weaponType, rating, maxDistance = HANDLER.WeaponRatingFunction(v, enemyDistance)
+			local ammoType = v:GetPrimaryAmmoType()
+			local ammo = v:Clip1() + bot:GetAmmoCount(ammoType)
+			if ammo > 0 and bestRating < rating and weaponType == HANDLER.Weapon_Types.RANGED then
+				bestRating, bestWeapon, bestMaxDistance = rating, v.ClassName, maxDistance
+			end
+		end
+		if bestWeapon then
+			bot:SelectWeapon(bestWeapon)
+			mem.maxShootingDistance = bestMaxDistance
+		end
+	end
+end
+
+function HANDLER.OnTakeDamageFunction(bot, dmg)
+	local attacker = dmg:GetAttacker()
+	if not HANDLER.CanBeAttackTgt(bot, attacker) then return end
+	local mem = bot.D3bot_Mem
+	--if IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(bot:GetPos()) <= D3bot.BotTgtFixationDistMin then return end
+	mem.AttackTgtOrNil = attacker
+	--bot:Say("Stop That! I'm gonna shoot you, "..attacker:GetName().."!")
+	--bot:Say("help")
+end
+
+function HANDLER.OnDoDamageFunction(bot, dmg)
+	--bot:Say("Gotcha!")
+end
+
+function HANDLER.OnDeathFunction(bot)
+	--bot:Say("rip me!")
+end
+
+-----------------------------------
+-- Custom functions and settings --
+-----------------------------------
 
 HANDLER.Weapon_Types = {}
 HANDLER.Weapon_Types.RANGED = 1
@@ -36,41 +166,7 @@ function HANDLER.WeaponRatingFunction(weapon, targetDistance)
 	return weaponType, rating, maxDistance
 end
 
-function HANDLER.UpdateBotCmdFunction(bot, cmd)
-	cmd:ClearButtons()
-	cmd:ClearMovement()
-	
-	if not bot:Alive() then
-		-- Get back into the game
-		cmd:SetButtons(IN_ATTACK)
-		return
-	end
-	
-	bot:D3bot_UpdatePathProgress()
-	local mem = bot.D3bot_Mem
-	
-	local result, actions, forwardSpeed, aimAngle = D3bot.Basics.WalkAttackAuto(bot)
-	if result then
-		actions.Attack = false
-	else
-		result, actions, forwardSpeed, aimAngle = D3bot.Basics.AimAndShoot(bot, mem.AttackTgtOrNil, mem.maxShootingDistance)
-		if not result then
-			result, actions, forwardSpeed, aimAngle = D3bot.Basics.LookAround(bot)
-			if not result then return end
-		end
-	end
-	
-	local buttons
-	if actions then
-		buttons = bit.bor(actions.Attack and IN_ATTACK or 0, actions.Attack2 and IN_ATTACK2 or 0, actions.Reload and IN_RELOAD or 0, actions.Duck and IN_DUCK or 0, actions.Jump and IN_JUMP or 0, actions.Use and IN_USE or 0)
-	end
-	
-	if aimAngle then bot:SetEyeAngles(aimAngle)	cmd:SetViewAngles(aimAngle) end
-	if forwardSpeed then cmd:SetForwardMove(forwardSpeed) end
-	if buttons then cmd:SetButtons(buttons) end
-end
-
-function HANDLER.FindEscapePath(node, enemies)
+function HANDLER.FindEscapePath(node, enemies) -- TODO: Fix behaviour when being on the same node as the enemies (Randomly running into the undead)
 	local tempNodePenalty = {}
 	for _, enemy in pairs(enemies) do
 		tempNodePenalty = D3bot.NeighbourNodeFalloff(D3bot.MapNavMesh:GetNearestNodeOrNil(enemy:GetPos()), 2, 1, 0.5, tempNodePenalty)
@@ -122,103 +218,11 @@ function HANDLER.CanShootTarget(bot, target)
 	return not tr.Hit
 end
 
-function HANDLER.ThinkFunction(bot)
-	local mem = bot.D3bot_Mem
-	local botPos = bot:GetPos()
-	
-	if not HANDLER.IsEnemy(bot, mem.AttackTgtOrNil) then mem.AttackTgtOrNil = nil end
-	
-	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
-		mem.nextUpdateSurroundingPlayers = CurTime() + 0.5
-		local enemies = D3bot.From(player.GetAll()):Where(function(k, v) return HANDLER.IsEnemy(bot, v) end).R
-		local closeEnemies = D3bot.From(enemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 1000 end).R -- TODO: Constant for the distance
-		local closerEnemies = D3bot.From(closeEnemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 600 end).R -- TODO: Constant for the distance
-		local dangerouscloseEnemies = D3bot.From(closerEnemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 300 end).R -- TODO: Constant for the distance
-		if table.Count(dangerouscloseEnemies) > 0 then
-			mem.AttackTgtOrNil = table.Random(dangerouscloseEnemies)
-			-- Check if undead can see/walk to bot, and then calculate escape path.
-			if mem.AttackTgtOrNil:D3bot_CanSeeTarget(nil, bot) and (not mem.NextNodeOrNil or mem.lastEscapePath and mem.lastEscapePath < CurTime() - 2 or not mem.lastEscapePath) then
-				mem.lastEscapePath = CurTime()
-				escapePath = HANDLER.FindEscapePath(D3bot.MapNavMesh:GetNearestNodeOrNil(botPos), closeEnemies)
-				if escapePath then
-					D3bot.Debug.DrawPath(GetPlayerByName("D3"), escapePath, nil, nil, true)
-					mem.holdPathTime = CurTime() + 2
-					bot:D3bot_ResetTgt()
-					bot:D3bot_SetPath(escapePath) -- Dirty overwrite of the path, as long as no other target is set it works fine
-				end
-			end
-		else
-			if not mem.holdPathTime or mem.holdPathTime < CurTime() then
-				bot:D3bot_ResetTgt()
-			end
-			if not HANDLER.IsEnemy(bot, mem.AttackTgtOrNil) or not HANDLER.CanShootTarget(bot, mem.AttackTgtOrNil) then mem.AttackTgtOrNil = table.Random(closeEnemies) or table.Random(enemies) or nil end
-			if (mem.nextHumanPath or 0) < CurTime() then
-				mem.nextHumanPath = CurTime() + 10 + math.random() * 20
-				path = HANDLER.FindPathToHuman(D3bot.MapNavMesh:GetNearestNodeOrNil(botPos))
-				if path then
-					D3bot.Debug.DrawPath(GetPlayerByName("D3"), path, nil, Color(0, 0, 255), true)
-					mem.holdPathTime = CurTime() + 20
-					bot:D3bot_ResetTgt()
-					bot:D3bot_SetPath(path) -- Dirty overwrite of the path, as long as no other target is set it works fine
-				end
-			end
-		end
-	end
-	
-	if mem.nextUpdateOffshoot and mem.nextUpdateOffshoot < CurTime() or not mem.nextUpdateOffshoot then
-		mem.nextUpdateOffshoot = CurTime() + 0.4 + math.random() * 0.2
-		bot:D3bot_UpdateAngsOffshoot() -- TODO: Less offshoot
-	end
-	
-	if mem.nextUpdatePath and mem.nextUpdatePath < CurTime() or not mem.nextUpdatePath then
-		mem.nextUpdatePath = CurTime() + 0.9 + math.random() * 0.2
-		bot:D3bot_UpdatePath()
-	end
-	
-	if mem.nextHeldWeaponUpdate and mem.nextHeldWeaponUpdate < CurTime() or not mem.nextHeldWeaponUpdate then
-		mem.nextHeldWeaponUpdate = CurTime() + 1 + math.random() * 1
-		local weapons = bot:GetWeapons()
-		local filteredWeapons = {}
-		local bestRating, bestWeapon = 0, nil
-		local enemyDistance = mem.AttackTgtOrNil and mem.AttackTgtOrNil:GetPos():Distance(bot:GetPos()) or 300
-		for _, v in pairs(weapons) do
-			local weaponType, rating, maxDistance = HANDLER.WeaponRatingFunction(v, enemyDistance)
-			local ammoType = v:GetPrimaryAmmoType()
-			local ammo = v:Clip1() + bot:GetAmmoCount(ammoType)
-			if ammo > 0 and bestRating < rating and weaponType == HANDLER.Weapon_Types.RANGED then
-				bestRating, bestWeapon, bestMaxDistance = rating, v.ClassName, maxDistance
-			end
-		end
-		if bestWeapon then
-			bot:SelectWeapon(bestWeapon)
-			mem.maxShootingDistance = bestMaxDistance
-		end
-	end
-end
-
-function HANDLER.OnTakeDamageFunction(bot, dmg)
-	local attacker = dmg:GetAttacker()
-	if not HANDLER.CanBeShootTgt(bot, attacker) then return end
-	local mem = bot.D3bot_Mem
-	--if IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(bot:GetPos()) <= D3bot.BotTgtFixationDistMin then return end
-	mem.AttackTgtOrNil = attacker
-	--bot:Say("Stop That! I'm gonna shoot you, "..attacker:GetName().."!")
-	--bot:Say("help")
-end
-
-function HANDLER.OnDoDamageFunction(bot, dmg)
-	--bot:Say("Gotcha!")
-end
-
-function HANDLER.OnDeathFunction(bot)
-	--bot:Say("rip me!")
-end
-
 function HANDLER.IsEnemy(bot, ply)
 	if IsValid(ply) and bot ~= ply and ply:IsPlayer() and ply:Team() ~= TEAM_SURVIVOR and ply:GetObserverMode() == OBS_MODE_NONE and ply:Alive() then return true end
 end
 
-function HANDLER.CanBeShootTgt(bot, target)
+function HANDLER.CanBeAttackTgt(bot, target)
 	if not target or not IsValid(target) then return end
 	if target:IsPlayer() and target ~= bot and target:Team() ~= TEAM_SURVIVOR and target:GetObserverMode() == OBS_MODE_NONE and target:Alive() then return true end
 end
