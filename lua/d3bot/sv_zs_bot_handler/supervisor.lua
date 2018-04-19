@@ -20,35 +20,60 @@ function D3bot.GetDesiredBotCount()
 	return zombiesCount, survivorsCount
 end
 
+
 function D3bot.MaintainBotRoles()
 	if #player.GetHumans() == 0 then return end
-	local desiredZombiesCount, desiredSurvivorsCount = D3bot.GetDesiredBotCount()
-	local zombiesCount, survivorsCount = #team.GetPlayers(TEAM_UNDEAD), #team.GetPlayers(TEAM_SURVIVOR)
-	local zombieBotsDifference, survivorBotsDifference = desiredZombiesCount - zombiesCount, desiredSurvivorsCount - survivorsCount
-	local totalDifference = zombieBotsDifference + survivorBotsDifference
-	local count, desiredCount = zombiesCount + survivorsCount, desiredZombiesCount + desiredSurvivorsCount
-	while totalDifference > 0 and (zombieBotsDifference > 0 or (survivorBotsDifference > 0 and GAMEMODE:GetWave() <= 0)) and not GAMEMODE.RoundEnded do
-		RunConsoleCommand("bot")
-		--local bot = player.CreateNextBot("Test")
-		totalDifference = totalDifference - 1
-		return -- Have to return for now, as i can't determine the team of the bot now
+	local desiredCountByTeam = {}
+	desiredCountByTeam[TEAM_UNDEAD], desiredCountByTeam[TEAM_SURVIVOR] = D3bot.GetDesiredBotCount()
+	local totalDesiredCount = desiredCountByTeam[TEAM_UNDEAD] + desiredCountByTeam[TEAM_SURVIVOR]
+	local bots = player.GetBots()
+	local botsByTeam = {}
+	for k, v in ipairs(bots) do
+		local team = v:Team()
+		botsByTeam[team] = botsByTeam[team] or {}
+		table.insert(botsByTeam[team], v)
 	end
-	for _, bot in ipairs(player.GetBots()) do -- TODO: kick bosses and bots with more frags last
-		if bot:Team() == TEAM_UNDEAD then
-			if zombieBotsDifference < 0 then
-				bot:Kick(D3bot.BotKickReason)
-				zombieBotsDifference = zombieBotsDifference + 1
+	
+	-- Sort by frags and being boss zombie
+	if botsByTeam[TEAM_UNDEAD] then
+		table.sort(botsByTeam[TEAM_UNDEAD], function(a, b) return (a:GetZombieClassTable().Boss and 1 or 0) < (b:GetZombieClassTable().Boss and 1 or 0) end)
+	end
+	for team, botByTeam in pairs(botsByTeam) do
+		table.sort(botByTeam, function(a, b) return a:Frags() < b:Frags() end)
+	end
+	
+	if GAMEMODE:GetWave() <= 0 then
+		-- Pre round logic
+		if #bots < totalDesiredCount then
+			RunConsoleCommand("bot")
+			-- TODO: Store the team the bot should join to
+			--local bot = player.CreateNextBot("Test")
+			return
+		elseif #bots > totalDesiredCount then
+			local randomBot = table.Random(bots)
+			return randomBot and randomBot:Kick(D3bot.BotKickReason)
+		end
+	else
+		-- Add bots out of managed teams to maintain desired counts
+		if #(botsByTeam[TEAM_UNDEAD] or {}) < desiredCountByTeam[TEAM_UNDEAD] then
+			RunConsoleCommand("bot")
+			-- TODO: Store the team the bot should join to
+			return
+		end
+		-- Remove bots out of managed teams to maintain desired counts
+		for team, desiredCount in pairs(desiredCountByTeam) do
+			if #(botsByTeam[team] or {}) > desiredCount then
+				local randomBot = table.remove(botsByTeam[team], 1)
+				return randomBot and randomBot:Kick(D3bot.BotKickReason)
 			end
-		elseif bot:Team() == TEAM_SURVIVOR then
-			if survivorBotsDifference < 0 and GAMEMODE:GetWave() > 0 then
-				if zombieBotsDifference > 0 then
-					bot:StripWeapons()
-					bot:KillSilent()
-					zombieBotsDifference = zombieBotsDifference - 1
-					survivorBotsDifference = survivorBotsDifference + 1
-				else
-					bot:Kick(D3bot.BotKickReason)
-					survivorBotsDifference = survivorBotsDifference + 1
+		end
+		-- Remove bots out of non managed teams if the server is getting too full
+		local allowedTotal = game.MaxPlayers() - 2
+		if player.GetCount() > allowedTotal then
+			for team, desiredCount in pairs(desiredCountByTeam) do
+				if not desiredCountByTeam[team] then
+					local randomBot = table.remove(botsByTeam[team], 1)
+					return randomBot and randomBot:Kick(D3bot.BotKickReason)
 				end
 			end
 		end

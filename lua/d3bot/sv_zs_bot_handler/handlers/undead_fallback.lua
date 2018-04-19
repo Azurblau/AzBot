@@ -47,7 +47,7 @@ function HANDLER.ThinkFunction(bot)
 	
 	local botPos = bot:GetPos()
 	
-	if not mem.TgtOrNil or mem.TgtOrNil:GetPos():Distance(bot:GetPos()) > D3bot.BotTgtFixationDistMin then
+	if not mem.TgtOrNil or IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(bot:GetPos()) > D3bot.BotTgtFixationDistMin then
 		if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
 			mem.nextUpdateSurroundingPlayers = CurTime() + 1
 			local targets = player.GetAll() -- TODO: Filter targets before sorting

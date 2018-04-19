@@ -142,8 +142,8 @@ function meta:D3bot_SetNodeTgtOrNil(targetNode) -- Set the node as target, bot w
 end
 
 function meta:D3bot_Initialize()
-	if D3bot.MaintainBotRolesAutomatically then
-		--GAMEMODE.PreviouslyDied[self:UniqueID()] = CurTime()
+	if GAMEMODE:GetWave() > 0 then
+		GAMEMODE.PreviouslyDied[self:UniqueID()] = CurTime()
 		--GAMEMODE:PlayerInitialSpawn(self)
 		-- TODO: Make bots spawn as zombie when round started and there is need for more zombies
 	end
