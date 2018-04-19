@@ -2,7 +2,7 @@
 return function(lib)
 	local from = lib.From
 	
-	lib.IsEnabled = engine.ActiveGamemode() == "zombiesurvival"
+	lib.IsEnabled = engine.ActiveGamemode() == "zombiesurvival" and table.Count(lib.MapNavMesh.ItemById) > 0
 	lib.BotTgtFixationDistMin = 250
 	lib.BotTgtAreaRadius = 100
 	lib.BotSeeTr = {
@@ -28,12 +28,11 @@ return function(lib)
 	lib.ZombiesPerPlayerWave = 0.10
 	lib.ZombiesPerMinute = 0
 	lib.ZombiesPerWave = 0.4
-	lib.ZombiesCountAddition = 0			-- BotMod
-	lib.SurvivorsPerPlayer = 8--1.2			-- Survivor bots per total player (non bot) amount. Will only spawn pre round. But excess bots will be kicked/slain.
-	lib.SurvivorCountAddition = 0
-	lib.HasMapNavMesh = table.Count(lib.MapNavMesh.ItemById) > 0
-	lib.IsSelfRedeemEnabled = lib.HasMapNavMesh
-	lib.IsBonusEnabled = lib.HasMapNavMesh
+	lib.ZombiesCountAddition = 1			-- BotMod
+	lib.SurvivorsPerPlayer = 0.25--1.2		-- Survivor bots per total player (non bot) amount. Will only spawn pre round. But excess bots will be kicked/slain.
+	lib.SurvivorCountAddition = 5
+	lib.IsSelfRedeemEnabled = true
+	lib.IsBonusEnabled = true
 	lib.SelfRedeemWaveMax = 4
 	lib.BotHooksId = "D3bot"
 	lib.BotClasses = {
@@ -72,7 +71,7 @@ return function(lib)
 	hook.Add("PlayerSpawn", lib.BotHooksId, function(pl)
 		if not lib.IsEnabled then return end
 		if pl:IsBot() then pl:D3bot_SetUp() end
-		if lib.IsBonusEnabled and pl:Team() == TEAM_HUMAN then
+		if lib.IsEnabled and lib.IsBonusEnabled and pl:Team() == TEAM_HUMAN then
 			local hadBonus = hadBonusByPl[pl]
 			hadBonusByPl[pl] = true
 			pl:SetPoints(hadBonus and 0 or 25)

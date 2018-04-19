@@ -1,7 +1,7 @@
 
 if engine.ActiveGamemode() == "zombiesurvival" then
 	hook.Add("PlayerSpawn", "!human info", function(pl)
-		if not D3bot.IsSelfRedeemEnabled or pl:Team() ~= TEAM_UNDEAD or LASTHUMAN or GAMEMODE.ZombieEscape or GAMEMODE:GetWave() > D3bot.SelfRedeemWaveMax then return end
+		if not D3bot.IsEnabled or not D3bot.IsSelfRedeemEnabled or pl:Team() ~= TEAM_UNDEAD or LASTHUMAN or GAMEMODE.ZombieEscape or GAMEMODE:GetWave() > D3bot.SelfRedeemWaveMax then return end
 		local hint = translate.ClientFormat(pl, "D3bot_redeemwave", D3bot.SelfRedeemWaveMax + 1)
 		pl:PrintMessage(HUD_PRINTCENTER, hint)
 		pl:ChatPrint(hint)
@@ -33,8 +33,14 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 	local nextByPl = {}
 	local tierByPl = {}
 	function ulx.human(pl)
-		if not D3bot.IsSelfRedeemEnabled then
+		if not D3bot.IsEnabled then
 			local response = translate.ClientGet(pl, "D3bot_botmapsonly")
+			pl:ChatPrint(response)
+			pl:PrintMessage(HUD_PRINTCENTER, response)
+			return
+		end
+		if not D3bot.IsSelfRedeemEnabled then
+			local response = translate.ClientGet(pl, "D3bot_selfredeemdisabled")
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
 			return

@@ -84,7 +84,7 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	if speed > 0 then actions.Forward = true end
 	if speed < 0 then actions.Backward = true end
 	
-	return true, actions, speed, mem.Angs, majorStuck
+	return true, actions, speed, mem.Angs, minorStuck, majorStuck
 end
 
 function D3bot.Basics.WalkAttackAuto(bot)
@@ -99,7 +99,7 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	local facesTgt = false
 	
 	-- TODO: Reduce can see target calls
-	if mem.TgtOrNil and (bot:D3bot_CanSeeTarget() or not nextNodeOrNil) then
+	if mem.TgtOrNil and not mem.DontAttackTgt and (bot:D3bot_CanSeeTarget() or not nextNodeOrNil) then
 		aimPos = bot:D3bot_GetAttackPosOrNilFuture(nil, math.Rand(0, D3bot.BotAimPosVelocityOffshoot))
 		origin = bot:D3bot_GetViewCenter()
 		if aimPos and aimPos:Distance(bot:D3bot_GetViewCenter()) < D3bot.BotAttackDistMin then
@@ -176,7 +176,7 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	
 	actions.Forward = true
 	
-	return true, actions, bot:GetMaxSpeed(), mem.Angs, majorStuck
+	return true, actions, bot:GetMaxSpeed(), mem.Angs, minorStuck, majorStuck
 end
 
 function D3bot.Basics.PounceAuto(bot)

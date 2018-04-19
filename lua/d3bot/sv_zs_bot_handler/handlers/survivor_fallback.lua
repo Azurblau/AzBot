@@ -5,7 +5,7 @@ HANDLER.angOffshoot = 20
 
 HANDLER.Fallback = true
 function HANDLER.SelectorFunction(zombieClassName, team)
-	return team == TEAM_SURVIVOR or (TEAM_REDEEMER and team == TEAM_REDEEMER)
+	return team == TEAM_SURVIVOR
 end
 
 function HANDLER.UpdateBotCmdFunction(bot, cmd)
@@ -21,7 +21,7 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	bot:D3bot_UpdatePathProgress()
 	local mem = bot.D3bot_Mem
 	
-	local result, actions, forwardSpeed, aimAngle = D3bot.Basics.WalkAttackAuto(bot)
+	local result, actions, forwardSpeed, aimAngle, minorStuck, majorStuck = D3bot.Basics.WalkAttackAuto(bot)
 	if result then
 		actions.Attack = false
 	else
@@ -35,6 +35,11 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	if bot:WaterLevel() == 3 and not mem.NextNodeOrNil then
 		actions = actions or {}
 		actions.Jump = true
+	end
+	
+	if minorStuck then
+		actions.Attack = not mem.WasPressingAttack
+		mem.WasPressingAttack = actions.Attack
 	end
 	
 	local buttons
@@ -109,6 +114,12 @@ function HANDLER.ThinkFunction(bot)
 			local weaponType, rating, maxDistance = HANDLER.WeaponRatingFunction(v, enemyDistance)
 			local ammoType = v:GetPrimaryAmmoType()
 			local ammo = v:Clip1() + bot:GetAmmoCount(ammoType)
+			
+			-- Silly cheat to prevent bots from running out of ammo TODO: Add buy logic
+			if ammo == 0 then
+				bot:SetAmmo(50, ammoType)
+			end
+			
 			if ammo > 0 and enemyDistance < maxDistance and bestRating < rating and weaponType == HANDLER.Weapon_Types.RANGED then
 				bestRating, bestWeapon, bestMaxDistance = rating, v.ClassName, maxDistance
 			end
@@ -237,10 +248,12 @@ function HANDLER.CanShootTarget(bot, target)
 end
 
 function HANDLER.IsEnemy(bot, ply)
-	if IsValid(ply) and bot ~= ply and ply:IsPlayer() and ply:Team() ~= TEAM_SURVIVOR and ply:GetObserverMode() == OBS_MODE_NONE and ply:Alive() then return true end
+	local ownTeam = bot:Team()
+	if IsValid(ply) and bot ~= ply and ply:IsPlayer() and ply:Team() ~= ownTeam and ply:GetObserverMode() == OBS_MODE_NONE and ply:Alive() then return true end
 end
 
 function HANDLER.CanBeAttackTgt(bot, target)
 	if not target or not IsValid(target) then return end
-	if target:IsPlayer() and target ~= bot and target:Team() ~= TEAM_SURVIVOR and target:GetObserverMode() == OBS_MODE_NONE and target:Alive() then return true end
+	local ownTeam = bot:Team()
+	if target:IsPlayer() and target ~= bot and target:Team() ~= ownTeam and target:GetObserverMode() == OBS_MODE_NONE and target:Alive() then return true end
 end

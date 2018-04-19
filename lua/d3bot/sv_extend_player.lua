@@ -7,13 +7,6 @@ function meta:D3bot_GetAttackPosOrNil(fraction, target)
 	return tgt:IsPlayer() and LerpVector(fraction or 0.75, tgt:GetPos(), tgt:EyePos()) or tgt:WorldSpaceCenter()
 end
 
-function meta:D3bot_GetAttackPosOrNil(fraction, target)
-	local mem = self.D3bot_Mem
-	local tgt = target or mem.TgtOrNil
-	if not IsValid(tgt) then return end
-	return tgt:IsPlayer() and LerpVector(fraction or 0.75, tgt:GetPos(), tgt:EyePos()) or tgt:WorldSpaceCenter()
-end
-
 -- Linear extrapolated position of the player entity
 function meta:D3bot_GetAttackPosOrNilFuture(fraction, t)
 	local mem = self.D3bot_Mem
@@ -112,7 +105,7 @@ end
 
 function meta:D3bot_ResetTgt() -- Reset all kind of targets
 	local mem = self.D3bot_Mem
-	mem.TgtOrNil = nil
+	mem.TgtOrNil, mem.DontAttackTgt = nil, nil
 	mem.PosTgtOrNil, mem.PosTgtProximity = nil, nil
 	mem.NodeTgtOrNil = nil
 	mem.NodeOrNil = nil
@@ -120,23 +113,23 @@ function meta:D3bot_ResetTgt() -- Reset all kind of targets
 	mem.RemainingNodes = {}
 end
 
-function meta:D3bot_SetTgtOrNil(target) -- Set the entity or player as target, bot will move to and attack. TODO: Add "should attack" and proximity parameter.
+function meta:D3bot_SetTgtOrNil(target, dontAttack) -- Set the entity or player as target, bot will move to and attack. TODO: Add proximity parameter.
 	local mem = self.D3bot_Mem
-	mem.TgtOrNil = target
+	mem.TgtOrNil, mem.DontAttackTgt = target, dontAttack
 	mem.PosTgtOrNil, mem.PosTgtProximity = nil, nil
 	mem.NodeTgtOrNil = nil
 end
 
 function meta:D3bot_SetPosTgtOrNil(targetPos, proximity) -- Set the position as target, bot will then move to it
 	local mem = self.D3bot_Mem
-	mem.TgtOrNil = nil
+	mem.TgtOrNil, mem.DontAttackTgt = nil, nil
 	mem.PosTgtOrNil, mem.PosTgtProximity = targetPos, proximity
 	mem.NodeTgtOrNil = nil
 end
 
 function meta:D3bot_SetNodeTgtOrNil(targetNode) -- Set the node as target, bot will then move to it
 	local mem = self.D3bot_Mem
-	mem.TgtOrNil = nil
+	mem.TgtOrNil, mem.DontAttackTgt = nil, nil
 	mem.PosTgtOrNil, mem.PosTgtProximity = nil, nil
 	mem.NodeTgtOrNil = targetNode
 end
@@ -145,7 +138,6 @@ function meta:D3bot_Initialize()
 	if GAMEMODE:GetWave() > 0 then
 		GAMEMODE.PreviouslyDied[self:UniqueID()] = CurTime()
 		--GAMEMODE:PlayerInitialSpawn(self)
-		-- TODO: Make bots spawn as zombie when round started and there is need for more zombies
 	end
 	
 	self.D3bot_Mem = {
@@ -165,6 +157,7 @@ end
 function meta:D3bot_SetUp()
 	local mem = self.D3bot_Mem
 	mem.TgtOrNil = nil
+	mem.DontAttackTgt = nil
 	mem.PosTgtOrNil = nil
 	mem.NodeTgtOrNil = nil
 	mem.NextNodeOrNil = nil

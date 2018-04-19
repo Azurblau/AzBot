@@ -17,7 +17,7 @@ function D3bot.GetDesiredBotCount()
 		math.ceil(survivorFormula + D3bot.SurvivorCountAddition),
 		0,
 		math.max(allowedTotal - zombiesCount, 0))
-	return zombiesCount, survivorsCount
+	return zombiesCount, GAMEMODE.ZombieEscape and 0 or survivorsCount
 end
 
 
@@ -46,7 +46,6 @@ function D3bot.MaintainBotRoles()
 		-- Pre round logic
 		if #bots < totalDesiredCount then
 			RunConsoleCommand("bot")
-			-- TODO: Store the team the bot should join to
 			--local bot = player.CreateNextBot("Test")
 			return
 		elseif #bots > totalDesiredCount then
@@ -57,7 +56,6 @@ function D3bot.MaintainBotRoles()
 		-- Add bots out of managed teams to maintain desired counts
 		if #(botsByTeam[TEAM_UNDEAD] or {}) < desiredCountByTeam[TEAM_UNDEAD] then
 			RunConsoleCommand("bot")
-			-- TODO: Store the team the bot should join to
 			return
 		end
 		-- Remove bots out of managed teams to maintain desired counts
@@ -89,3 +87,4 @@ function D3bot.SupervisorThinkFunction()
 end
 
 -- TODO: Detect situations and coordinate bots accordingly (Attacking cades, hunt down runners, spawncamping prevention)
+-- TODO: If needed force one bot to flesh creeper and let him build a nest at a good place

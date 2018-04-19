@@ -37,6 +37,8 @@ local NextBot🤔 = CurTime()
 local NextSupervisor🤔 = CurTime()
 local NextStorePos = CurTime()
 hook.Add("Think", D3bot.BotHooksId.."🤔", function()
+	if not D3bot.IsEnabled then return end
+	
 	-- General bot handler think function
 	if NextBot🤔 < CurTime() then
 		NextBot🤔 = CurTime() + 0.1

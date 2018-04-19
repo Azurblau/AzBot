@@ -21,9 +21,9 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	bot:D3bot_UpdatePathProgress()
 	D3bot.Basics.SuicideOrRetarget(bot)
 	
-	local result, actions, forwardSpeed, aimAngle, majorStuck = D3bot.Basics.PounceAuto(bot)
+	local result, actions, forwardSpeed, aimAngle, minorStuck, majorStuck = D3bot.Basics.PounceAuto(bot)
 	if not result then
-		result, actions, forwardSpeed, aimAngle, majorStuck = D3bot.Basics.WalkAttackAuto(bot)
+		result, actions, forwardSpeed, aimAngle, minorStuck, majorStuck = D3bot.Basics.WalkAttackAuto(bot)
 		if not result then
 			return
 		end
@@ -47,14 +47,14 @@ function HANDLER.ThinkFunction(bot)
 	
 	local botPos = bot:GetPos()
 	
-	if not mem.TgtOrNil or IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(bot:GetPos()) > D3bot.BotTgtFixationDistMin then
-		if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
+	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
+		if not mem.TgtOrNil or IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(botPos) > D3bot.BotTgtFixationDistMin then
 			mem.nextUpdateSurroundingPlayers = CurTime() + 1
 			local targets = player.GetAll() -- TODO: Filter targets before sorting
 			table.sort(targets, function(a, b) return botPos:Distance(a:GetPos()) < botPos:Distance(b:GetPos()) end)
 			for k, v in ipairs(targets) do
 				if IsValid(v) and botPos:Distance(v:GetPos()) < 500 and HANDLER.CanBeTgt(bot, v) and bot:D3bot_CanSeeTarget(nil, v) then
-					bot:D3bot_SetTgtOrNil(v)
+					bot:D3bot_SetTgtOrNil(v, false)
 					mem.nextUpdateSurroundingPlayers = CurTime() + 5
 					break
 				end
@@ -101,6 +101,10 @@ function HANDLER.OnDeathFunction(bot)
 	HANDLER.RerollTarget(bot)
 end
 
+-----------------------------------
+-- Custom functions and settings --
+-----------------------------------
+
 local potTargetEntClasses = {"prop_*turret", "prop_arsenalcrate", "prop_manhack*"}
 local potEntTargets = nil
 function HANDLER.CanBeTgt(bot, target)
@@ -121,5 +125,5 @@ function HANDLER.RerollTarget(bot)
 	end
 	potEntTargets = D3bot.GetEntsOfClss(potTargetEntClasses)
 	local potTargets = table.Add(players, potEntTargets)
-	bot:D3bot_SetTgtOrNil(table.Random(potTargets))
+	bot:D3bot_SetTgtOrNil(table.Random(potTargets), false)
 end

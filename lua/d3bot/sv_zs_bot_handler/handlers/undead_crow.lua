@@ -34,7 +34,7 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	end
 	
 	buttons = bit.band(buttons, bit.bnot(IN_USE)) -- Prevent crow bots from pressing USE
-	buttons = bit.bor(buttons or 0, (math.random(1, 2) == 1) and result and IN_JUMP or 0) -- TODO: Correct that mess
+	buttons = bit.bor(buttons or 0, (math.random(1, 2) == 1) and result and IN_JUMP or 0)
 	
 	if aimAngle then bot:SetEyeAngles(aimAngle) cmd:SetViewAngles(aimAngle) end
 	if forwardSpeed then cmd:SetForwardMove(forwardSpeed) end
@@ -82,5 +82,5 @@ end
 
 function HANDLER.RerollTarget(bot)
 	local players = D3bot.RemoveObsDeadTgts(player.GetHumans())
-	bot:D3bot_SetTgtOrNil(table.Random(players))
+	bot:D3bot_SetTgtOrNil(table.Random(players), false)
 end
