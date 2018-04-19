@@ -53,9 +53,10 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	if result then
 		actions.Attack = false
 	else
-		result, actions, forwardSpeed, aimAngle = D3bot.Basics.AimAndShoot(bot, mem.AttackTgtOrNil)
+		result, actions, forwardSpeed, aimAngle = D3bot.Basics.AimAndShoot(bot, mem.AttackTgtOrNil, mem.maxShootingDistance)
 		if not result then
-			return
+			result, actions, forwardSpeed, aimAngle = D3bot.Basics.LookAround(bot)
+			if not result then return end
 		end
 	end
 	
@@ -185,11 +186,12 @@ function HANDLER.ThinkFunction(bot)
 			local ammoType = v:GetPrimaryAmmoType()
 			local ammo = v:Clip1() + bot:GetAmmoCount(ammoType)
 			if ammo > 0 and bestRating < rating and weaponType == HANDLER.Weapon_Types.RANGED then
-				bestRating, bestWeapon = rating, v.ClassName
+				bestRating, bestWeapon, bestMaxDistance = rating, v.ClassName, maxDistance
 			end
 		end
 		if bestWeapon then
 			bot:SelectWeapon(bestWeapon)
+			mem.maxShootingDistance = bestMaxDistance
 		end
 	end
 end

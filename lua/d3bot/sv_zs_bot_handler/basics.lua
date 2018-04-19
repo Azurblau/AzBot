@@ -248,7 +248,7 @@ function D3bot.Basics.PounceAuto(bot)
 	return
 end
 
-function D3bot.Basics.AimAndShoot(bot, target, weaponHelper)
+function D3bot.Basics.AimAndShoot(bot, target, maxDistance)
 	local mem = bot.D3bot_Mem
 	if not mem then return end
 	
@@ -259,13 +259,15 @@ function D3bot.Basics.AimAndShoot(bot, target, weaponHelper)
 	local weapon = bot:GetActiveWeapon()
 	if not IsValid(weapon) then return end
 	if weapon:Clip1() == 0 then reloading = true end
-	if (weapon.GetNextReload and weapon:GetNextReload() or 0) > CurTime() - 0.5 then -- Subtract half a second, so it will retrigger reloading if possible
+	if (weapon.GetNextReload and weapon:GetNextReload() or 0) > CurTime() - 0.5 then -- Subtract half a second, so it will re-trigger reloading if possible
 		reloading = true
 	end
 	actions.Reload = reloading and math.random(5) == 1
 	
 	local origin = bot:D3bot_GetViewCenter()
 	local targetPos = LerpVector(math.random(7, 10)/10, target:GetPos(), target:EyePos())
+	
+	if maxDistance and origin:Distance(targetPos) > maxDistance then return end
 	
 	-- TODO: Use fewer traces, cache result for a few frames.
 	local tr = util.TraceLine({
@@ -276,12 +278,27 @@ function D3bot.Basics.AimAndShoot(bot, target, weaponHelper)
 	})
 	local canShootTarget = not tr.Hit
 	
-	-- TODO: Check if bot is aiming, then pew pew.
-	actions.Attack = not reloading and canShootTarget and math.random(5) == 1
+	actions.Attack = not reloading and bot:D3bot_IsLookingAt(targetPos) and canShootTarget and not mem.WasPressingAttack
+	mem.WasPressingAttack = actions.Attack
 	
 	if targetPos and canShootTarget then
 		bot:D3bot_FaceTo(targetPos, origin, D3bot.BotAimAngLerpFactor, 0)
 	end
 	
 	return true, actions, 0, mem.Angs, false
+end
+
+function D3bot.Basics.LookAround(bot)
+	local mem = bot.D3bot_Mem
+	if not mem then return end
+	
+	if math.random(200) == 1 then mem.LookTarget = table.Random(player.GetAll()) end
+	
+	if not IsValid(mem.LookTarget) then return end
+	
+	local origin = bot:D3bot_GetViewCenter()
+	
+	bot:D3bot_FaceTo(mem.LookTarget:D3bot_GetViewCenter(), origin, D3bot.BotAngLerpFactor * 0.1, 0)
+	
+	return true, nil, 0, mem.Angs, false
 end
