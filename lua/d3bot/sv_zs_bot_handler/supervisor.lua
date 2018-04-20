@@ -52,6 +52,7 @@ function D3bot.MaintainBotRoles()
 			return randomBot and randomBot:Kick(D3bot.BotKickReason)
 		end
 	else
+		desiredCountByTeam[TEAM_SURVIVOR] = nil -- Stop managing survivor bots, after round started
 		-- Add bots out of managed teams to maintain desired counts
 		if #(botsByTeam[TEAM_UNDEAD] or {}) < desiredCountByTeam[TEAM_UNDEAD] then
 			RunConsoleCommand("bot")
