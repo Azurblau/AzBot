@@ -65,13 +65,13 @@ hook.Add("Think", D3bot.BotHooksId.."NodeMetadataThink", function()
 	end
 end)
 
-function D3bot.LinkMetadata_ZombieDeath(link, raiseCost)
+function D3bot.LinkMetadata_ZombieDeath(link, raiseCost) -- TODO: Combine it with the ZombieDeathFactor and make it node based, not link based
 	if not linkMetadata[link] then linkMetadata[link] = {} end
 	local metadata = linkMetadata[link]
 	metadata.ZombieDeathCost = (metadata.ZombieDeathCost or 0) + raiseCost
 end
 
-function D3bot.NodeMetadata_ZombieDeath(node)
+function D3bot.NodeMetadata_ZombieDeath(node) -- TODO: Call it from the death handler
 	if not nodeMetadata[node] then nodeMetadata[node] = {} end
 	local metadata = nodeMetadata[node]
 	metadata.ZombieDeathFactor = math.Clamp((metadata.ZombieDeathFactor or 0) + 0.1, 0, 1)

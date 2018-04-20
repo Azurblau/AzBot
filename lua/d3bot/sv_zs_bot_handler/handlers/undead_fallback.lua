@@ -54,7 +54,7 @@ function HANDLER.ThinkFunction(bot)
 			table.sort(targets, function(a, b) return botPos:Distance(a:GetPos()) < botPos:Distance(b:GetPos()) end)
 			for k, v in ipairs(targets) do
 				if IsValid(v) and botPos:Distance(v:GetPos()) < 500 and HANDLER.CanBeTgt(bot, v) and bot:D3bot_CanSeeTarget(nil, v) then
-					bot:D3bot_SetTgtOrNil(v, false)
+					bot:D3bot_SetTgtOrNil(v, false, nil)
 					mem.nextUpdateSurroundingPlayers = CurTime() + 5
 					break
 				end
@@ -75,9 +75,14 @@ function HANDLER.ThinkFunction(bot)
 		bot:D3bot_UpdateAngsOffshoot(HANDLER.angOffshoot)
 	end
 	
+	local function pathCostFunction(node, linkedNode, link)
+		local linkMetadata = D3bot.LinkMetadata[link]
+		local linkPenalty = linkMetadata and linkMetadata.ZombieDeathCost or 0
+		return linkPenalty * (mem.ConsidersPathLethality and 1 or 0)
+	end
 	if mem.nextUpdatePath and mem.nextUpdatePath < CurTime() or not mem.nextUpdatePath then
 		mem.nextUpdatePath = CurTime() + 0.9 + math.random() * 0.2
-		bot:D3bot_UpdatePath()
+		bot:D3bot_UpdatePath(pathCostFunction, nil)
 	end
 end
 
@@ -97,7 +102,7 @@ end
 
 function HANDLER.OnDeathFunction(bot)
 	--bot:Say("rip me!")
-	bot:D3bot_RerollClass()
+	bot:D3bot_RerollClass() -- TODO: Situation depending reroll of the zombie class
 	HANDLER.RerollTarget(bot)
 end
 
@@ -125,5 +130,5 @@ function HANDLER.RerollTarget(bot)
 	end
 	potEntTargets = D3bot.GetEntsOfClss(potTargetEntClasses)
 	local potTargets = table.Add(players, potEntTargets)
-	bot:D3bot_SetTgtOrNil(table.Random(potTargets), false)
+	bot:D3bot_SetTgtOrNil(table.Random(potTargets), false, nil)
 end

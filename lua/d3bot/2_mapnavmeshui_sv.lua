@@ -211,7 +211,7 @@ return function(lib)
 			local navMesh = lib.MapNavMesh
 			local nodeA = navMesh:GetNearestNodeOrNil(entA:GetPos())
 			local nodeB = navMesh:GetNearestNodeOrNil(entB:GetPos())
-			lib.ShowMapNavMeshPath(pl, nodeA and nodeB and lib.GetBestMeshPathOrNil(nodeA, nodeB, lib.DeathCostOrNilByLink or {}) or {}) -- TODO: Consider correct death cost
+			lib.ShowMapNavMeshPath(pl, nodeA and nodeB and lib.GetBestMeshPathOrNil(nodeA, nodeB, nil, nil, nil) or {}) -- Can't use any additional costs here, as they differ for each class
 		end)
 	end
 	function lib.HideMapNavMeshPath(pl)

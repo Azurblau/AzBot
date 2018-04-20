@@ -58,7 +58,7 @@ function HANDLER.ThinkFunction(bot)
 	
 	if mem.nextUpdatePath and mem.nextUpdatePath < CurTime() or not mem.nextUpdatePath then
 		mem.nextUpdatePath = CurTime() + 0.9 + math.random() * 0.2
-		bot:D3bot_UpdatePath()
+		bot:D3bot_UpdatePath(nil, nil)
 	end
 end
 
@@ -82,5 +82,5 @@ end
 
 function HANDLER.RerollTarget(bot)
 	local players = D3bot.RemoveObsDeadTgts(player.GetHumans())
-	bot:D3bot_SetTgtOrNil(table.Random(players), false)
+	bot:D3bot_SetTgtOrNil(table.Random(players), false, nil)
 end

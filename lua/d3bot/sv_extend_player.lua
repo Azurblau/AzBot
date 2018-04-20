@@ -105,7 +105,7 @@ end
 
 function meta:D3bot_ResetTgt() -- Reset all kind of targets
 	local mem = self.D3bot_Mem
-	mem.TgtOrNil, mem.DontAttackTgt = nil, nil
+	mem.TgtOrNil, mem.DontAttackTgt, mem.TgtProximity = nil, nil, nil
 	mem.PosTgtOrNil, mem.PosTgtProximity = nil, nil
 	mem.NodeTgtOrNil = nil
 	mem.NodeOrNil = nil
@@ -113,23 +113,23 @@ function meta:D3bot_ResetTgt() -- Reset all kind of targets
 	mem.RemainingNodes = {}
 end
 
-function meta:D3bot_SetTgtOrNil(target, dontAttack) -- Set the entity or player as target, bot will move to and attack. TODO: Add proximity parameter.
+function meta:D3bot_SetTgtOrNil(target, dontAttack, proximity) -- Set the entity or player as target, bot will move to and attack. TODO: Add proximity parameter.
 	local mem = self.D3bot_Mem
-	mem.TgtOrNil, mem.DontAttackTgt = target, dontAttack
+	mem.TgtOrNil, mem.DontAttackTgt, mem.TgtProximity = target, dontAttack, proximity
 	mem.PosTgtOrNil, mem.PosTgtProximity = nil, nil
 	mem.NodeTgtOrNil = nil
 end
 
 function meta:D3bot_SetPosTgtOrNil(targetPos, proximity) -- Set the position as target, bot will then move to it
 	local mem = self.D3bot_Mem
-	mem.TgtOrNil, mem.DontAttackTgt = nil, nil
+	mem.TgtOrNil, mem.DontAttackTgt, mem.TgtProximity = nil, nil, nil
 	mem.PosTgtOrNil, mem.PosTgtProximity = targetPos, proximity
 	mem.NodeTgtOrNil = nil
 end
 
 function meta:D3bot_SetNodeTgtOrNil(targetNode) -- Set the node as target, bot will then move to it
 	local mem = self.D3bot_Mem
-	mem.TgtOrNil, mem.DontAttackTgt = nil, nil
+	mem.TgtOrNil, mem.DontAttackTgt, mem.TgtProximity = nil, nil, nil
 	mem.PosTgtOrNil, mem.PosTgtProximity = nil, nil
 	mem.NodeTgtOrNil = targetNode
 end
@@ -186,7 +186,7 @@ function meta:D3bot_SetPath(path, noReset)
 	mem.RemainingNodes = path
 end
 
-function meta:D3bot_UpdatePath()
+function meta:D3bot_UpdatePath(pathCostFunction, heuristicCostFunction)
 	local mem = self.D3bot_Mem
 	if not IsValid(mem.TgtOrNil) and not mem.PosTgtOrNil and not mem.NodeTgtOrNil then return end
 	local mapNavMesh = D3bot.MapNavMesh
@@ -195,7 +195,7 @@ function meta:D3bot_UpdatePath()
 	if not node or not mem.TgtNodeOrNil then return end
 	local abilities = {Walk = true}
 	if self:GetActiveWeapon() and self:GetActiveWeapon().PounceVelocity then abilities.Pounce = true end
-	local path = D3bot.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, mem.ConsidersPathLethality and D3bot.DeathCostOrNilByLink or {}, abilities) -- TODO: Consider correct death cost
+	local path = D3bot.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, pathCostFunction, heuristicCostFunction, abilities)
 	if not path then
 		local handler = findHandler(self:GetZombieClass(), self:Team())
 		if handler and handler.RerollTarget then handler.RerollTarget(self) end
@@ -249,7 +249,7 @@ function meta:D3bot_CheckStuck()
 	local pos_1, pos_2, pos_10 = posList[1], posList[2], posList[10]
 	
 	local minorStuck = pos_1 and pos_2 and pos_1:Distance(pos_2) < 1		-- Stuck on ladder
-	local preMajorStuck = pos_1 and pos_10 and pos_1:Distance(pos_10) < 300	-- Running circles, stuck on object, ...
+	local preMajorStuck = pos_1 and pos_10 and pos_1:Distance(pos_10) < 300	-- Running circles, some obstacles in the way, ...
 	local majorStuck
 	
 	if preMajorStuck and (self.D3bot_LastDamage and self.D3bot_LastDamage < CurTime() - 5 or not self.D3bot_LastDamage) then

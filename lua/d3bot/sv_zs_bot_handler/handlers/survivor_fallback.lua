@@ -40,11 +40,12 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	if minorStuck then
 		actions.Attack = not mem.WasPressingAttack
 		mem.WasPressingAttack = actions.Attack
+		actions.Phase = true -- TODO: Check if there is a nailed prop in front, instead of relying on the stuck state
 	end
 	
 	local buttons
 	if actions then
-		buttons = bit.bor(actions.Forward and IN_FORWARD or 0, actions.Backward and IN_BACKWARD or 0, actions.Attack and IN_ATTACK or 0, actions.Attack2 and IN_ATTACK2 or 0, actions.Reload and IN_RELOAD or 0, actions.Duck and IN_DUCK or 0, actions.Jump and IN_JUMP or 0, actions.Use and IN_USE or 0)
+		buttons = bit.bor(actions.Forward and IN_FORWARD or 0, actions.Backward and IN_BACKWARD or 0, actions.Attack and IN_ATTACK or 0, actions.Attack2 and IN_ATTACK2 or 0, actions.Reload and IN_RELOAD or 0, actions.Duck and IN_DUCK or 0, actions.Jump and IN_JUMP or 0, actions.Use and IN_USE or 0, actions.Phase and IN_ZOOM or 0)
 	end
 	
 	if aimAngle then bot:SetEyeAngles(aimAngle)	cmd:SetViewAngles(aimAngle) end
@@ -99,11 +100,18 @@ function HANDLER.ThinkFunction(bot)
 		bot:D3bot_UpdateAngsOffshoot(HANDLER.angOffshoot)
 	end
 	
+	local function pathCostFunction(node, linkedNode, link)
+		local nodeMetadata = D3bot.NodeMetadata[linkedNode]
+		local playerFactorBySurvivors = nodeMetadata and nodeMetadata.PlayerFactorByTeam and nodeMetadata.PlayerFactorByTeam[TEAM_SURVIVOR] or 0
+		local playerFactorByUndead = nodeMetadata and nodeMetadata.PlayerFactorByTeam and nodeMetadata.PlayerFactorByTeam[TEAM_UNDEAD] or 0
+		return playerFactorByUndead * 3000 - playerFactorBySurvivors * 4000
+	end
 	if mem.nextUpdatePath and mem.nextUpdatePath < CurTime() or not mem.nextUpdatePath then
 		mem.nextUpdatePath = CurTime() + 0.9 + math.random() * 0.2
-		bot:D3bot_UpdatePath()
+		bot:D3bot_UpdatePath(pathCostFunction, nil) -- This will not do anything as long as there is no target set (TgtOrNil, PosTgtOrNil, NodeTgtOrNil), the real magic happens in this handlers think function.
 	end
 	
+	-- Change held weapon based on target distance
 	if mem.nextHeldWeaponUpdate and mem.nextHeldWeaponUpdate < CurTime() or not mem.nextHeldWeaponUpdate then
 		mem.nextHeldWeaponUpdate = CurTime() + 1 + math.random() * 1
 		local weapons = bot:GetWeapons()
@@ -127,6 +135,25 @@ function HANDLER.ThinkFunction(bot)
 		if bestWeapon then
 			bot:SelectWeapon(bestWeapon)
 			mem.maxShootingDistance = bestMaxDistance
+		end
+	end
+	
+	-- Win the game by escaping via sigil doors
+	if GAMEMODE:GetWave() >= GAMEMODE:GetNumberOfWaves() then
+		if mem.nextEscapeUpdate and mem.nextEscapeUpdate < CurTime() or not mem.nextEscapeUpdate then
+			mem.nextEscapeUpdate = CurTime() + 4 + math.random() * 2
+			
+			local escapeDoors = D3bot.GetEntsOfClss({"prop_obj_exit"})
+			local closestDoor, bestDistance = nil, math.huge
+			for k, v in pairs(escapeDoors) do
+				local dist = v:GetPos():Distance(botPos)
+				if bestDistance > dist then
+					closestDoor, bestDistance = v, dist
+				end
+			end
+			if closestDoor then
+				bot:D3bot_SetTgtOrNil(closestDoor, true, 0)
+			end
 		end
 	end
 end

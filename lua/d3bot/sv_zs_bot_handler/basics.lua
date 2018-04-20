@@ -123,6 +123,9 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	elseif nextNodeOrNil then
 		-- Target not visible, walk towards next node
 		return D3bot.Basics.Walk(bot, nextNodeOrNil.Pos)
+	elseif mem.TgtOrNil then
+		-- There is a target entity, but the bot shouldn't attack it
+		return D3bot.Basics.Walk(bot, mem.TgtOrNil:GetPos(), true, mem.TgtProximity)
 	else
 		return
 	end

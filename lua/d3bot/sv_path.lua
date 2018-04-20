@@ -1,7 +1,5 @@
-function D3bot.GetBestMeshPathOrNil(startNode, endNode, additionalCostOrNilByLink, abilities)
+function D3bot.GetBestMeshPathOrNil(startNode, endNode, pathCostFunction, heuristicCostFunction, abilities)
 	-- See https://en.wikipedia.org/wiki/A*_search_algorithm
-	
-	if additionalCostOrNilByLink == nil then additionalCostOrNilByLink = {} end
 	
 	local minimalTotalPathCostByNode = {}
 	local minimalPathCostByNode = { [startNode] = 0 }
@@ -41,11 +39,12 @@ function D3bot.GetBestMeshPathOrNil(startNode, endNode, additionalCostOrNilByLin
 			if link.Params.Pouncing == "Needed" and abilities and not abilities.Pounce then able = false end
 			
 			if able and not blocked and not (link.Params.Direction == "Forward" and link.Nodes[2] == node) and not (link.Params.Direction == "Backward" and link.Nodes[1] == node) then
-				local linkedNodePathCost = minimalPathCostByNode[node] + math.max(node.Pos:Distance(linkedNode.Pos) + (linkedNode.Params.Cost or 0) + (link.Params.Cost or 0) + (additionalCostOrNilByLink[link] or 0), 0) -- Prevent negative change of the link costs, otherwise it will get stuck decreasing forever
+				local linkedNodePathCost = minimalPathCostByNode[node] + math.max(node.Pos:Distance(linkedNode.Pos) + (linkedNode.Params.Cost or 0) + (link.Params.Cost or 0) + (pathCostFunction and pathCostFunction(node, linkedNode, link) or 0), 0) -- Prevent negative change of the link costs, otherwise it will get stuck decreasing forever
 				if linkedNodePathCost < (minimalPathCostByNode[linkedNode] or math.huge) then
 					entranceByNode[linkedNode] = node
 					minimalPathCostByNode[linkedNode] = linkedNodePathCost
-					minimalTotalPathCostByNode[linkedNode] = linkedNodePathCost + linkedNode.Pos:Distance(endNode.Pos) -- Negative costs are allowed here
+					local heuristic = (heuristicCostFunction and heuristicCostFunction(linkedNode) or 0)
+					minimalTotalPathCostByNode[linkedNode] = linkedNodePathCost + heuristic + linkedNode.Pos:Distance(endNode.Pos) -- Negative costs are allowed here
 					evaluationNodeQueue:Enqueue(linkedNode)
 				end
 			end

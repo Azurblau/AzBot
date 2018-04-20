@@ -20,7 +20,6 @@ function D3bot.GetDesiredBotCount()
 	return zombiesCount, GAMEMODE.ZombieEscape and 0 or survivorsCount
 end
 
-
 function D3bot.MaintainBotRoles()
 	if #player.GetHumans() == 0 then return end
 	local desiredCountByTeam = {}
