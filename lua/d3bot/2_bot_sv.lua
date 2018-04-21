@@ -29,8 +29,8 @@ return function(lib)
 	lib.ZombiesPerMinute = 0
 	lib.ZombiesPerWave = 0.4
 	lib.ZombiesCountAddition = 1			-- BotMod
-	lib.SurvivorsPerPlayer = 0.25--1.2		-- Survivor bots per total player (non bot) amount. Will only spawn pre round. But excess bots will be kicked/slain.
-	lib.SurvivorCountAddition = 5
+	lib.SurvivorsPerPlayer = 0--1.2			-- Survivor bots per total player (non bot) amount. Will only spawn pre round.
+	lib.SurvivorCountAddition = 0			-- BotMod for survivor bots
 	lib.IsSelfRedeemEnabled = true
 	lib.IsBonusEnabled = true
 	lib.SelfRedeemWaveMax = 4

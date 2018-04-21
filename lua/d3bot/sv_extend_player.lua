@@ -135,7 +135,7 @@ function meta:D3bot_SetNodeTgtOrNil(targetNode) -- Set the node as target, bot w
 end
 
 function meta:D3bot_Initialize()
-	if GAMEMODE:GetWave() > 0 then
+	if D3bot.SpawnAsZombie then
 		GAMEMODE.PreviouslyDied[self:UniqueID()] = CurTime()
 		--GAMEMODE:PlayerInitialSpawn(self)
 	end
@@ -210,7 +210,7 @@ end
 function meta:D3bot_UpdatePathProgress()
 	local mem = self.D3bot_Mem
 	while mem.NextNodeOrNil do
-		if mem.NextNodeOrNil:GetContains2D(self:GetPos()) then
+		if mem.NextNodeOrNil:GetContains(self:GetPos(), 100) then
 			mem.NodeOrNil = mem.NextNodeOrNil
 			mem.NextNodeOrNil = table.remove(mem.RemainingNodes, 1)
 			if mem.NodeOrNil then

@@ -9,15 +9,15 @@ function D3bot.GetDesiredBotCount()
 	local mapParams = D3bot.MapNavMesh.Params
 	local zombieFormula = ((mapParams.ZPP or D3bot.ZombiesPerPlayer) + (mapParams.ZPPW or D3bot.ZombiesPerPlayerWave) * wave) * #player.GetHumans() + (mapParams.ZPM or D3bot.ZombiesPerMinute) * minutes + (mapParams.ZPW or D3bot.ZombiesPerWave) * wave
 	local zombiesCount = math.Clamp(
-		math.ceil(math.min(zombieFormula, (mapParams.ZPPM or D3bot.ZombiesPerPlayerMax) * #player.GetHumans()) + D3bot.ZombiesCountAddition + (D3bot.MapNavMesh.Params.BotMod or 0) + (D3bot.nodeZombiesCountAddition or 0)),
+		math.ceil(math.min(zombieFormula, (mapParams.ZPPM or D3bot.ZombiesPerPlayerMax) * #player.GetHumans()) + D3bot.ZombiesCountAddition + (mapParams.BotMod or 0) + (D3bot.nodeZombiesCountAddition or 0)),
 		0,
 		allowedTotal)
 	local survivorFormula = (mapParams.SPP or D3bot.SurvivorsPerPlayer) * #player.GetHumans()
 	local survivorsCount = math.Clamp(
-		math.ceil(survivorFormula + D3bot.SurvivorCountAddition),
+		math.ceil(survivorFormula + D3bot.SurvivorCountAddition + (mapParams.SCA or 0)),
 		0,
 		math.max(allowedTotal - zombiesCount, 0))
-	return zombiesCount, GAMEMODE.ZombieEscape and 0 or survivorsCount
+	return zombiesCount, (GAMEMODE.ZombieEscape or GAMEMODE.ObjectiveMap) and 0 or survivorsCount
 end
 
 function D3bot.MaintainBotRoles()
@@ -35,44 +35,40 @@ function D3bot.MaintainBotRoles()
 	
 	-- Sort by frags and being boss zombie
 	if botsByTeam[TEAM_UNDEAD] then
-		table.sort(botsByTeam[TEAM_UNDEAD], function(a, b) return (a:GetZombieClassTable().Boss and 1 or 0) < (b:GetZombieClassTable().Boss and 1 or 0) end)
+		table.sort(botsByTeam[TEAM_UNDEAD], function(a, b) return (a:GetZombieClassTable().Boss and 1 or 0) > (b:GetZombieClassTable().Boss and 1 or 0) end)
 	end
 	for team, botByTeam in pairs(botsByTeam) do
 		table.sort(botByTeam, function(a, b) return a:Frags() < b:Frags() end)
 	end
 	
-	if GAMEMODE:GetWave() <= 0 then
-		-- Pre round logic
-		if #bots < totalDesiredCount then
+	-- Stop managing survivor bots, after round started. Except on ZE or obj maps, where survivors are managed to be 0
+	if GAMEMODE:GetWave() > 0 and not GAMEMODE.ZombieEscape and not GAMEMODE.ObjectiveMap then
+		desiredCountByTeam[TEAM_SURVIVOR] = nil
+	end
+	
+	-- Add bots out of managed teams to maintain desired counts
+	for team, desiredCount in pairs(desiredCountByTeam) do
+		if #(botsByTeam[team] or {}) < desiredCount then
 			RunConsoleCommand("bot")
 			--local bot = player.CreateNextBot("Test")
+			D3bot.SpawnAsZombie = team == TEAM_UNDEAD
 			return
-		elseif #bots > totalDesiredCount then
-			local randomBot = table.Random(bots)
+		end
+	end
+	-- Remove bots out of managed teams to maintain desired counts
+	for team, desiredCount in pairs(desiredCountByTeam) do
+		if #(botsByTeam[team] or {}) > desiredCount then
+			local randomBot = table.remove(botsByTeam[team], 1)
 			return randomBot and randomBot:Kick(D3bot.BotKickReason)
 		end
-	else
-		desiredCountByTeam[TEAM_SURVIVOR] = nil -- Stop managing survivor bots, after round started
-		-- Add bots out of managed teams to maintain desired counts
-		if #(botsByTeam[TEAM_UNDEAD] or {}) < desiredCountByTeam[TEAM_UNDEAD] then
-			RunConsoleCommand("bot")
-			return
-		end
-		-- Remove bots out of managed teams to maintain desired counts
+	end
+	-- Remove bots out of non managed teams if the server is getting too full
+	local allowedTotal = game.MaxPlayers() - 2
+	if player.GetCount() > allowedTotal then
 		for team, desiredCount in pairs(desiredCountByTeam) do
-			if #(botsByTeam[team] or {}) > desiredCount then
+			if not desiredCountByTeam[team] then
 				local randomBot = table.remove(botsByTeam[team], 1)
 				return randomBot and randomBot:Kick(D3bot.BotKickReason)
-			end
-		end
-		-- Remove bots out of non managed teams if the server is getting too full
-		local allowedTotal = game.MaxPlayers() - 2
-		if player.GetCount() > allowedTotal then
-			for team, desiredCount in pairs(desiredCountByTeam) do
-				if not desiredCountByTeam[team] then
-					local randomBot = table.remove(botsByTeam[team], 1)
-					return randomBot and randomBot:Kick(D3bot.BotKickReason)
-				end
 			end
 		end
 	end

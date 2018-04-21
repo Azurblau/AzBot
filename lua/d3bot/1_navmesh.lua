@@ -55,7 +55,8 @@ return function(lib)
 			ZPPW = {},
 			ZPM = {},
 			ZPW = {},
-			SPP = {} },
+			SPP = {},
+			SCA = {} },
 		Replace = {} }
 	
 	function lib.NormalizeParam(name, numOrSerializedNumOrStrOrEmpty)
@@ -195,14 +196,12 @@ return function(lib)
 	
 	function linkFallback:GetParam(name) return self.Params[name] or self.Nodes[1].Params[name] or self.Nodes[2].Params[name] end
 	
-	function nodeFallback:GetContains(pos)
+	function nodeFallback:GetContains(pos, verticalLimit)
+		local z = verticalLimit and math.Clamp(self.Pos.z, pos.z - verticalLimit, pos.z + verticalLimit) or self.Pos.z
+		local pos = Vector(pos.x, pos.y, z)
 		if not self.HasArea then return pos:Distance(self.Pos) < lib.BotNodeMinProximity end
 		local params = self.Params
-		return math.abs(pos.z - self.Pos.z) < 50 and pos.x >= params.AreaXMin and pos.x <= params.AreaXMax and pos.y >= params.AreaYMin and pos.y <= params.AreaYMax
-	end
-	function nodeFallback:GetContains2D(pos)
-		local pos = Vector(pos.x, pos.y, self.Pos.z)
-		return self:GetContains(pos)
+		return math.abs(pos.z - self.Pos.z) <= (1) and pos.x >= params.AreaXMin and pos.x <= params.AreaXMax and pos.y >= params.AreaYMin and pos.y <= params.AreaYMax
 	end
 	
 	function fallback:GetCursoredItemOrNil(pl)

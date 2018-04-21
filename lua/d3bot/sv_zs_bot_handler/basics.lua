@@ -30,7 +30,7 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	
 	-- Make bot aim straight when outside of current node area This should prevent falling down edges.
 	local aimStraight
-	if nodeOrNil and not nodeOrNil:GetContains2D(origin) then aimStraight = true end
+	if nodeOrNil and not nodeOrNil:GetContains(origin, nil) then aimStraight = true end
 	bot:D3bot_FaceTo(pos, origin, aimStraight and 1 or D3bot.BotAngLerpFactor, aimStraight and 0 or 1)
 	
 	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
