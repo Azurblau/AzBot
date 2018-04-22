@@ -17,7 +17,7 @@
 105:AreaXMax=-560,AreaXMin=-800,AreaYMax=320,AreaYMin=192,See=Disabled,X=-670.9,Y=266.6,Z=122
 106:See=Disabled,X=-565.2,Y=282.4,Z=130.4
 106-105:
-106-62:
+106-62:Pouncing=Needed
 107:AreaXMax=-1308.9,AreaXMin=-1400,AreaYMax=992,AreaYMin=944,X=-1345.6,Y=969,Z=0
 107-104:
 107-108:
