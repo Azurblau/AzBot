@@ -137,7 +137,7 @@ end
 function meta:D3bot_Initialize()
 	if D3bot.SpawnAsZombie then
 		GAMEMODE.PreviouslyDied[self:UniqueID()] = CurTime()
-		--GAMEMODE:PlayerInitialSpawn(self)
+		GAMEMODE:PlayerInitialSpawn(self)
 	end
 	
 	self.D3bot_Mem = {
