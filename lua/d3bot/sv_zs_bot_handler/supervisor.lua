@@ -46,6 +46,16 @@ function D3bot.MaintainBotRoles()
 		desiredCountByTeam[TEAM_SURVIVOR] = nil
 	end
 	
+	-- Move (kill) survivors to undead if possible
+	if desiredCountByTeam[TEAM_SURVIVOR] and desiredCountByTeam[TEAM_UNDEAD] then
+		if #(botsByTeam[TEAM_SURVIVOR] or {}) > desiredCountByTeam[TEAM_SURVIVOR] and #(botsByTeam[TEAM_UNDEAD] or {}) < desiredCountByTeam[TEAM_UNDEAD] then
+			print("asd")
+			local randomBot = table.remove(botsByTeam[TEAM_SURVIVOR], 1)
+			randomBot:StripWeapons()
+			randomBot:KillSilent()
+			return
+		end
+	end
 	-- Add bots out of managed teams to maintain desired counts
 	for team, desiredCount in pairs(desiredCountByTeam) do
 		if #(botsByTeam[team] or {}) < desiredCount then
@@ -59,6 +69,7 @@ function D3bot.MaintainBotRoles()
 	for team, desiredCount in pairs(desiredCountByTeam) do
 		if #(botsByTeam[team] or {}) > desiredCount then
 			local randomBot = table.remove(botsByTeam[team], 1)
+			randomBot:StripWeapons()
 			return randomBot and randomBot:Kick(D3bot.BotKickReason)
 		end
 	end
@@ -68,6 +79,7 @@ function D3bot.MaintainBotRoles()
 		for team, desiredCount in pairs(desiredCountByTeam) do
 			if not desiredCountByTeam[team] then
 				local randomBot = table.remove(botsByTeam[team], 1)
+				randomBot:StripWeapons()
 				return randomBot and randomBot:Kick(D3bot.BotKickReason)
 			end
 		end
