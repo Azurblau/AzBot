@@ -43,6 +43,16 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	local invProximity = math.Clamp((origin:Distance(tempPos) - (proximity or 10))/60, 0, 1)
 	local speed = bot:GetMaxSpeed() * (slowdown and invProximity or 1)
 	
+	-- If bot is crouching and stuck below something, move backwards and jump
+	if mem.AntiStuckTime and mem.AntiStuckTime > CurTime() then
+		if not bot:Crouching() then
+			mem.AntiStuckTime = nil
+		else
+			speed = -10
+			actions.Jump = true
+		end
+	end
+	
 	local facesHindrance = bot:GetVelocity():Length2D() < 0.50 * speed - 10
 	local minorStuck, majorStuck = bot:D3bot_CheckStuck()
 	
@@ -66,9 +76,15 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 			actions.Duck = true
 		end
 	elseif minorStuck then
+		-- Stuck on ladder
 		actions.Jump = true
 		actions.Duck = true
 		actions.Use = true
+	end
+	
+	-- Check if being stuck below something
+	if facesHindrance and bot:Crouching() and not actions.Duck then
+		mem.AntiStuckTime = CurTime() + 2
 	end
 	
 	if duckParam == "Disabled" or duckToParam == "Disabled" then
@@ -139,7 +155,19 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	local jumpParam = nodeOrNil and nodeOrNil.Params.Jump
 	local jumpToParam = nextNodeOrNil and nextNodeOrNil.Params.JumpTo
 	
-	local facesHindrance = bot:GetVelocity():Length2D() < 0.20 * bot:GetMaxSpeed()
+	local speed = bot:GetMaxSpeed()
+	
+	-- If bot is crouching and stuck below something, move backwards and jump
+	if mem.AntiStuckTime and mem.AntiStuckTime > CurTime() then
+		if not bot:Crouching() then
+			mem.AntiStuckTime = nil
+		else
+			speed = -10
+			actions.Jump = true
+		end
+	end
+	
+	local facesHindrance = bot:GetVelocity():Length2D() < 0.50 * speed - 10
 	local minorStuck, majorStuck = bot:D3bot_CheckStuck()
 	
 	if duckParam == "Always" or duckToParam == "Always" then
@@ -162,9 +190,15 @@ function D3bot.Basics.WalkAttackAuto(bot)
 			actions.Duck = true
 		end
 	elseif minorStuck then
+		-- Stuck on ladder
 		actions.Jump = true
 		actions.Duck = true
 		actions.Use = true
+	end
+	
+	-- Check if being stuck below something
+	if facesHindrance and bot:Crouching() and not actions.Duck then
+		mem.AntiStuckTime = CurTime() + 2
 	end
 	
 	if duckParam == "Disabled" or duckToParam == "Disabled" then
@@ -179,7 +213,7 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	
 	actions.Forward = true
 	
-	return true, actions, bot:GetMaxSpeed(), mem.Angs, minorStuck, majorStuck
+	return true, actions, speed, mem.Angs, minorStuck, majorStuck
 end
 
 function D3bot.Basics.PounceAuto(bot)

@@ -49,7 +49,6 @@ function D3bot.MaintainBotRoles()
 	-- Move (kill) survivors to undead if possible
 	if desiredCountByTeam[TEAM_SURVIVOR] and desiredCountByTeam[TEAM_UNDEAD] then
 		if #(botsByTeam[TEAM_SURVIVOR] or {}) > desiredCountByTeam[TEAM_SURVIVOR] and #(botsByTeam[TEAM_UNDEAD] or {}) < desiredCountByTeam[TEAM_UNDEAD] then
-			print("asd")
 			local randomBot = table.remove(botsByTeam[TEAM_SURVIVOR], 1)
 			randomBot:StripWeapons()
 			randomBot:KillSilent()
