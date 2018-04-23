@@ -71,11 +71,11 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 		actions.Use = true
 	end
 	
-	if math.random(1, 2) == 1 or jumpParam == "Disabled" or jumpToParam == "Disabled" then
-		actions.Jump = false
-	end
 	if duckParam == "Disabled" or duckToParam == "Disabled" then
 		actions.Duck = false
+	end
+	if math.random(1, 2) == 1 or jumpParam == "Disabled" or jumpToParam == "Disabled" or (not actions.Duck and bot:Crouching()) then
+		actions.Jump = false
 	end
 	
 	actions.Attack = facesHindrance
@@ -167,11 +167,11 @@ function D3bot.Basics.WalkAttackAuto(bot)
 		actions.Use = true
 	end
 	
-	if math.random(1, 2) == 1 or jumpParam == "Disabled" or jumpToParam == "Disabled" then
-		actions.Jump = false
-	end
 	if duckParam == "Disabled" or duckToParam == "Disabled" then
 		actions.Duck = false
+	end
+	if math.random(1, 2) == 1 or jumpParam == "Disabled" or jumpToParam == "Disabled" or (not actions.Duck and bot:Crouching()) then
+		actions.Jump = false
 	end
 	
 	actions.Attack = facesTgt or facesHindrance
