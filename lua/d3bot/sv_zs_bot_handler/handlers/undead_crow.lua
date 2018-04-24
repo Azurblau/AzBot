@@ -25,7 +25,7 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	
 	local result, actions, forwardSpeed, aimAngle = nil, nil, 0, nil
 	if nextNodeOrNil then
-		result, actions, forwardSpeed, aimAngle = D3bot.Basics.Walk(bot, nextNodeOrNil.Pos + Vector(0, 0, 64))
+		result, actions, forwardSpeed, aimAngle, minorStuck, majorStuck, facesHindrance = D3bot.Basics.Walk(bot, nextNodeOrNil.Pos + Vector(0, 0, 64))
 	end
 	
 	local buttons = 0

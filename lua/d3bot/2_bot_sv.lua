@@ -23,6 +23,7 @@ return function(lib)
 	lib.BotAimAngLerpFactor = 0.5
 	lib.BotAimPosVelocityOffshoot = 0.4
 	lib.BotJumpAntichance = 25
+	lib.BotDuckAntichance = 25
 	lib.ZombiesPerPlayer = 0.3
 	lib.ZombiesPerPlayerMax = 1.2			-- Limits amount of zombies to this zombie/player ratio. (ZombiesCountAddition is not calculated in)
 	lib.ZombiesPerPlayerWave = 0.10
@@ -33,7 +34,7 @@ return function(lib)
 	lib.SurvivorCountAddition = 0			-- BotMod for survivor bots
 	lib.IsSelfRedeemEnabled = true
 	lib.IsBonusEnabled = true
-	lib.SelfRedeemWaveMax = 4
+	lib.SelfRedeemWaveMax = 1
 	lib.BotHooksId = "D3bot"
 	lib.BotClasses = {
 		"Zombie", "Zombie", "Zombie",

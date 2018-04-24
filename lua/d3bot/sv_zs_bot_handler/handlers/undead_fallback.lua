@@ -21,9 +21,9 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	bot:D3bot_UpdatePathProgress()
 	D3bot.Basics.SuicideOrRetarget(bot)
 	
-	local result, actions, forwardSpeed, aimAngle, minorStuck, majorStuck = D3bot.Basics.PounceAuto(bot)
+	local result, actions, forwardSpeed, aimAngle, minorStuck, majorStuck, facesHindrance = D3bot.Basics.PounceAuto(bot)
 	if not result then
-		result, actions, forwardSpeed, aimAngle, minorStuck, majorStuck = D3bot.Basics.WalkAttackAuto(bot)
+		result, actions, forwardSpeed, aimAngle, minorStuck, majorStuck, facesHindrance = D3bot.Basics.WalkAttackAuto(bot)
 		if not result then
 			return
 		end

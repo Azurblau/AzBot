@@ -20,8 +20,9 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	
 	bot:D3bot_UpdatePathProgress()
 	local mem = bot.D3bot_Mem
+	local botPos = bot:GetPos()
 	
-	local result, actions, forwardSpeed, aimAngle, minorStuck, majorStuck = D3bot.Basics.WalkAttackAuto(bot)
+	local result, actions, forwardSpeed, aimAngle, minorStuck, majorStuck, facesHindrance = D3bot.Basics.WalkAttackAuto(bot)
 	if result then
 		actions.Attack = false
 	else
@@ -32,15 +33,22 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 		end
 	end
 	
+	actions = actions or {}
+	
 	if bot:WaterLevel() == 3 and not mem.NextNodeOrNil then
-		actions = actions or {}
 		actions.Jump = true
 	end
 	
-	if minorStuck then
-		actions.Attack = not mem.WasPressingAttack
-		mem.WasPressingAttack = actions.Attack
-		actions.Phase = true -- TODO: Check if there is a nailed prop in front, instead of relying on the stuck state
+	if facesHindrance and HANDLER.FacesBarricade(bot) then
+		mem.PhaseTime = CurTime()
+	end
+	if mem.PhaseTime and mem.PhaseTime > CurTime() - 1 and math.random(2) == 1 then
+		if not mem.TgtOrNil and not mem.PosTgtOrNil and not mem.NodeTgtOrNil then
+			-- If ghosting but there is no target, set nearby player as target
+			local friends = D3bot.From(player.GetHumans()):Where(function(k, v) return HANDLER.IsFriend(bot, v) and botPos:Distance(v:GetPos()) < 500 end).R
+			bot:D3bot_SetTgtOrNil(table.Random(friends), true, nil)
+		end
+		actions.Phase = true
 	end
 	
 	local buttons
@@ -274,9 +282,22 @@ function HANDLER.CanShootTarget(bot, target)
 	return not tr.Hit
 end
 
+function HANDLER.FacesBarricade(bot)
+	local tr = bot:GetEyeTrace()
+	local entity = tr.Entity
+	local distance = bot:D3bot_GetViewCenter():Distance(tr.HitPos)
+	if not IsValid(entity) or not entity:IsNailed() then return end
+	return distance < 100
+end
+
 function HANDLER.IsEnemy(bot, ply)
 	local ownTeam = bot:Team()
 	if IsValid(ply) and bot ~= ply and ply:IsPlayer() and ply:Team() ~= ownTeam and ply:GetObserverMode() == OBS_MODE_NONE and ply:Alive() then return true end
+end
+
+function HANDLER.IsFriend(bot, ply)
+	local ownTeam = bot:Team()
+	if IsValid(ply) and bot ~= ply and ply:IsPlayer() and ply:Team() == ownTeam and ply:GetObserverMode() == OBS_MODE_NONE and ply:Alive() then return true end
 end
 
 function HANDLER.CanBeAttackTgt(bot, target)

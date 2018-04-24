@@ -252,7 +252,7 @@ function meta:D3bot_CheckStuck()
 	local preMajorStuck = pos_1 and pos_10 and pos_1:Distance(pos_10) < 300	-- Running circles, some obstacles in the way, ...
 	local majorStuck
 	
-	if preMajorStuck and (self.D3bot_LastDamage and self.D3bot_LastDamage < CurTime() - 5 or not self.D3bot_LastDamage) then
+	if preMajorStuck and (not self.D3bot_LastDamage or self.D3bot_LastDamage < CurTime() - 5) then
 		mem.MajorStuckCounter = mem.MajorStuckCounter and mem.MajorStuckCounter + 1 or 1
 		if mem.MajorStuckCounter > 15 then
 			majorStuck, mem.MajorStuckCounter = true, nil
