@@ -20,7 +20,6 @@ if SERVER then
 	
 	if engine.ActiveGamemode() == "zombiesurvival" then
 		include("d3bot/sv_zs_bot_handler/node_metadata.lua")
-		include("d3bot/sv_zs_bot_handler/utility.lua")
 		include("d3bot/sv_zs_bot_handler/supervisor.lua")
 		include("d3bot/sv_zs_bot_handler/handle.lua")
 		include("d3bot/sv_zs_bot_handler/basics.lua")
