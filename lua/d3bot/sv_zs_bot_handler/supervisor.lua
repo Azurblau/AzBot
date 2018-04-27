@@ -24,13 +24,19 @@ function D3bot.MaintainBotRoles()
 	if #player.GetHumans() == 0 then return end
 	local desiredCountByTeam = {}
 	desiredCountByTeam[TEAM_UNDEAD], desiredCountByTeam[TEAM_SURVIVOR] = D3bot.GetDesiredBotCount()
-	local totalDesiredCount = desiredCountByTeam[TEAM_UNDEAD] + desiredCountByTeam[TEAM_SURVIVOR]
 	local bots = player.GetBots()
 	local botsByTeam = {}
 	for k, v in ipairs(bots) do
 		local team = v:Team()
 		botsByTeam[team] = botsByTeam[team] or {}
 		table.insert(botsByTeam[team], v)
+	end
+	local players = player.GetAll()
+	local playersByTeam = {}
+	for k, v in ipairs(players) do
+		local team = v:Team()
+		playersByTeam[team] = playersByTeam[team] or {}
+		table.insert(playersByTeam[team], v)
 	end
 	
 	-- Sort by frags and being boss zombie
@@ -48,7 +54,7 @@ function D3bot.MaintainBotRoles()
 	
 	-- Move (kill) survivors to undead if possible
 	if desiredCountByTeam[TEAM_SURVIVOR] and desiredCountByTeam[TEAM_UNDEAD] then
-		if #(botsByTeam[TEAM_SURVIVOR] or {}) > desiredCountByTeam[TEAM_SURVIVOR] and #(botsByTeam[TEAM_UNDEAD] or {}) < desiredCountByTeam[TEAM_UNDEAD] then
+		if #(playersByTeam[TEAM_SURVIVOR] or {}) > desiredCountByTeam[TEAM_SURVIVOR] and #(playersByTeam[TEAM_UNDEAD] or {}) < desiredCountByTeam[TEAM_UNDEAD] then
 			local randomBot = table.remove(botsByTeam[TEAM_SURVIVOR], 1)
 			randomBot:StripWeapons()
 			randomBot:KillSilent()
@@ -57,7 +63,7 @@ function D3bot.MaintainBotRoles()
 	end
 	-- Add bots out of managed teams to maintain desired counts
 	for team, desiredCount in pairs(desiredCountByTeam) do
-		if #(botsByTeam[team] or {}) < desiredCount then
+		if #(playersByTeam[team] or {}) < desiredCount then
 			RunConsoleCommand("bot")
 			--local bot = player.CreateNextBot("Test")
 			D3bot.SpawnAsZombie = team == TEAM_UNDEAD
@@ -66,7 +72,7 @@ function D3bot.MaintainBotRoles()
 	end
 	-- Remove bots out of managed teams to maintain desired counts
 	for team, desiredCount in pairs(desiredCountByTeam) do
-		if #(botsByTeam[team] or {}) > desiredCount then
+		if #(playersByTeam[team] or {}) > desiredCount then
 			local randomBot = table.remove(botsByTeam[team], 1)
 			randomBot:StripWeapons()
 			return randomBot and randomBot:Kick(D3bot.BotKickReason)
