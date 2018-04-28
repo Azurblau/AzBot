@@ -318,7 +318,7 @@ function D3bot.Basics.AimAndShoot(bot, target, maxDistance)
 	actions.Reload = reloading and math.random(5) == 1
 	
 	local origin = bot:D3bot_GetViewCenter()
-	local targetPos = LerpVector(math.random(7, 10)/10, target:GetPos(), target:EyePos())
+	local targetPos = LerpVector(mem.AimHeightFactor or 1, target:GetPos(), target:EyePos())
 	
 	if maxDistance and origin:Distance(targetPos) > maxDistance then return end
 	
@@ -331,7 +331,9 @@ function D3bot.Basics.AimAndShoot(bot, target, maxDistance)
 	})
 	local canShootTarget = not tr.Hit
 	
-	actions.Attack = not reloading and bot:D3bot_IsLookingAt(targetPos) and canShootTarget and not mem.WasPressingAttack
+	if not canShootTarget then mem.AimHeightFactor = math.Rand(0.5, 1) end
+	
+	actions.Attack = not reloading and bot:D3bot_IsLookingAt(targetPos, 0.8) and canShootTarget and not mem.WasPressingAttack
 	mem.WasPressingAttack = actions.Attack
 	
 	if targetPos and canShootTarget then

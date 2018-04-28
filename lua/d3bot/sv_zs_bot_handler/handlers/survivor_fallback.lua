@@ -12,18 +12,12 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	cmd:ClearButtons()
 	cmd:ClearMovement()
 	
-	if not bot:Alive() then
-		-- Get back into the game
-		cmd:SetButtons(IN_ATTACK)
-		return
-	end
-	
 	bot:D3bot_UpdatePathProgress()
 	local mem = bot.D3bot_Mem
 	local botPos = bot:GetPos()
 	
 	local result, actions, forwardSpeed, aimAngle, minorStuck, majorStuck, facesHindrance = D3bot.Basics.WalkAttackAuto(bot)
-	if result then
+	if result and math.abs(forwardSpeed) > 30 then
 		actions.Attack = false
 	else
 		result, actions, forwardSpeed, aimAngle = D3bot.Basics.AimAndShoot(bot, mem.AttackTgtOrNil, mem.maxShootingDistance) -- TODO: Make bots walk backwards while shooting
@@ -78,7 +72,7 @@ function HANDLER.ThinkFunction(bot)
 		if table.Count(dangerouscloseEnemies) > 0 then
 			mem.AttackTgtOrNil = table.Random(dangerouscloseEnemies)
 			-- Check if undead can see/walk to bot, and then calculate escape path.
-			if mem.AttackTgtOrNil:D3bot_CanSeeTarget(nil, bot) and (not mem.NextNodeOrNil or mem.lastEscapePath and mem.lastEscapePath < CurTime() - 2 or not mem.lastEscapePath) then
+			if mem.AttackTgtOrNil:D3bot_CanSeeTarget(nil, bot) and not mem.NextNodeOrNil then
 				mem.lastEscapePath = CurTime()
 				escapePath = HANDLER.FindEscapePath(bot, D3bot.MapNavMesh:GetNearestNodeOrNil(botPos), closerEnemies)
 				if escapePath then
