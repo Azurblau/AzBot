@@ -25,8 +25,8 @@ return function(lib)
 	lib.BotJumpAntichance = 25
 	lib.BotDuckAntichance = 25
 	lib.ZombiesPerPlayer = 0.3
-	lib.ZombiesPerPlayerMax = 1.2			-- Limits amount of zombies to this zombie/player ratio. (ZombiesCountAddition is not calculated in)
-	lib.ZombiesPerPlayerWave = 0.10
+	lib.ZombiesPerPlayerMax = 2.0			-- Limits amount of zombies to this zombie/player ratio. (ZombiesCountAddition is not calculated in)
+	lib.ZombiesPerPlayerWave = 0.20
 	lib.ZombiesPerMinute = 0
 	lib.ZombiesPerWave = 0.4
 	lib.ZombiesCountAddition = 1			-- BotMod
