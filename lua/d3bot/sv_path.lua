@@ -101,8 +101,8 @@ function D3bot.GetEscapeMeshPathOrNil(startNode, iterations, pathCostFunction, h
 					minimalPathCostByNode[linkedNode] = linkedNodePathCost
 					local heuristic = (heuristicCostFunction and heuristicCostFunction(linkedNode) or 0) -- Negative costs are allowed here
 					minimalTotalPathCostByNode[linkedNode] = linkedNodePathCost + heuristic
-					if bestNodeCost >= heuristic then
-						bestNodeCost = heuristic
+					if bestNodeCost >= minimalTotalPathCostByNode[linkedNode] then
+						bestNodeCost = minimalTotalPathCostByNode[linkedNode]
 						bestNode = linkedNode
 					end
 					evaluationNodeQueue:Enqueue(linkedNode)

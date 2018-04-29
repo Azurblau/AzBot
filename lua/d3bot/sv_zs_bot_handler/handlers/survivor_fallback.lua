@@ -78,7 +78,7 @@ function HANDLER.ThinkFunction(bot)
 				if escapePath then
 					--D3bot.Debug.DrawPath(GetPlayerByName("D3"), escapePath, nil, nil, true)
 					mem.holdPathTime = CurTime() + 2
-					bot:D3bot_SetPath(escapePath)
+					bot:D3bot_SetPath(escapePath, false)
 				end
 			end
 		else
@@ -91,7 +91,7 @@ function HANDLER.ThinkFunction(bot)
 				if path then
 					--D3bot.Debug.DrawPath(GetPlayerByName("D3"), path, nil, Color(0, 0, 255), true)
 					mem.holdPathTime = CurTime() + 20
-					bot:D3bot_SetPath(path)
+					bot:D3bot_SetPath(path, false)
 				end
 			end
 		end
@@ -252,14 +252,16 @@ end
 
 function HANDLER.FindPathToHuman(node)
 	local function pathCostFunction(node, linkedNode, link)
-		return node.Pos:Distance(linkedNode.Pos)
+		return node.Pos:Distance(linkedNode.Pos) * 0.1
 	end
 	local function heuristicCostFunction(node)
 		local nodeMetadata = D3bot.NodeMetadata[node]
 		local playerFactorBySurvivors = nodeMetadata and nodeMetadata.PlayerFactorByTeam and nodeMetadata.PlayerFactorByTeam[TEAM_SURVIVOR] or 0
 		local playerFactorByUndead = nodeMetadata and nodeMetadata.PlayerFactorByTeam and nodeMetadata.PlayerFactorByTeam[TEAM_UNDEAD] or 0
-		return - playerFactorBySurvivors * 160 + playerFactorByUndead * 150
+		return -playerFactorBySurvivors * 1600000 + playerFactorByUndead * 500000
 	end
+	--D3bot.Debug.DrawNodeMetadata(GetPlayerByName("D3"), D3bot.NodeMetadata, 5)
+	--D3bot.Debug.DrawPath(GetPlayerByName("D3"), D3bot.GetEscapeMeshPathOrNil(node, 400, pathCostFunction, heuristicCostFunction, {Walk = true}), 5, Color(255, 0, 0), true)
 	return D3bot.GetEscapeMeshPathOrNil(node, 400, pathCostFunction, heuristicCostFunction, {Walk = true})
 end
 
