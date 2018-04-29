@@ -27,6 +27,7 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	
 	local origin = bot:GetPos()
 	local actions = {}
+	local inTheAir
 	
 	-- Make bot aim straight when outside of current node area This should prevent falling down edges.
 	local aimStraight
@@ -83,6 +84,7 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 				end
 			end
 		else
+			inTheAir = true
 			actions.Duck = true
 		end
 	elseif minorStuck then
@@ -104,6 +106,16 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	
 	if speed > 0 then actions.Forward = true end
 	if speed < 0 then actions.Backward = true end
+	
+	if inTheAir then
+		--actions.Forward = false
+		--actions.Backward = false
+		if math.random(2) == 1 then
+			actions.Right = true
+		else
+			actions.Left = true
+		end
+	end
 	
 	return true, actions, speed, mem.Angs, minorStuck, majorStuck, facesHindrance
 end

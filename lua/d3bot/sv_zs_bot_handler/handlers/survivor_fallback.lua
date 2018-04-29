@@ -72,7 +72,7 @@ function HANDLER.ThinkFunction(bot)
 		if table.Count(dangerouscloseEnemies) > 0 then
 			mem.AttackTgtOrNil = table.Random(dangerouscloseEnemies)
 			-- Check if undead can see/walk to bot, and then calculate escape path.
-			if mem.AttackTgtOrNil:D3bot_CanSeeTarget(nil, bot) and not mem.NextNodeOrNil then
+			if mem.AttackTgtOrNil:D3bot_CanSeeTarget(nil, bot) and (not mem.NextNodeOrNil or (mem.lastEscapePath or 0) < CurTime() - 2) then
 				mem.lastEscapePath = CurTime()
 				escapePath = HANDLER.FindEscapePath(bot, D3bot.MapNavMesh:GetNearestNodeOrNil(botPos), closerEnemies)
 				if escapePath then
