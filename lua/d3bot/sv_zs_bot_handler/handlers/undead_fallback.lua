@@ -1,7 +1,17 @@
 D3bot.Handlers.Undead_Fallback = D3bot.Handlers.Undead_Fallback or {}
 local HANDLER = D3bot.Handlers.Undead_Fallback
 
-HANDLER.angOffshoot = 45
+HANDLER.AngOffshoot = 45
+HANDLER.BotTgtFixationDistMin = 250
+HANDLER.BotClasses = {
+	"Zombie", "Zombie", "Zombie",
+	"Ghoul",
+	"Wraith", "Wraith", "Wraith",
+	"Bloated Zombie", "Bloated Zombie", "Bloated Zombie",
+	"Fast Zombie", "Fast Zombie", "Fast Zombie", "Fast Zombie",
+	"Poison Zombie", "Poison Zombie", "Poison Zombie",
+	"Zombine", "Zombine", "Zombine", "Zombine", "Zombine"
+}
 
 HANDLER.Fallback = true
 function HANDLER.SelectorFunction(zombieClassName, team)
@@ -48,7 +58,7 @@ function HANDLER.ThinkFunction(bot)
 	local botPos = bot:GetPos()
 	
 	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
-		if not mem.TgtOrNil or IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(botPos) > D3bot.BotTgtFixationDistMin then
+		if not mem.TgtOrNil or IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(botPos) > HANDLER.BotTgtFixationDistMin then
 			mem.nextUpdateSurroundingPlayers = CurTime() + 1
 			local targets = player.GetAll() -- TODO: Filter targets before sorting
 			table.sort(targets, function(a, b) return botPos:Distance(a:GetPos()) < botPos:Distance(b:GetPos()) end)
@@ -72,7 +82,7 @@ function HANDLER.ThinkFunction(bot)
 	
 	if mem.nextUpdateOffshoot and mem.nextUpdateOffshoot < CurTime() or not mem.nextUpdateOffshoot then
 		mem.nextUpdateOffshoot = CurTime() + 0.4 + math.random() * 0.2
-		bot:D3bot_UpdateAngsOffshoot(HANDLER.angOffshoot)
+		bot:D3bot_UpdateAngsOffshoot(HANDLER.AngOffshoot)
 	end
 	
 	local function pathCostFunction(node, linkedNode, link)
@@ -90,7 +100,7 @@ function HANDLER.OnTakeDamageFunction(bot, dmg)
 	local attacker = dmg:GetAttacker()
 	if not HANDLER.CanBeTgt(bot, attacker) then return end
 	local mem = bot.D3bot_Mem
-	if IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(bot:GetPos()) <= D3bot.BotTgtFixationDistMin then return end
+	if IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(bot:GetPos()) <= HANDLER.BotTgtFixationDistMin then return end
 	mem.TgtOrNil = attacker
 	--bot:Say("Ouch! Fuck you "..attacker:GetName().."! I'm gonna kill you!")
 end
@@ -102,7 +112,7 @@ end
 
 function HANDLER.OnDeathFunction(bot)
 	--bot:Say("rip me!")
-	bot:D3bot_RerollClass() -- TODO: Situation depending reroll of the zombie class
+	bot:D3bot_RerollClass(HANDLER.BotClasses) -- TODO: Situation depending reroll of the zombie class
 	HANDLER.RerollTarget(bot)
 end
 

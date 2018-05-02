@@ -84,12 +84,12 @@ function meta:D3bot_FaceTo(pos, origin, lerpFactor, offshootFactor)
 	mem.Angs = LerpAngle(lerpFactor, mem.Angs, (pos - origin):Angle() + mem.AngsOffshoot * (offshootFactor or 1))
 end
 
-function meta:D3bot_RerollClass()
+function meta:D3bot_RerollClass(classes)
 	if not GAMEMODE:GetWaveActive() then return end
 	if self:GetZombieClassTable().Name == "Zombie Torso" then return end
 	if GAMEMODE.ZombieEscape then return end
 	local zombieClasses = {}
-	for _, class in ipairs(D3bot.BotClasses) do
+	for _, class in ipairs(classes) do
 		local zombieClass = GAMEMODE.ZombieClasses[class]
 		if zombieClass then
 			if not zombieClass.Locked and (zombieClass.Unlocked or zombieClass.Wave <= GAMEMODE:GetWave()) then
@@ -202,9 +202,6 @@ function meta:D3bot_UpdatePath(pathCostFunction, heuristicCostFunction)
 		return
 	end
 	self:D3bot_SetPath(path, true)
-	if mem.NodeOrNil and mem.NodeOrNil.Params.BotMod then
-		D3bot.nodeZombiesCountAddition = mem.NodeOrNil.Params.BotMod -- TODO: Trigger noded botmod by human players, not here
-	end
 end
 
 function meta:D3bot_UpdatePathProgress()
@@ -213,12 +210,6 @@ function meta:D3bot_UpdatePathProgress()
 		if mem.NextNodeOrNil:GetContains(self:GetPos(), 100) then
 			mem.NodeOrNil = mem.NextNodeOrNil
 			mem.NextNodeOrNil = table.remove(mem.RemainingNodes, 1)
-			if mem.NodeOrNil then
-				if mem.NodeOrNil.Params.BotMod then
-					D3bot.nodeZombiesCountAddition = mem.NodeOrNil.Params.BotMod
-					-- TODO: Change node botmod to trigger on human
-				end
-			end
 		else
 			break
 		end

@@ -96,3 +96,21 @@ hook.Add("PlayerDeath", D3bot.BotHooksId.."PlayerDeath", function(pl)
 		end
 	end
 end)
+
+hook.Add("PlayerInitialSpawn", D3bot.BotHooksId, function(pl)
+	if D3bot.IsEnabled and pl:IsBot() then
+		pl:D3bot_Initialize()
+	end
+end)
+
+local hadBonusByPl = {}
+hook.Add("PlayerSpawn", D3bot.BotHooksId, function(pl)
+	if not D3bot.IsEnabled then return end
+	if pl:IsBot() then pl:D3bot_SetUp() end
+	if D3bot.IsEnabled and D3bot.StartBonus and D3bot.StartBonus > 0 and pl:Team() == TEAM_SURVIVOR then
+		local hadBonus = hadBonusByPl[pl]
+		hadBonusByPl[pl] = true
+		pl:SetPoints(hadBonus and 0 or D3bot.StartBonus)
+	end
+end)
+hook.Add("PreRestartRound", D3bot.BotHooksId.."PreRestartRound", function() hadBonusByPl = {} end)
