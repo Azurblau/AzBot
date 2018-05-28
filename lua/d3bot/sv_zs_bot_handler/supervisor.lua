@@ -4,25 +4,28 @@ hook.Add("PreRestartRound", D3bot.BotHooksId.."PreRestartRoundSupervisor", funct
 function D3bot.GetDesiredBotCount()
 	local wave = math.max(1, GAMEMODE:GetWave())
 	local minutes = (CurTime() - roundStartTime) / 60
-	local allowedTotal = game.MaxPlayers() - #player.GetAll() - 2
+	local allowedTotal = game.MaxPlayers() - 2
+	local allowedBots = allowedTotal - #player.GetHumans()
 	local mapParams = D3bot.MapNavMesh.Params
 	local zombieFormula = ((mapParams.ZPP or D3bot.ZombiesPerPlayer) + (mapParams.ZPPW or D3bot.ZombiesPerPlayerWave) * wave) * #player.GetHumans() + (mapParams.ZPM or D3bot.ZombiesPerMinute) * minutes + (mapParams.ZPW or D3bot.ZombiesPerWave) * wave
 	local zombiesCount = math.Clamp(
 		math.ceil(math.min(zombieFormula, (mapParams.ZPPM or D3bot.ZombiesPerPlayerMax) * #player.GetHumans()) + D3bot.ZombiesCountAddition + (mapParams.BotMod or 0) + (D3bot.NodeZombiesCountAddition or 0)),
 		0,
-		allowedTotal)
+		allowedBots)
 	local survivorFormula = (mapParams.SPP or D3bot.SurvivorsPerPlayer) * #player.GetHumans()
 	local survivorsCount = math.Clamp(
 		math.ceil(survivorFormula + D3bot.SurvivorCountAddition + (mapParams.SCA or 0)),
 		0,
-		math.max(allowedTotal - zombiesCount, 0))
-	return zombiesCount, (GAMEMODE.ZombieEscape or GAMEMODE.ObjectiveMap) and 0 or survivorsCount
+		math.max(allowedBots - zombiesCount, 0))
+	print(allowedBots)
+	return zombiesCount, (GAMEMODE.ZombieEscape or GAMEMODE.ObjectiveMap) and 0 or survivorsCount, allowedTotal
 end
 
 function D3bot.MaintainBotRoles()
 	if #player.GetHumans() == 0 then return end
 	local desiredCountByTeam = {}
-	desiredCountByTeam[TEAM_UNDEAD], desiredCountByTeam[TEAM_SURVIVOR] = D3bot.GetDesiredBotCount()
+	local allowedTotal
+	desiredCountByTeam[TEAM_UNDEAD], desiredCountByTeam[TEAM_SURVIVOR], allowedTotal = D3bot.GetDesiredBotCount()
 	local bots = player.GetBots()
 	local botsByTeam = {}
 	for k, v in ipairs(bots) do
@@ -61,12 +64,14 @@ function D3bot.MaintainBotRoles()
 		end
 	end
 	-- Add bots out of managed teams to maintain desired counts
-	for team, desiredCount in pairs(desiredCountByTeam) do
-		if #(playersByTeam[team] or {}) < desiredCount then
-			RunConsoleCommand("bot")
-			--local bot = player.CreateNextBot("Test")
-			D3bot.SpawnAsZombie = team == TEAM_UNDEAD
-			return
+	if player.GetCount() < allowedTotal then
+		for team, desiredCount in pairs(desiredCountByTeam) do
+			if #(playersByTeam[team] or {}) < desiredCount then
+				RunConsoleCommand("bot")
+				--local bot = player.CreateNextBot("Test")
+				D3bot.SpawnAsZombie = team == TEAM_UNDEAD
+				return
+			end
 		end
 	end
 	-- Remove bots out of managed teams to maintain desired counts
@@ -78,7 +83,6 @@ function D3bot.MaintainBotRoles()
 		end
 	end
 	-- Remove bots out of non managed teams if the server is getting too full
-	local allowedTotal = game.MaxPlayers() - 2
 	if player.GetCount() > allowedTotal then
 		for team, desiredCount in pairs(desiredCountByTeam) do
 			if not desiredCountByTeam[team] and botsByTeam[team] then
