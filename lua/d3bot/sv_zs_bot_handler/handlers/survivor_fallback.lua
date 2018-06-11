@@ -12,6 +12,11 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	cmd:ClearButtons()
 	cmd:ClearMovement()
 	
+	-- Fix knocked down bots from sliding around. (Workaround for the NoxiousNet codebase, as ply:Freeze() got removed from status_knockdown, status_revive, ...)
+	if bot.KnockedDown and IsValid(bot.KnockedDown) or bot.Revive and IsValid(bot.Revive) then
+		return
+	end
+	
 	bot:D3bot_UpdatePathProgress()
 	local mem = bot.D3bot_Mem
 	local botPos = bot:GetPos()

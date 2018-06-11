@@ -17,7 +17,6 @@ function D3bot.GetDesiredBotCount()
 		math.ceil(survivorFormula + D3bot.SurvivorCountAddition + (mapParams.SCA or 0)),
 		0,
 		math.max(allowedBots - zombiesCount, 0))
-	print(allowedBots)
 	return zombiesCount, (GAMEMODE.ZombieEscape or GAMEMODE.ObjectiveMap) and 0 or survivorsCount, allowedTotal
 end
 
