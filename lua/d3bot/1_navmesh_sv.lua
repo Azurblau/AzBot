@@ -2,35 +2,17 @@
 return function(lib)
 	lib.MapNavMeshDir = "d3bot/navmesh/map/"
 	
-	local files, _ = file.Find(lib.MapNavMeshDir .. "*.txt", "DATA")
-	lib.MapNavMeshFiles = {}
-	for k, v in ipairs(files) do
-		if not string.find(v, "%.params%.txt$") then
-			lib.MapNavMeshFiles[string.gsub(v, "%.txt$", "")] = true
-		end
-	end
-	
-	function lib.GetMatchingMapNavMesh(mapName)
-		for k, v in pairs(lib.MapNavMeshFiles) do
-			if string.find(mapName, "^" .. k) then
-				return k, true
-			end
-		end
-		return mapName .. "$", false
-	end
-	
 	function lib.GetMapNavMeshPath(mapName)
-		return lib.MapNavMeshDir .. lib.GetMatchingMapNavMesh(mapName) .. ".txt"
+		return lib.MapNavMeshDir .. mapName .. ".txt"
 	end
 	function lib.GetMapNavMeshParamsPath(mapName)
-		return lib.MapNavMeshDir .. lib.GetMatchingMapNavMesh(mapName) .. ".params.txt"
+		return lib.MapNavMeshDir .. mapName .. ".params.txt"
 	end
 	lib.MapNavMeshPath = lib.GetMapNavMeshPath(game.GetMap())
 	lib.MapNavMeshParamsPath = lib.GetMapNavMeshParamsPath(game.GetMap())
 	
 	function lib.CheckMapNavMesh(mapName)
-		local _, result = lib.GetMatchingMapNavMesh(mapName)
-		return result
+		return file.Exists(lib.GetMapNavMeshPath(mapName), "DATA")
 	end
 	
 	util.AddNetworkString(lib.MapNavMeshNetworkStr)
