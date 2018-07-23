@@ -56,7 +56,7 @@ hook.Add("Think", D3bot.BotHooksId.."NodeMetadataThink", function()
 					if not nodeMetadata[node] then nodeMetadata[node] = {} end
 					local metadata = nodeMetadata[node]
 					if not metadata.PlayerFactorByTeam then metadata.PlayerFactorByTeam = {} end
-					metadata.PlayerFactorByTeam[team] = math.Clamp((metadata.PlayerFactorByTeam[team] or 0) + 1/15 * (player:IsBot() and 0.25 or 1), 0, 1)
+					metadata.PlayerFactorByTeam[team] = math.Clamp((metadata.PlayerFactorByTeam[team] or 0) + 1/15 * (player.D3bot_Mem and 0.25 or 1), 0, 1)
 				end
 			end
 		end

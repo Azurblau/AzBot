@@ -134,36 +134,32 @@ function meta:D3bot_SetNodeTgtOrNil(targetNode) -- Set the node as target, bot w
 	mem.NodeTgtOrNil = targetNode
 end
 
-function meta:D3bot_Initialize()
-	--if D3bot.SpawnAsZombie then
-	--	GAMEMODE.PreviouslyDied[self:UniqueID()] = CurTime()
-	--	GAMEMODE:PlayerInitialSpawn(self)
-	--end
+function meta:D3bot_InitializeOrReset()
+	self.D3bot_Mem = self.D3bot_Mem or {}
+	local mem = self.D3bot_Mem
 	
-	self.D3bot_Mem = {
-		TgtOrNil = nil,					-- Target entity to walk to and attack
-		PosTgtOrNil = nil,				-- Target position to walk to
-		NodeTgtOrNil = nil,				-- Target node
-		TgtNodeOrNil = nil,				-- Node of the target entity or position
-		NodeOrNil = nil,				-- The node the bot is inside of (or nearest to)
-		NextNodeOrNil = nil,			-- Next node of the current path
-		RemainingNodes = {},			-- All remaining nodes of the current path
-		ConsidersPathLethality = false,
-		Angs = Angle(),					-- Current angle, used to smooth out movement
-		AngsOffshoot = Angle()			-- Offshoot angle, to make bots movement more random
-	}
+	local considerPathLethality = math.random(1, D3bot.BotConsideringDeathCostAntichance) == 1
+	
+	mem.TgtOrNil = nil										-- Target entity to walk to and attack
+	mem.PosTgtOrNil = nil									-- Target position to walk to
+	mem.NodeTgtOrNil = nil									-- Target node
+	mem.TgtNodeOrNil = nil									-- Node of the target entity or position
+	mem.NodeOrNil = nil										-- The node the bot is inside of (or nearest to)
+	mem.NextNodeOrNil = nil									-- Next node of the current path
+	mem.RemainingNodes = {}									-- All remaining nodes of the current path
+	mem.ConsidersPathLethality = considerPathLethality		-- If true, the bot will consider lethality of the paths
+	mem.Angs = Angle()										-- Current angle, used to smooth out movement
+	mem.AngsOffshoot = Angle()								-- Offshoot angle, to make bots movement more random
+	
+	mem.DontAttackTgt = nil									-- 
+	mem.TgtProximity = nil									-- 
+	mem.PosTgtProximity = nil								-- 
+	mem.NextCheckStuck = nil								-- 
+	mem.MajorStuckCounter = nil								-- 
 end
 
-function meta:D3bot_SetUp()
-	local mem = self.D3bot_Mem
-	mem.TgtOrNil = nil
-	mem.DontAttackTgt = nil
-	mem.PosTgtOrNil = nil
-	mem.NodeTgtOrNil = nil
-	mem.NextNodeOrNil = nil
-	mem.RemainingNodes = {}
-	mem.ConsidersPathLethality = math.random(1, D3bot.BotConsideringDeathCostAntichance) == 1
-	mem.Angs = self:EyeAngles()
+function meta:D3bot_Deinitialize()
+	self.D3bot_Mem = nil
 end
 
 function meta:D3bot_UpdateAngsOffshoot(angOffshoot)
@@ -228,8 +224,8 @@ end
 
 function meta:D3bot_CheckStuck()
 	local mem = self.D3bot_Mem
-	if mem.nextCheckStuck and mem.nextCheckStuck < CurTime() or not mem.nextCheckStuck then
-		mem.nextCheckStuck = CurTime() + 1
+	if mem.NextCheckStuck and mem.NextCheckStuck < CurTime() or not mem.NextCheckStuck then
+		mem.NextCheckStuck = CurTime() + 1
 	else
 		return
 	end

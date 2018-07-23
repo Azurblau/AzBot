@@ -25,7 +25,7 @@ end
 local findHandler = findHandler
 
 hook.Add("StartCommand", D3bot.BotHooksId, function(pl, cmd)
-	if D3bot.IsEnabled and pl:IsBot() then
+	if D3bot.IsEnabled and pl.D3bot_Mem then
 		
 		local handler = findHandler(pl:GetZombieClass(), pl:Team())
 		handler.UpdateBotCmdFunction(pl, cmd)
@@ -43,7 +43,7 @@ hook.Add("Think", D3bot.BotHooksId.."🤔", function()
 	if NextBot🤔 < CurTime() then
 		NextBot🤔 = CurTime() + 0.1
 		
-		for _, bot in ipairs(player.GetBots()) do
+		for _, bot in ipairs(D3bot.GetBots()) do
 			
 			-- Hackish method to get bots back into game. (player.CreateNextBot created bots do not trigger the StartCommand hook while they are dead)
 			if not bot:OldAlive() then
@@ -81,13 +81,13 @@ end)
 
 hook.Add("EntityTakeDamage", D3bot.BotHooksId.."TakeDamage", function(ent, dmg)
 	if D3bot.IsEnabled then
-		if ent:IsPlayer() and ent:IsBot() then
+		if ent:IsPlayer() and ent.D3bot_Mem then
 			-- Bot got damaged or damaged itself
 			local handler = findHandler(ent:GetZombieClass(), ent:Team())
 			handler.OnTakeDamageFunction(ent, dmg)
 		end
 		local attacker = dmg:GetAttacker()
-		if attacker ~= ent and attacker:IsPlayer() and attacker:IsBot() then
+		if attacker ~= ent and attacker:IsPlayer() and attacker.D3bot_Mem then
 			-- A Bot did damage something
 			local handler = findHandler(attacker:GetZombieClass(), attacker:Team())
 			handler.OnDoDamageFunction(attacker, dmg)
@@ -97,7 +97,7 @@ hook.Add("EntityTakeDamage", D3bot.BotHooksId.."TakeDamage", function(ent, dmg)
 end)
 
 hook.Add("PlayerDeath", D3bot.BotHooksId.."PlayerDeath", function(pl)
-	if D3bot.IsEnabled and pl:IsBot() then
+	if D3bot.IsEnabled and pl.D3bot_Mem then
 		local handler = findHandler(pl:GetZombieClass(), pl:Team())
 		handler.OnDeathFunction(pl)
 		-- Add death cost to the current link
@@ -111,16 +111,10 @@ hook.Add("PlayerDeath", D3bot.BotHooksId.."PlayerDeath", function(pl)
 	end
 end)
 
-hook.Add("PlayerInitialSpawn", D3bot.BotHooksId.."PlayerInitialSpawn", function(pl)
-	if D3bot.IsEnabled and pl:IsBot() then
-		pl:D3bot_Initialize()
-	end
-end)
-
 local hadBonusByPl = {}
 hook.Add("PlayerSpawn", D3bot.BotHooksId.."PlayerSpawn", function(pl)
 	if not D3bot.IsEnabled then return end
-	if pl:IsBot() then pl:D3bot_SetUp() end
+	if pl.D3bot_Mem then pl:D3bot_InitializeOrReset() end
 	if D3bot.IsEnabled and D3bot.StartBonus and D3bot.StartBonus > 0 and pl:Team() == TEAM_SURVIVOR then
 		local hadBonus = hadBonusByPl[pl]
 		hadBonusByPl[pl] = true

@@ -82,7 +82,7 @@ end
 
 function HANDLER.CanBeTgt(bot, target)
 	if not target or not IsValid(target) then return end
-	if target:IsPlayer() and not target:IsBot() and target ~= bot and target:GetObserverMode() == OBS_MODE_NONE and target:Alive() then return true end
+	if target:IsPlayer() and not target.D3bot_Mem and target ~= bot and target:GetObserverMode() == OBS_MODE_NONE and target:Alive() then return true end
 end
 
 function HANDLER.RerollTarget(bot)

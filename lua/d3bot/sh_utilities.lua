@@ -68,3 +68,13 @@ function D3bot.NeighbourNodeFalloff(startNode, iterations, startValue, falloff, 
 	end
 	return nodes
 end
+
+function D3bot.GetBots() -- Return all players controlled by this script (Can also be real players)
+	local bots = {}
+	for _, v in pairs(player.GetAll()) do
+		if v.D3bot_Mem then
+			table.insert(bots, v)
+		end
+	end
+	return bots
+end

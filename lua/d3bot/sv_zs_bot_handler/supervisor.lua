@@ -68,9 +68,12 @@ function D3bot.MaintainBotRoles()
 			if #(playersByTeam[team] or {}) < desiredCount then
 				--RunConsoleCommand("bot")
 				local bot = player.CreateNextBot(D3bot.GetUsername())
-				if team == TEAM_UNDEAD then
-					bot:StripWeapons()
-					bot:KillSilent()
+				if IsValid(bot) then
+					bot:D3bot_InitializeOrReset()
+					if team == TEAM_UNDEAD then
+						bot:StripWeapons()
+						bot:KillSilent()
+					end
 				end
 				--bot:ChangeTeam(team)
 				--GAMEMODE:PlayerInitialSpawn(bot)
@@ -123,7 +126,7 @@ function D3bot.DoNodeTrigger()
 			if type(nodeOrNil.Params.DMGPerSecond) == "number" and nodeOrNil.Params.DMGPerSecond > 0 then
 				ent:TakeDamage(nodeOrNil.Params.DMGPerSecond*2, game.GetWorld(), game.GetWorld())
 			end
-			if ent:IsPlayer() and not ent:IsBot() and nodeOrNil.Params.BotMod then
+			if ent:IsPlayer() and not ent.D3bot_Mem and nodeOrNil.Params.BotMod then
 				D3bot.NodeZombiesCountAddition = nodeOrNil.Params.BotMod
 			end
 		end
