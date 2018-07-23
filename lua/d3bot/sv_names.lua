@@ -17,15 +17,15 @@ local names = {}
 function D3bot.GetUsername()
 	local usernames = getUsernames()
 	
-	if #names == 0 then names = D3bot.Names end
-	local name = table.Random(names)
+	if #names == 0 then names = table.Copy(D3bot.Names) end
+	local name = table.remove(names, math.random(#names))
 	
 	if usernames[name] then
 		local number = 2
-		while usernames[name.."("..string(number)..")"] do
+		while usernames[name.."("..number..")"] do
 			number = number + 1
 		end
-		return name.."("..string(number)..")"
+		return name.."("..number..")"
 	end
 	return name
 end
