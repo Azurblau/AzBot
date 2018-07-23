@@ -135,10 +135,10 @@ function meta:D3bot_SetNodeTgtOrNil(targetNode) -- Set the node as target, bot w
 end
 
 function meta:D3bot_Initialize()
-	if D3bot.SpawnAsZombie then
-		GAMEMODE.PreviouslyDied[self:UniqueID()] = CurTime()
-		GAMEMODE:PlayerInitialSpawn(self)
-	end
+	--if D3bot.SpawnAsZombie then
+	--	GAMEMODE.PreviouslyDied[self:UniqueID()] = CurTime()
+	--	GAMEMODE:PlayerInitialSpawn(self)
+	--end
 	
 	self.D3bot_Mem = {
 		TgtOrNil = nil,					-- Target entity to walk to and attack

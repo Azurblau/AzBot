@@ -12,8 +12,8 @@ AddCSLuaFile("d3bot/sh_utilities.lua")
 include("d3bot/sh_utilities.lua")
 
 if SERVER then
-	--include("d3bot/sv_names.lua")
 	include("d3bot/sv_config.lua")
+	include("d3bot/sv_names.lua")
 	include("d3bot/sv_path.lua")
 	include("d3bot/sv_extend_player.lua")
 	include("d3bot/sv_debug.lua")

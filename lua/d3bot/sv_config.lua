@@ -37,4 +37,6 @@ D3bot.IsSelfRedeemEnabled = true
 D3bot.IsBonusEnabled = false
 D3bot.SelfRedeemWaveMax = 1
 
+D3bot.BotNameFile = "fng_usernames"		-- Comment out this line to use Bot, Bot(2), Bot(3), ... as name
+
 D3bot.BotKickReason = "I did my job. :)"

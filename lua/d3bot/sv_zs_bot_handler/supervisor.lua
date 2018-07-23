@@ -66,9 +66,16 @@ function D3bot.MaintainBotRoles()
 	if player.GetCount() < allowedTotal then
 		for team, desiredCount in pairs(desiredCountByTeam) do
 			if #(playersByTeam[team] or {}) < desiredCount then
-				RunConsoleCommand("bot")
-				--local bot = player.CreateNextBot("Test")
-				D3bot.SpawnAsZombie = team == TEAM_UNDEAD
+				--RunConsoleCommand("bot")
+				local bot = player.CreateNextBot(D3bot.GetUsername())
+				if team == TEAM_UNDEAD then
+					bot:StripWeapons()
+					bot:KillSilent()
+				end
+				--bot:ChangeTeam(team)
+				--GAMEMODE:PlayerInitialSpawn(bot)
+				--print(bot.BehaveStart)
+				--D3bot.SpawnAsZombie = team == TEAM_UNDEAD
 				return
 			end
 		end

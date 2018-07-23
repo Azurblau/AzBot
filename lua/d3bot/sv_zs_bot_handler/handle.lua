@@ -44,6 +44,20 @@ hook.Add("Think", D3bot.BotHooksId.."🤔", function()
 		NextBot🤔 = CurTime() + 0.1
 		
 		for _, bot in ipairs(player.GetBots()) do
+			
+			-- Hackish method to get bots back into game. (player.CreateNextBot created bots do not trigger the StartCommand hook while they are dead)
+			if not bot:OldAlive() then
+				gamemode.Call("PlayerDeathThink", bot)
+				if (not bot.StartSpectating or bot.StartSpectating <= CurTime()) and not (GAMEMODE.RoundEnded or bot.Revive or bot.NextSpawnTime) and bot:GetObserverMode() ~= OBS_MODE_NONE then
+					if GAMEMODE:GetWaveActive() then
+						bot:RefreshDynamicSpawnPoint()
+						bot:UnSpectateAndSpawn()
+					else
+						bot:ChangeToCrow()
+					end
+				end
+			end
+			
 			local handler = findHandler(bot:GetZombieClass(), bot:Team())
 			handler.ThinkFunction(bot)
 		end
@@ -97,14 +111,14 @@ hook.Add("PlayerDeath", D3bot.BotHooksId.."PlayerDeath", function(pl)
 	end
 end)
 
-hook.Add("PlayerInitialSpawn", D3bot.BotHooksId, function(pl)
+hook.Add("PlayerInitialSpawn", D3bot.BotHooksId.."PlayerInitialSpawn", function(pl)
 	if D3bot.IsEnabled and pl:IsBot() then
 		pl:D3bot_Initialize()
 	end
 end)
 
 local hadBonusByPl = {}
-hook.Add("PlayerSpawn", D3bot.BotHooksId, function(pl)
+hook.Add("PlayerSpawn", D3bot.BotHooksId.."PlayerSpawn", function(pl)
 	if not D3bot.IsEnabled then return end
 	if pl:IsBot() then pl:D3bot_SetUp() end
 	if D3bot.IsEnabled and D3bot.StartBonus and D3bot.StartBonus > 0 and pl:Team() == TEAM_SURVIVOR then

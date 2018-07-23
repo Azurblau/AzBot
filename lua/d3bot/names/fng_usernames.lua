@@ -1,6 +1,6 @@
 -- http://www.fantasynamegenerators.com/username-generator.php
 
-D3bot.Names.FNG_UserNames = {
+D3bot.Names = {
 	"AcrobaticCheetah",
 	"AcrobaticOracle",
 	"ActionPup",
