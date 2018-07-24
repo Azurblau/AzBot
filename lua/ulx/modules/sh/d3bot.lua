@@ -86,7 +86,7 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 		pl:ChangeTeam(TEAM_HUMAN)
 		pl:SetDeaths(0)
 		pl:SetPoints(0)
-		pl:DoHulls()		
+		pl:DoHulls()
 		pl:UnSpectateAndSpawn()
 		pl:StripWeapons()
 		pl:StripAmmo()
@@ -316,6 +316,9 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 			end
 		end
 	end)
+	
+	registerSuperadminCmd("Control", plsParam, function(caller, pls) for k, pl in pairs(pls) do pl:D3bot_InitializeOrReset() end end)
+	registerSuperadminCmd("Uncontrol", plsParam, function(caller, pls) for k, pl in pairs(pls) do pl:D3bot_Deinitialize() end end)
 end
 
 -- TODO: Add user command to check the version of D3bot
