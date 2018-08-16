@@ -129,7 +129,6 @@ function HANDLER.ThinkFunction(bot)
 			local weaponType, rating, maxDistance = HANDLER.WeaponRatingFunction(v, enemyDistance)
 			local ammoType = v:GetPrimaryAmmoType()
 			local ammo = v:Clip1() + bot:GetAmmoCount(ammoType)
-			
 			-- Silly cheat to prevent bots from running out of ammo TODO: Add buy logic
 			if ammo == 0 then
 				bot:SetAmmo(50, ammoType)
@@ -198,13 +197,13 @@ function HANDLER.WeaponRatingFunction(weapon, targetDistance)
 		weaponType = HANDLER.Weapon_Types.RANGED
 	end
 	
-	local targetDiameter = 2
+	local targetDiameter = 6
 	local targetArea = math.pi * math.pow(targetDiameter / 2, 2)
 	
 	local numShots = sweptable.Primary.NumShots or 1
 	local damage = (sweptable.Damage or sweptable.Primary.Damage or 0)
 	local delay = sweptable.Primary.Delay or 1
-	local cone = ((weapon.ConeMax or 45) + (weapon.ConeMin or 45)*6) / 7
+	local cone = weapon.GetCone and weapon:GetCone() or ((weapon.ConeMax or 45) + (weapon.ConeMin or 45)*6) / 7
 	
 	local dmgPerSec = damage * numShots / delay -- TODO: Use more parameters like reload time.
 	local maxDistance = targetDiameter / math.tan(math.rad(cone)) / 2

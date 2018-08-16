@@ -20,6 +20,17 @@ function D3bot.GetDesiredBotCount()
 	return zombiesCount, (GAMEMODE.ZombieEscape or GAMEMODE.ObjectiveMap) and 0 or survivorsCount, allowedTotal
 end
 
+local spawnAsTeam
+hook.Add("PlayerInitialSpawn", D3bot.BotHooksId, function(pl)
+	if spawnAsTeam == TEAM_UNDEAD then
+		GAMEMODE.PreviouslyDied[pl:UniqueID()] = CurTime()
+		GAMEMODE:PlayerInitialSpawn(pl)
+	elseif spawnAsTeam == TEAM_SURVIVOR then
+		GAMEMODE.PreviouslyDied[pl:UniqueID()] = nil
+		GAMEMODE:PlayerInitialSpawn(pl)
+	end
+end)
+
 function D3bot.MaintainBotRoles()
 	if #player.GetHumans() == 0 then return end
 	local desiredCountByTeam = {}
@@ -58,7 +69,8 @@ function D3bot.MaintainBotRoles()
 		if #(playersByTeam[TEAM_SURVIVOR] or {}) > desiredCountByTeam[TEAM_SURVIVOR] and #(playersByTeam[TEAM_UNDEAD] or {}) < desiredCountByTeam[TEAM_UNDEAD] and botsByTeam[TEAM_SURVIVOR] then
 			local randomBot = table.remove(botsByTeam[TEAM_SURVIVOR], 1)
 			randomBot:StripWeapons()
-			randomBot:KillSilent()
+			--randomBot:KillSilent()
+			randomBot:Kill()
 			return
 		end
 	end
@@ -67,18 +79,12 @@ function D3bot.MaintainBotRoles()
 		for team, desiredCount in pairs(desiredCountByTeam) do
 			if #(playersByTeam[team] or {}) < desiredCount then
 				--RunConsoleCommand("bot")
+				spawnAsTeam = team
 				local bot = player.CreateNextBot(D3bot.GetUsername())
+				spawnAsTeam = nil
 				if IsValid(bot) then
 					bot:D3bot_InitializeOrReset()
-					if team == TEAM_UNDEAD then
-						bot:StripWeapons()
-						bot:KillSilent()
-					end
 				end
-				--bot:ChangeTeam(team)
-				--GAMEMODE:PlayerInitialSpawn(bot)
-				--print(bot.BehaveStart)
-				--D3bot.SpawnAsZombie = team == TEAM_UNDEAD
 				return
 			end
 		end
