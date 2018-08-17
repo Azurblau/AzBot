@@ -64,6 +64,11 @@ function D3bot.MaintainBotRoles()
 		desiredCountByTeam[TEAM_SURVIVOR] = nil
 	end
 	
+	-- Manage survivor bot count to 0, if they are disabled
+	if not D3bot.SurvivorsEnabled then
+		desiredCountByTeam[TEAM_SURVIVOR] = 0
+	end
+	
 	-- Move (kill) survivors to undead if possible
 	if desiredCountByTeam[TEAM_SURVIVOR] and desiredCountByTeam[TEAM_UNDEAD] then
 		if #(playersByTeam[TEAM_SURVIVOR] or {}) > desiredCountByTeam[TEAM_SURVIVOR] and #(playersByTeam[TEAM_UNDEAD] or {}) < desiredCountByTeam[TEAM_UNDEAD] and botsByTeam[TEAM_SURVIVOR] then
