@@ -112,8 +112,9 @@ local function registerCmd(camelCaseName, access, ...)
 		end
 	end
 	ulx["d3bot" .. camelCaseName] = func
-	local cmdStr = (access == ULib.ACCESS_SUPERADMIN and "bot " or "") .. camelCaseName:lower()
-	local cmd = ulx.command("D3bot", cmdStr, func, "!" .. cmdStr)
+	local cmdStr = (access == ULib.ACCESS_SUPERADMIN and "d3bot " or "") .. camelCaseName:lower()
+	local chatStr = (access == ULib.ACCESS_SUPERADMIN and "bot " or "") .. camelCaseName:lower()
+	local cmd = ulx.command("D3bot", cmdStr, func, "!" .. chatStr)
 	for k, param in pairs(params) do cmd:addParam(param) end
 	cmd:defaultAccess(access)
 end
