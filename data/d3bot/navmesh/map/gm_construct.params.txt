@@ -1,0 +1,3 @@
+BotMod=7
+SPP=1.2
+SCA=5
