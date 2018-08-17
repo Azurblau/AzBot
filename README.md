@@ -47,7 +47,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 # Prerequisites
 - Zombie Survival gamemode
 - Multiplayer (bots use player slots, local server is sufficient)
-- ULX (navmesh editor, !botmod and !human commands)
+- ULX (navmesh editor, `!botmod` and `!human` commands)
 - NavMeshes (see "How to create navmeshes" below)
 
 # How to test:
@@ -56,12 +56,12 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 - Move `data/d3bot/navmesh/map/zs_villagehouse.txt` to `garrysmod/data/d3bot/navmesh/map/zs_villagehouse.txt` (the addons/\*/data/ folder didn't seem to work in my tests, making this step necessary).
 - Launch Garry's Mod and start a 32 slot local server game with Zombie Survival gamemode on zs_villagehouse.
 - If bots spawn and chase after you, everything is working as intended.
-- Type `!bot viewmesh \*` to see the navmesh and `!botmod -999` to kick all bots (both commands require ULX).
+- Type `!bot viewmesh ^` to see the navmesh and `!botmod -999` to kick all bots (both commands require ULX).
 
 ![](https://github.com/Dadido3/AzBot/raw/master/media/navmesh1.jpg)
 
 # How to create navmeshes:
-- Use the chat command `!bot editmesh \<your name\>` to enter the mesh editor.
+- Use the chat command `!bot editmesh ^` to enter the mesh editor.
   - Use IN_RELOAD to cycle through the edit modes:
     - Create node: Place nodes with IN_ATTACK.
     - Link nodes: Link nodes by selecting the first then the second node, both with IN_ATTACK. Clear selection with IN_RELOAD.
@@ -70,7 +70,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
     - Copy nodes: Select nodes with IN_ATTACK and use IN_ATTACK2 to copy them offset towards the aim axis (first selected node and cursored position are used as reference for the offset distance).
     - Set/Unset Last Parameter: Apply the last used parameter with IN_ATTACK, or remove the last used parameter with IN_ATTACK2.
     - Delete items: Delete a node or link with IN_ATTACK, clear node areas with IN_ATTACK2.
-- Use `!bot setparam \<id\> \<name\> \<value\>` (example: `!bot setparam 1 jump disabled`) to set special parameters:
+- Use `!bot setparam <id> <name> <value>` (example: `!bot setparam 1 jump disabled`) to set special parameters:
   - Node parameters:
     - Jump = Disabled: Bots won't jump if located in this node.
     - Jump = Always: Bots will always jump if located in this node.
@@ -97,7 +97,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 	- Pouncing = Needed: Only classes with the ability to pounce/leap can use this link.
 - Use `!bot reloadmesh` to discard changes.
 - Use `!bot savemesh` to save the changes to garrysmod/data/d3bot/navmesh/map/\<mapname\>.txt.
-- Use `!bot setmapparam \<name\> \<value\>` (example: `!bot setmapparam botmod 5`) to set map specific parameters: (Omit \<value\>, to remove the parameter)
+- Use `!bot setmapparam <name> <value>` (example: `!bot setmapparam botmod 5`) to set map specific parameters: (Omit \<value\>, to remove the parameter)
   - BotMod: Map specific zombie count formula offset.
   - ZPH: Zombie per Human ratio override.
   - ZPHM: Zombie per Human ratio maximum override. Max amount of the zombie count target. (BotMod can offset the target beyond this limit)
