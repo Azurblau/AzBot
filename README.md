@@ -1,5 +1,5 @@
 # D3bot
-This is a fork of [/Azurblau/AzBot](https://github.com/Azurblau/AzBot) with new features and some bugfixes.
+This is a fork of [/Azurblau/AzBot](https://github.com/Azurblau/AzBot) with new features and bugfixes.
 
 Here is a list of notable changes compared to the original version:
 - Unidirectional links.
@@ -15,13 +15,15 @@ Here is a list of notable changes compared to the original version:
 - Prevent links linking a node to itself.
 - Github friendly navmesh format.
 - More example navmeshes, which make use of all the new features.
+- Survivor bots.
+- All settings in a setparate lua file. (`sv_config.lua`)
 - Some smaller things i possibly forgot.
 
 This fork is backward compatible, but there are some changes which prevents you to use navmeshes from this fork in the original version. To make them work just replace all occurences of `\n` with `;`.
 
-Everything below here is the original readme, but with updated informations:
+Everything below here is the original readme, but with updated information:
 
-![](https://github.com/Azurblau/AzBot/raw/master/media/screenshot1.jpg)
+![](https://github.com/Dadido3/AzBot/raw/master/media/screenshot1.jpg)
 Server: pussfoot.ovh:27015 [EU] Zombie Survival | AzBot | Custom Content
 
 # AzBot
@@ -49,25 +51,26 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 - NavMeshes (see "How to create navmeshes" below)
 
 # How to test:
-- Install addon (e.g. garrysmod/addons/azbot/lua/...).
+- Install addon (e.g. garrysmod/addons/d3bot/lua/...).
 - Download and install zs_villagehouse.bsp: https://garrysmods.org/download/16130/zs-villagehousezip
-- Move data/azbot/navmesh/map/zs_villagehouse.txt to garrysmod/data/azbot/navmesh/map/zs_villagehouse.txt (the addons/\*/data/ folder didn't seem to work in my tests, making this step necessary).
+- Move `data/d3bot/navmesh/map/zs_villagehouse.txt` to `garrysmod/data/d3bot/navmesh/map/zs_villagehouse.txt` (the addons/\*/data/ folder didn't seem to work in my tests, making this step necessary).
 - Launch Garry's Mod and start a 32 slot local server game with Zombie Survival gamemode on zs_villagehouse.
-- If 2 bots spawn and chase after you, everything is working as intended.
-- Type !azbot viewmesh \* to see the navmesh and !botmod -999 to kick all bots (both commands require ULX).
+- If bots spawn and chase after you, everything is working as intended.
+- Type `!bot viewmesh \*` to see the navmesh and `!botmod -999` to kick all bots (both commands require ULX).
 
-![](https://github.com/Azurblau/AzBot/raw/master/media/navmesh1.jpg)
+![](https://github.com/Dadido3/AzBot/raw/master/media/navmesh1.jpg)
 
 # How to create navmeshes:
-- Use the console command "azbot editmesh \<your name\>" to enter the editor.
+- Use the chat command `!bot editmesh \<your name\>` to enter the mesh editor.
   - Use IN_RELOAD to cycle through the edit modes:
     - Create node: Place nodes with IN_ATTACK.
     - Link nodes: Link nodes by selecting the first then the second node, both with IN_ATTACK. Clear selection with IN_RELOAD.
     - Reposition nodes: Select a node with IN_ATTACK and use IN_ATTACK to reposition it or IN_ATTACK2 to reposition it using only the aim axis (X, Y or Z). Clear selection with IN_RELOAD.
     - Resize nodes: Select a node with IN_ATTACK and use IN_ATTACK2 to resize it on the aim axis (X or Y). Clear selection with IN_RELOAD.
     - Copy nodes: Select nodes with IN_ATTACK and use IN_ATTACK2 to copy them offset towards the aim axis (first selected node and cursored position are used as reference for the offset distance).
+    - Set/Unset Last Parameter: Apply the last used parameter with IN_ATTACK, or remove the last used parameter with IN_ATTACK2.
     - Delete items: Delete a node or link with IN_ATTACK, clear node areas with IN_ATTACK2.
-- Use "azbot setparam \<id\> \<name\> \<value\>" (example: azbot setparam 1 Jump Disabled) to set special parameters:
+- Use `!bot setparam \<id\> \<name\> \<value\>` (example: `!bot setparam 1 jump disabled`) to set special parameters:
   - Node parameters:
     - Jump = Disabled: Bots won't jump if located in this node.
     - Jump = Always: Bots will always jump if located in this node.
@@ -86,47 +89,47 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 	- Condition = Unblocked: Only use this node for pathfinding if there is no entity within a range of one inch. Detected entities are func_breakable, prop_physics, prop_dynamic, prop_door_rotating, func_door, func_physbox_multiplayer, func_movelinear.
 	- Condition = Blocked: Opposite of above. Use this for breakable pathways.
     - DMGPerSecond: Apply damage to human players and entities located on this node. The player or entity doesn't need to be close to this node, but closest compared to all the other nodes.
-	- BotMod: Once a bot passes this node the given offset will be applied to the zombie count target.
+	- BotMod: Once a non bot player passes this node, the given offset will be applied to the zombie count target. Useful to adjust the bot count on objective maps.
   - Link parameters:
     - Cost: Add a penalty for paths using this link. Higher values makes it less likely for bots to use a path containing this link.
-	- Direction = Forward: Only allow paths from the first to the second element of the link. "azbot setparam 1-2 Unidir Forward" will only allow the bot to move from 1 to 2.
+	- Direction = Forward: Only allow paths from the first to the second element of the link. `!bot setparam 1-2 Unidir Forward` will only allow the bot to move from 1 to 2.
 	- Direction = Backward: Same as above, but backwards.
 	- Pouncing = Needed: Only classes with the ability to pounce/leap can use this link.
-- Use "azbot reloadmesh" to discard changes.
-- Use "azbot savemesh" to save the changes to garrysmod/data/azbot/navmesh/map/\<mapname\>.txt.
-- Use "azbot setmapparam \<name\> \<value\>" (example: azbot setmapparam botmod 5) to set map specific parameters:
+- Use `!bot reloadmesh` to discard changes.
+- Use `!bot savemesh` to save the changes to garrysmod/data/d3bot/navmesh/map/\<mapname\>.txt.
+- Use `!bot setmapparam \<name\> \<value\>` (example: `!bot setmapparam botmod 5`) to set map specific parameters: (Omit \<value\>, to remove the parameter)
   - BotMod: Map specific zombie count formula offset.
   - ZPH: Zombie per Human ratio override.
   - ZPHM: Zombie per Human ratio maximum override. Max amount of the zombie count target. (BotMod can offset the target beyond this limit)
   - ZPHW: Zombies per (Human * Wave) override.
   - ZPM: Zombies per minute override.
   - ZPW: Zombies per wave override.
-- Prefix a command with an exclamation mark to use it in chat.
+  - SPP: Survivor bots per total player (non bot) count.
+  - SCA: Similar to BotMod, but for the survivor bot count. Survivors will only spawn pre round.
+  
+- The same commands can be used from the console, just replace `!bot` with `d3bot`.
 
 ### Notes:
 - Restart the map after saving the mesh for the first time. Every map that has a navmesh at addon loading time is treated as a bot map (enabling the bot count director, !human command and survivor bonuses). Move the navmesh file if that effect is not desired.
 - Use !botmod to change the desired zombies count. Examples: !botmod -100 for no bots, !botmod 100 for full server minus 2 slots for joining players, default is !botmod 1.
 - Navmeshes can be edited on the fly. Feel free to fix your meshes during testing.
-- This sketch might help: https://github.com/Azurblau/AzBot/raw/master/media/navmesh2.png
+- This sketch might help: https://github.com/Dadido3/AzBot/raw/master/media/navmesh2.png
 - Having sized nodes helps locating (= "what node are you in?"). Unsized nodes use a small sphere instead of a rectangular area.
 - Once a bot enters a node's area/sphere, he immediately moves towards the next node's position.
 - It is recommended to use sized nodes for rooms/areas and unsized nodes for doors. Each hallway, intersection and groove should have their own sized node. For ladders, two unsized nodes, one at bottom and one at top, suffice.
 - Locating works by proximity check. If a separate node lies behind a wall but closer to the middle of two distant linked nodes than them, bots may assume wrongly that they are located at the other node if they're in the middle. Avoid that by using a third sized node for the gap between the two linked nodes and re-link them.
 - Once a bot sees the target, he moves straight for it (see also: See = Disabled parameter).
-- All links are bidirectional (see also: Wall = Suicide parameter).
+- All links are normally bidirectional (see also: Wall = Suicide parameter or Direction = Forward/Backward).
 - Bots can take any route with tendency towards the shortest.
 - Bots stubbornly move towards the next node unless they enter another node at time of path refresh (occurs roughly every second). Link wisely.
 
-![](https://github.com/Azurblau/AzBot/raw/master/media/screenshot2.jpg)
-
-# Current Project Status
-Not being worked on. ETA for ToDo: +∞. Just bugfixes or dirty changes on contributor's demand.
+![](https://github.com/Dadido3/AzBot/raw/master/media/screenshot2.jpg)
 
 # ToDo
 Starting with highest public priority:
 - Making a config.txt for the static variables.
 - Refactoring, e.g. stable API, stable navmesh standard, consistency, bot metatable, gamemode independence by adding hooks usable by gamemodes or gamemode-based plugins, ...
-- Detailed linking e.g. required jump height, movement behaviour (gap-jumping, ...), link unlock conditions, ...
+- Detailed linking e.g. required jump height, movement behaviour (gap-jumping, ...), more link unlock conditions, ...
 - Map information in navmeshes using a singleton item type solely for storing parameters (e.g. zombie count multiplier).
 - Leap behaviour for headcrab bots.
 - Sloped nodes for more accurate locating of entities.
