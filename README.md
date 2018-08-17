@@ -16,10 +16,11 @@ Here is a list of notable changes compared to the original version:
 - Github friendly navmesh format.
 - More example navmeshes, which make use of all the new features.
 - Survivor bots.
-- All settings in a setparate lua file. (`sv_config.lua`)
+- All settings in a separate lua file. (`sv_config.lua`)
 - Some smaller things i possibly forgot.
 
 This fork is backward compatible, but there are some changes which prevents you to use navmeshes from this fork in the original version. To make them work just replace all occurences of `\n` with `;`.
+If you come from an older version, you may have to move the navmeshes from `garrysmod/data/azbot/navmesh/map/...` to `garrysmod/data/d3bot/navmesh/map/...`.
 
 Everything below here is the original readme, but with updated information:
 
@@ -50,13 +51,24 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 - ULX (navmesh editor, `!botmod` and `!human` commands)
 - NavMeshes (see "How to create navmeshes" below)
 
+# Installation:
+- Make sure you have [ULX](http://steamcommunity.com/sharedfiles/filedetails/?id=557962280) and [ULib](http://steamcommunity.com/sharedfiles/filedetails/?id=557962238) installed.
+- Download the addon and extract it into your `garrysmod/addons/` folder, to get the following file structure: `garrysmod/addons/d3bot/lua/...` and `garrysmod/addons/d3bot/data/...`.
+- Copy all navmeshes from the addon's path `data/d3bot/navmesh/map/...` to `garrysmod/data/d3bot/navmesh/map/...`.
+- Adjust the configuration in `lua/d3bot/sv_config.lua` as you wish.
+- Done
+
 # How to test:
-- Install addon (e.g. garrysmod/addons/d3bot/lua/...).
-- Download and install zs_villagehouse.bsp: https://garrysmods.org/download/16130/zs-villagehousezip
-- Move `data/d3bot/navmesh/map/zs_villagehouse.txt` to `garrysmod/data/d3bot/navmesh/map/zs_villagehouse.txt` (the addons/\*/data/ folder didn't seem to work in my tests, making this step necessary).
-- Launch Garry's Mod and start a 32 slot local server game with Zombie Survival gamemode on zs_villagehouse.
+- Download and install [zs_villagehouse.bsp](https://garrysmods.org/download/16130/zs-villagehousezip).
+- Launch your server with Zombie Survival gamemode on zs_villagehouse. (Or Garry's Mod with a 32 slot local server, if you have installed D3bot to your Garry's Mod installation directly.)
 - If bots spawn and chase after you, everything is working as intended.
 - Type `!bot viewmesh ^` to see the navmesh and `!botmod -999` to kick all bots (both commands require ULX).
+
+# How to update:
+- If you have made any changes to `lua/d3bot/sv_config.lua`, save it first.
+- Remove the `d3bot` folder out of your addons directory.
+- Install the newer version of D3bot.
+- Copy your saved `lua/d3bot/sv_config.lua` back. Or better: check for differences manually, as it's possible that the structure of the file changed.
 
 ![](https://github.com/Dadido3/AzBot/raw/master/media/navmesh1.jpg)
 
@@ -70,7 +82,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
     - Copy nodes: Select nodes with IN_ATTACK and use IN_ATTACK2 to copy them offset towards the aim axis (first selected node and cursored position are used as reference for the offset distance).
     - Set/Unset Last Parameter: Apply the last used parameter with IN_ATTACK, or remove the last used parameter with IN_ATTACK2.
     - Delete items: Delete a node or link with IN_ATTACK, clear node areas with IN_ATTACK2.
-- Use `!bot setparam <id> <name> <value>` (example: `!bot setparam 1 jump disabled`) to set special parameters:
+- Use `!bot setparam <id> <name> <value>` (example: `!bot setparam 1 jump disabled`) to set or unset (by omitting \<value\>) special parameters:
   - Node parameters:
     - Jump = Disabled: Bots won't jump if located in this node.
     - Jump = Always: Bots will always jump if located in this node.
@@ -96,8 +108,8 @@ Though I won't take measures against illegimate usage unless I have reasons to d
 	- Direction = Backward: Same as above, but backwards.
 	- Pouncing = Needed: Only classes with the ability to pounce/leap can use this link.
 - Use `!bot reloadmesh` to discard changes.
-- Use `!bot savemesh` to save the changes to garrysmod/data/d3bot/navmesh/map/\<mapname\>.txt.
-- Use `!bot setmapparam <name> <value>` (example: `!bot setmapparam botmod 5`) to set map specific parameters: (Omit \<value\>, to remove the parameter)
+- Use `!bot savemesh` to save the changes to `garrysmod/data/d3bot/navmesh/map/<mapname>.txt`.
+- Use `!bot setmapparam <name> <value>` (example: `!bot setmapparam botmod 5`) to set or unset (by omitting \<value\>) map specific parameters:
   - BotMod: Map specific zombie count formula offset.
   - ZPH: Zombie per Human ratio override.
   - ZPHM: Zombie per Human ratio maximum override. Max amount of the zombie count target. (BotMod can offset the target beyond this limit)
@@ -107,7 +119,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
   - SPP: Survivor bots per total player (non bot) count.
   - SCA: Similar to BotMod, but for the survivor bot count. Survivors will only spawn pre round.
   
-- The same commands can be used from the console, just replace `!bot` with `d3bot`.
+- The same commands can be used from the console, just replace `!bot` with `d3bot`. (example: `d3bot editmesh ^`)
 
 ### Notes:
 - Restart the map after saving the mesh for the first time. Every map that has a navmesh at addon loading time is treated as a bot map (enabling the bot count director, !human command and survivor bonuses). Move the navmesh file if that effect is not desired.
