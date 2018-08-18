@@ -565,6 +565,8 @@
 325-320:
 326:Cost=100000,X=-768.2,Y=575.3,Z=128
 326-320:
+327:AreaXMax=-624,AreaXMin=-752,AreaYMax=1728,AreaYMin=1600,X=-644.6,Y=1662.1,Z=640
+327-40:
 33:X=-672.2,Y=827.3,Z=1280
 33-12:
 34:AimTo=Straight,AreaXMax=-412,AreaXMin=-452,AreaYMax=1341.2,AreaYMin=1280,JumpTo=Always,X=-432.9,Y=1286.3,Z=1308
@@ -584,7 +586,7 @@
 40:AreaXMax=-624,AreaXMin=-752,AreaYMax=1728,AreaYMin=1600,X=-681.8,Y=1662.2,Z=372
 40-42:
 41:AreaXMax=-614,AreaXMin=-650.5,AreaYMax=1684,AreaYMin=1644,X=-635.6,Y=1664.2,Z=1144
-41-40:
+41-327:
 42:AimTo=Straight,AreaXMax=-662,AreaXMin=-702,AreaYMax=1756,AreaYMin=1728,DuckTo=Always,JumpTo=Always,X=-680.8,Y=1738.4,Z=396
 42-43:
 43:AreaXMax=-662,AreaXMin=-702,AreaYMax=1796,AreaYMin=1756,X=-680.1,Y=1773.5,Z=396
