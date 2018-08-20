@@ -33,7 +33,7 @@ D3bot.ZombiesCountAddition = 0			-- BotMod
 D3bot.SurvivorsPerPlayer = 0--1.2		-- Survivor bots per total player (non bot) amount. They will only spawn pre round.
 D3bot.SurvivorCountAddition = 0			-- BotMod for survivor bots
 
--- Survivor (human) bots are not production ready and currently only work on gm_construct and zs_abandoned_mall_v9.
+-- Survivor (human) bots are currently not production ready.
 D3bot.SurvivorsEnabled = true			-- If true, survivor bots are allowed to exists by spawning at the beginning of a round (See SurvivorsPerPlayer and SurvivorCountAddition parameters) or by redeeming.
 
 D3bot.IsSelfRedeemEnabled = false		-- Enable or disable the !human command
