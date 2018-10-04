@@ -86,18 +86,18 @@ return function(lib)
 		{	Name = "Split Node",
 			FuncByKey = {
 				[IN_ATTACK] = function(pl)
+					clearSelection(pl)
+					trySelectCursoredNode(pl)
+				end,
+				[IN_ATTACK2] = function(pl)
 					local selectedNode = getSelectedNodes(pl)[1]
-					if not selectedNode then
-						clearSelection(pl)
-						trySelectCursoredNode(pl)
-					else
-						local cursoredPos = getCursoredPosOrNil(pl)
-						if not cursoredPos then return end
-						local cursoredAxisName = getCursoredAxisName(pl, true)
-						selectedNode:Split(cursoredPos,cursoredAxisName)
-						clearSelection(pl)
-						lib.UpdateMapNavMeshUiSubscribers()
-					end
+					if not selectedNode then return end
+					local cursoredPos = getCursoredPosOrNil(pl)
+					if not cursoredPos then return end
+					local cursoredAxisName = getCursoredAxisName(pl, true)
+					selectedNode:Split(cursoredPos, cursoredAxisName)
+					clearSelection(pl)
+					lib.UpdateMapNavMeshUiSubscribers()
 				end } },
 		{	Name = "Reposition Node",
 			FuncByKey = {
