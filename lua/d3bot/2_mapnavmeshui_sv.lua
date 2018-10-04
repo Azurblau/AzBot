@@ -83,7 +83,7 @@ return function(lib)
 						lib.UpdateMapNavMeshUiSubscribers()
 					end
 				end } },
-		{	Name = "Split Nodes",
+		{	Name = "Split Node",
 			FuncByKey = {
 				[IN_ATTACK] = function(pl)
 					local selectedNode = getSelectedNodes(pl)[1]
