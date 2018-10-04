@@ -68,7 +68,7 @@ return function(lib)
 						lib.UpdateMapNavMeshUiSubscribers()
 					end
 				end } },
-		{	Name = "Merge Nodes",
+		{	Name = "Merge/Split/Extend Nodes",
 			FuncByKey = {
 				[IN_ATTACK] = function(pl)
 					local selectedNode = getSelectedNodes(pl)[1]
@@ -82,12 +82,6 @@ return function(lib)
 						clearSelection(pl)
 						lib.UpdateMapNavMeshUiSubscribers()
 					end
-				end } },
-		{	Name = "Split Node",
-			FuncByKey = {
-				[IN_ATTACK] = function(pl)
-					clearSelection(pl)
-					trySelectCursoredNode(pl)
 				end,
 				[IN_ATTACK2] = function(pl)
 					local selectedNode = getSelectedNodes(pl)[1]
@@ -95,7 +89,9 @@ return function(lib)
 					local cursoredPos = getCursoredPosOrNil(pl)
 					if not cursoredPos then return end
 					local cursoredAxisName = getCursoredAxisName(pl, true)
-					selectedNode:Split(cursoredPos, cursoredAxisName)
+					if not selectedNode:Split(cursoredPos, cursoredAxisName) then
+						selectedNode:Extend(cursoredPos, cursoredAxisName)
+					end
 					clearSelection(pl)
 					lib.UpdateMapNavMeshUiSubscribers()
 				end } },

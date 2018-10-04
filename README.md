@@ -78,8 +78,12 @@ Though I won't take measures against illegimate usage unless I have reasons to d
   - Use IN_RELOAD to cycle through the edit modes:
     - Create node: Place nodes with IN_ATTACK.
     - Link nodes: Link nodes by selecting the first then the second node, both with IN_ATTACK. Clear selection with IN_RELOAD.
-    - Merge nodes: Merge two nodes by selecting the first then the second node, both with IN_ATTACK. Clear selection with IN_RELOAD.
-    - Split node: Select a node with IN_ATTACK and use IN_ATTACK2 to split the node horizontally to your viewport at your aiming point. Clear selection with IN_RELOAD.
+    - Merge/Split/Extend nodes: This is a bit more complicated edit mode:
+		- Merge: Select two nodes with IN_ATTACK to merge them.
+		- Split: Select a node with IN_ATTACK and then use IN_ATTACK2 to split the node horizontally to your viewport at your aiming point.
+		- Extend: Select a node with IN_ATTACK and then use IN_ATTACK2 to create a new node between your selected node and your aiming point. The node will be extended along the axis you are looking.
+		- Use IN_RELOAD to clear the selection when you miss-click, otherwise it may happen that you accidentally merge two nodes.
+		- You can quickly delete a node by selecting it two times with IN_ATTACK. (Basically it merges the node with itself, so it's a nice ~~bug~~ feature)
     - Reposition nodes: Select a node with IN_ATTACK and use IN_ATTACK to reposition it or IN_ATTACK2 to reposition it using only the aim axis (X, Y or Z). Clear selection with IN_RELOAD.
     - Resize nodes: Select a node with IN_ATTACK and use IN_ATTACK2 to resize it on the aim axis (X or Y). Clear selection with IN_RELOAD.
     - Copy nodes: Select nodes with IN_ATTACK and use IN_ATTACK2 to copy them offset towards the aim axis (first selected node and cursored position are used as reference for the offset distance).

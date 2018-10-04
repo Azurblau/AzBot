@@ -268,7 +268,7 @@ return function(lib)
 		
 		node:Remove()
 		
-		return newNode
+		return true
 	end
 	
 	function nodeFallback:Split(splitPos, axisName)
@@ -318,6 +318,49 @@ return function(lib)
 		
 		-- Connect new nodes as well
 		lib.MapNavMesh:ForceGetLink(self, newNode)
+		
+		return newNode
+	end
+	
+	function nodeFallback:Extend(extendPos, axisName)
+		if not extendPos then return end
+		if axisName ~= "X" and axisName ~= "Y" then return end
+		
+		local function round(num) return math.Round(num * 10) / 10 end
+		
+		local posKey = axisName:lower()
+		local extendCoord = round(extendPos[posKey])
+		
+		-- Check on what side to place the new node
+		if not self.HasArea then return end
+		local minCoord, maxCoord
+		if extendCoord > round(self.Params["Area"..axisName.."Max"]) then
+			minCoord, maxCoord = round(self.Params["Area"..axisName.."Max"]), extendCoord
+		elseif extendCoord < round(self.Params["Area"..axisName.."Min"]) then
+			minCoord, maxCoord = extendCoord, round(self.Params["Area"..axisName.."Min"])
+		else
+			return -- Position is not outside of the area
+		end
+		
+		-- Make new node that extends the current node until extendPos
+		local newNode = lib.MapNavMesh:NewNode()
+		newNode:SetParam("X", self.Params.X)
+		newNode:SetParam("Y", self.Params.Y)
+		newNode:SetParam("Z", self.Params.Z)
+		newNode:SetParam("AreaXMax", self.Params.AreaXMax)
+		newNode:SetParam("AreaXMin", self.Params.AreaXMin)
+		newNode:SetParam("AreaYMax", self.Params.AreaYMax)
+		newNode:SetParam("AreaYMin", self.Params.AreaYMin)
+		
+		-- Resize new node
+		newNode:SetParam(axisName, round((minCoord + maxCoord) / 2))
+		newNode:SetParam("Area"..axisName.."Min", minCoord)
+		newNode:SetParam("Area"..axisName.."Max", maxCoord)
+		
+		-- Connect old and new node
+		lib.MapNavMesh:ForceGetLink(self, newNode)
+		
+		return newNode
 	end
 	
 	local function removeItem(item)
