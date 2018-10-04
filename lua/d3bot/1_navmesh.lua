@@ -271,6 +271,46 @@ return function(lib)
 		return newNode
 	end
 	
+	function nodeFallback:Split(split_pos, axis_name)
+		
+		local function round(num) return math.Round(num * 10) / 10 end
+		
+		-- Small workaround unless there was a way to do this, that I've missed
+		local function axis_from_name(vec, name)
+			if name == "X" then return vec.x end
+			if name == "Y" then return vec.y end
+			if name == "Z" then return vec.z end
+		end
+		
+		-- Store linked nodes
+		local tempLinkedNodes = {}
+		for linkedNode, link in pairs(from(self.LinkByLinkedNode):ShallowCopy().R) do table.insert(tempLinkedNodes, linkedNode) end
+		
+		-- Make second half first (and it is essentially a copy)
+		local newNode = lib.MapNavMesh:NewNode()
+		
+		for name, v in pairs(self.Params) do
+			newNode:SetParam(name, v)
+		end
+		
+		-- Shrink this node
+		self:SetParam(axis_name, round((self.Params["Area"..axis_name.."Min"] + axis_from_name(split_pos, axis_name)) / 2))
+		self:SetParam("Area"..axis_name.."Max", round( axis_from_name(split_pos, axis_name)))
+		
+		-- Shrink new node
+		newNode:SetParam(axis_name, round((newNode.Params["Area"..axis_name.."Max"] + axis_from_name(split_pos, axis_name)) / 2))
+		newNode:SetParam("Area"..axis_name.."Min", round(axis_from_name(split_pos, axis_name)))
+		
+		-- Restore the links (needs fixing)
+		for _, linkedNode in pairs(tempLinkedNodes) do
+			lib.MapNavMesh:ForceGetLink(self, linkedNode)
+			lib.MapNavMesh:ForceGetLink(newNode, linkedNode)
+		end
+		
+		-- Connect new nodes as well
+		lib.MapNavMesh:ForceGetLink(self, newNode)
+	end
+	
 	local function removeItem(item)
 		item.NavMesh.ItemById[item.Id] = nil
 		item.NavMesh = nil

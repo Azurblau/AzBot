@@ -68,21 +68,37 @@ return function(lib)
 						lib.UpdateMapNavMeshUiSubscribers()
 					end
 				end } },
-		{    Name = "Merge Nodes",
-            FuncByKey = {
-                [IN_ATTACK] = function(pl)
-                    local selectedNode = getSelectedNodes(pl)[1]
-                    if not selectedNode then
-                        clearSelection(pl)
-                        trySelectCursoredNode(pl)
-                    else
-                        local node = getCursoredNodeOrNil(pl)
-                        if not node then return end
-                        selectedNode:MergeWithNode(node)
-                        clearSelection(pl)
-                        lib.UpdateMapNavMeshUiSubscribers()
-                    end
-                end } },
+		{	Name = "Merge Nodes",
+			FuncByKey = {
+				[IN_ATTACK] = function(pl)
+					local selectedNode = getSelectedNodes(pl)[1]
+					if not selectedNode then
+						clearSelection(pl)
+						trySelectCursoredNode(pl)
+					else
+						local node = getCursoredNodeOrNil(pl)
+						if not node then return end
+						selectedNode:MergeWithNode(node)
+						clearSelection(pl)
+						lib.UpdateMapNavMeshUiSubscribers()
+					end
+				end } },
+		{	Name = "Split Nodes",
+			FuncByKey = {
+				[IN_ATTACK] = function(pl)
+					local selectedNode = getSelectedNodes(pl)[1]
+					if not selectedNode then
+						clearSelection(pl)
+						trySelectCursoredNode(pl)
+					else
+						local cursoredPos = getCursoredPosOrNil(pl)
+						if not cursoredPos then return end
+						local cursoredAxisName = getCursoredAxisName(pl, true)
+						selectedNode:Split(cursoredPos,cursoredAxisName)
+						clearSelection(pl)
+						lib.UpdateMapNavMeshUiSubscribers()
+					end
+				end } },
 		{	Name = "Reposition Node",
 			FuncByKey = {
 				[IN_ATTACK] = function(pl)
