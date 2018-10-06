@@ -15,6 +15,7 @@
 | [zs_cabin_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=266230437) | D3
 | zs_cabin_v3 | D3
 | zs_cadingpractice | [Blueberryy](https://github.com/Blueberryy)
+| zs_chaste_v2 | D3 | | Not tested yet
 | [zs_farmhouse_fixed](https://steamcommunity.com/sharedfiles/filedetails/?id=183438832) | D3
 | [zs_farmhouse_night_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1510172478) | D3
 | [zs_final_destination_v3](https://garrysmods.org/download/11146/zs-final-destination-v3zip) | D3 | | Most complex navmesh ever done!
