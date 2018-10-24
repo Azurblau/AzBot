@@ -18,7 +18,7 @@
 | zs_chaste_v2 | D3 | | Not tested yet
 | [zs_farmhouse_fixed](https://steamcommunity.com/sharedfiles/filedetails/?id=183438832) | D3
 | [zs_farmhouse_night_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1510172478) | D3
-| [zs_final_destination_v3](https://garrysmods.org/download/11146/zs-final-destination-v3zip) | D3 | | Most complex navmesh ever done!
+| [zs_final_destination_v3](https://garrysmods.org/download/11146/zs-final-destination-v3zip) | D3 | Works with all open space maps, that have no obstacles! | Most complex navmesh ever done!
 | zs_forestofthedamned_2010 | D3
 | zs_imashouse_b2 | D3
 | [zs_infirmary](https://steamcommunity.com/sharedfiles/filedetails/?id=180922335) | D3 | Not compatible with v2, as the spawn is different |
@@ -26,6 +26,8 @@
 | [zs_krusty_krab_v4](https://garrysmods.org/download/7190/zs-krusty-krab-v4zip) | D3 | [zs_krusty_krab_v3](https://garrysmods.org/download/1935/zs-krusty-krab-v3zip)
 | zs_lambdacore_opt | D3 | [zs_lambdacore, zs_lambdacore_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1327541254)
 | [zs_lighthouse_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=180853396) | D3 | Probably works with zs_lighthouse, but not with zs_lighthouse_v2b1 and newer
+| zs_lost_coast_house_fixed_v2 | D3 | Should work with [zs_lost_coast_house_v2](https://garrysmods.org/download/9841/zs-lost-coast-house-v2) too
+| zs_lost_coast_house_v3 | D3
 | zs_nastyhouse_v3 | D3
 | [zs_obj_dump_v14](https://steamcommunity.com/sharedfiles/filedetails/?id=112595416) | D3 | Should also work with v10 - v13 |
 | zs_obj_enervation_v17 | D3 | Works with [v16](https://steamcommunity.com/sharedfiles/filedetails/?id=812163491) and probably older versions
