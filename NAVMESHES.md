@@ -2,7 +2,7 @@
 
 | Map | Creators & Contributors | Compatibility | Comment
 | --- | ----------------------- | ------------- | -------
-| [cs_chaves_css_v1](https://gamebanana.com/maps/download/55591) | Sulfito
+| [cs_chaves_css_v1](https://gamebanana.com/maps/download/55591) | Sulfito, D3
 | gm_construct | D3
 | gm_rockbottom | Sulfito
 | [ze_ffvii_mako_reactor_v5_3](https://gamebanana.com/maps/143887) | D3
