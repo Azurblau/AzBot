@@ -204,7 +204,30 @@ return function(lib)
 		return math.abs(pos.z - self.Pos.z) <= (1) and pos.x >= params.AreaXMin and pos.x <= params.AreaXMax and pos.y >= params.AreaYMin and pos.y <= params.AreaYMax
 	end
 	
+	function nodeFallback:IsViewBlocked(eyePos)
+		local tr = util.TraceLine({
+			start = eyePos,
+			endpos = self.Pos,
+			mask = MASK_SOLID_BRUSHONLY
+		})
+		return tr and tr.Fraction <= 0.98 or false
+	end
+	function nodeFallback:ShouldDraw(eyePos)
+		if not self:IsViewBlocked(eyePos) then return true end
+		for node, link in pairs(self.LinkByLinkedNode) do
+			if not node:IsViewBlocked(eyePos) then return true end
+		end
+		return false
+	end
+	function linkFallback:ShouldDraw(eyePos)
+		for i, node in ipairs(self.Nodes) do
+			if not node:ShouldDraw(eyePos) then return false end
+		end
+		return true
+	end
+	
 	function fallback:GetCursoredItemOrNil(pl)
+		local oldDraw = pl:GetInfoNum("d3bot_navmeshing_smartdraw", 1) == 0
 		local relAngMin = 5
 		local cursoredItemOrNil
 		local eyePos, eyeAngs = pl:EyePos(), pl:EyeAngles()
@@ -213,7 +236,7 @@ return function(lib)
 			local relP = math.AngleDifference(eyeAngs.p, angs.p)
 			local relY = math.AngleDifference(eyeAngs.y, angs.y)
 			local relAng = math.sqrt(relP * relP + relY * relY)
-			if relAng < relAngMin then
+			if relAng < relAngMin and (oldDraw or item:ShouldDraw(eyePos)) then
 				cursoredItemOrNil = item
 				relAngMin = relAng
 			end
