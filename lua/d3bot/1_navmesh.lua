@@ -262,21 +262,36 @@ return function(lib)
 		return nearestNodeOrNil
 	end
 	
+	local isIgnoreParameter = from((" "):Explode("X Y Z AreaXMin AreaYMin AreaXMax AreaYMax")):VsSet().R
+	
 	function nodeFallback:MergeWithNode(node)
 		if not node then return end
 		
 		local function round(num) return math.Round(num * 10) / 10 end
 		
-		-- Store linked nodes
+		-- Store linked nodes. TODO: Store and restore link parameters. Directional links are problematic!
 		local tempLinkedNodes = {}
-		for linkedNode, link in pairs(from(node.LinkByLinkedNode):ShallowCopy().R) do table.insert(tempLinkedNodes, linkedNode) end
+		for linkedNode, link in pairs(node.LinkByLinkedNode) do table.insert(tempLinkedNodes, linkedNode) end
 		
-		-- Create new node, that is as large as self and node together
-		local pos = (self.Pos + node.Pos) / 2
+		-- Store parameters
+		local tempParameters = {}
+		for paramKey, paramValue in pairs(node.Params) do
+			if not isIgnoreParameter[paramKey] then
+				tempParameters[paramKey] = paramValue
+			end
+		end
 		
-		self:SetParam("X", round(pos.x))
-		self:SetParam("Y", round(pos.y))
-		self:SetParam("Z", round(pos.z))
+		-- Calculate Area
+		local selfArea = ((self.Params.AreaXMax or self.Pos.x) - (self.Params.AreaXMin or self.Pos.x)) * ((self.Params.AreaYMax or self.Pos.y) - (self.Params.AreaYMin or self.Pos.y))
+		local nodeArea = ((node.Params.AreaXMax or node.Pos.x) - (node.Params.AreaXMin or node.Pos.x)) * ((node.Params.AreaYMax or node.Pos.y) - (node.Params.AreaYMin or node.Pos.y))
+		
+		-- Create new node, that is as large as self and node together. Weighted mean
+		local pos
+		if selfArea + nodeArea > 1 then
+			pos = (self.Pos * selfArea + node.Pos * nodeArea) / (selfArea + nodeArea)
+		else
+			pos = (self.Pos + node.Pos) / 2
+		end
 		
 		self:SetParam("AreaXMax", math.max(self.Params.AreaXMax or self.Pos.x, node.Params.AreaXMax or node.Pos.x))
 		self:SetParam("AreaXMin", math.min(self.Params.AreaXMin or self.Pos.x, node.Params.AreaXMin or node.Pos.x))
@@ -284,9 +299,18 @@ return function(lib)
 		self:SetParam("AreaYMax", math.max(self.Params.AreaYMax or self.Pos.y, node.Params.AreaYMax or node.Pos.y))
 		self:SetParam("AreaYMin", math.min(self.Params.AreaYMin or self.Pos.y, node.Params.AreaYMin or node.Pos.y))
 		
+		self:SetParam("X", round(pos.x))
+		self:SetParam("Y", round(pos.y))
+		self:SetParam("Z", round(pos.z))
+		
 		-- Restore the links TODO: Restore parameters
 		for _, linkedNode in pairs(tempLinkedNodes) do
 			lib.MapNavMesh:ForceGetLink(self, linkedNode)
+		end
+		
+		-- Restore the parameters
+		for paramKey, paramValue in pairs(tempParameters) do
+			self:SetParam(paramKey, paramValue)
 		end
 		
 		node:Remove()
@@ -308,11 +332,12 @@ return function(lib)
 		
 		-- Store linked nodes
 		local tempLinkedNodes = {}
-		for linkedNode, link in pairs(from(self.LinkByLinkedNode):ShallowCopy().R) do table.insert(tempLinkedNodes, linkedNode) end
+		for linkedNode, link in pairs(self.LinkByLinkedNode) do table.insert(tempLinkedNodes, linkedNode) end
 		
 		-- Make second half first (and it is essentially a copy)
 		local newNode = lib.MapNavMesh:NewNode()
 		
+		-- Replicate all parameters
 		for name, v in pairs(self.Params) do
 			newNode:SetParam(name, v)
 		end
@@ -325,7 +350,7 @@ return function(lib)
 		newNode:SetParam(axisName, round(((newNode.Params["Area"..axisName.."Max"] or newNode.Pos[posKey]) + splitCoord) / 2))
 		newNode:SetParam("Area"..axisName.."Min", splitCoord)
 		
-		-- Restore the links TODO: Restore parameters
+		-- Restore the links TODO: Restore link parameters. Directional links are problematic!
 		for _, linkedNode in pairs(tempLinkedNodes) do
 			if round(linkedNode.Params["Area"..axisName.."Min"] or linkedNode.Pos[posKey]) < splitCoord then
 				-- It should already be linked, so ignore
