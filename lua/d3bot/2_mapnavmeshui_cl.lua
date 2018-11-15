@@ -77,7 +77,8 @@ return function(lib)
 				end
 				
 			end)
-			hook.Add("PostDrawOpaqueRenderables", hooksId, function()
+			hook.Add("PostDrawOpaqueRenderables", hooksId, function(bDrawingDepth, bDrawingSkybox)
+				if bDrawingSkybox then return end
 				local smartDraw = D3bot.Convar_Navmeshing_SmartDraw:GetBool()
 				local eyePos = EyePos()
 				render.SetColorMaterial()
@@ -92,15 +93,15 @@ return function(lib)
 						if node.HasArea then
 							local z = node.Pos.z + 0.2
 							local params = node.Params
-							--for k, cullMode in ipairs{ MATERIAL_CULLMODE_CW, MATERIAL_CULLMODE_CCW } do
-								--render.CullMode(MATERIAL_CULLMODE_CW)
+							for k, cullMode in ipairs{ MATERIAL_CULLMODE_CW, MATERIAL_CULLMODE_CCW } do
+								render.CullMode(cullMode)
 								render.DrawQuad(
 									Vector(params.AreaXMin, params.AreaYMin, z),
 									Vector(params.AreaXMin, params.AreaYMax, z),
 									Vector(params.AreaXMax, params.AreaYMax, z),
 									Vector(params.AreaXMax, params.AreaYMin, z),
 									getItemColor(node).EightAlpha)
-							--end
+							end
 						end
 						render.DrawSphere(node.Pos, 2, 8, 8, getItemColor(node))
 					end
@@ -123,29 +124,27 @@ return function(lib)
 				if not smartDraw then
 					cam.IgnoreZ(false)
 				end
-				if smartDraw then
-					for id, node in pairs(lib.MapNavMesh.NodeById) do
-						if node.HasArea and node.Pos:Distance(eyePos) < 500 and isNodeIdVisible(id) then
-							local z = node.Pos.z + 0.2
-							local params = node.Params
-							local color = getOutlineColor(node)
-							local vec1 = Vector(params.AreaXMin, params.AreaYMin, z)
-							local vec2 = Vector(params.AreaXMin, params.AreaYMax, z)
-							local vec3 = Vector(params.AreaXMax, params.AreaYMax, z)
-							local vec4 = Vector(params.AreaXMax, params.AreaYMin, z)
-							render.DrawLine(vec1, vec2, color, true)
-							render.DrawLine(vec2, vec3, color, true)
-							render.DrawLine(vec3, vec4, color, true)
-							render.DrawLine(vec4, vec1, color, true)
-							render.DrawLine(vec1, vec1 + Vector(0, 0, 10), color, true)
-							render.DrawLine(vec2, vec2 + Vector(0, 0, 10), color, true)
-							render.DrawLine(vec3, vec3 + Vector(0, 0, 10), color, true)
-							render.DrawLine(vec4, vec4 + Vector(0, 0, 10), color, true)
-							render.DrawLine(vec1, node.Pos + Vector(0, 0, 0.2), color, true)
-							render.DrawLine(vec2, node.Pos + Vector(0, 0, 0.2), color, true)
-							render.DrawLine(vec3, node.Pos + Vector(0, 0, 0.2), color, true)
-							render.DrawLine(vec4, node.Pos + Vector(0, 0, 0.2), color, true)
-						end
+				for id, node in pairs(lib.MapNavMesh.NodeById) do
+					if node.HasArea and node.Pos:Distance(eyePos) < 500 and (not smartDraw or isNodeIdVisible(id)) then
+						local z = node.Pos.z + 0.2
+						local params = node.Params
+						local color = getOutlineColor(node)
+						local vec1 = Vector(params.AreaXMin, params.AreaYMin, z)
+						local vec2 = Vector(params.AreaXMin, params.AreaYMax, z)
+						local vec3 = Vector(params.AreaXMax, params.AreaYMax, z)
+						local vec4 = Vector(params.AreaXMax, params.AreaYMin, z)
+						render.DrawLine(vec1, vec2, color, true)
+						render.DrawLine(vec2, vec3, color, true)
+						render.DrawLine(vec3, vec4, color, true)
+						render.DrawLine(vec4, vec1, color, true)
+						render.DrawLine(vec1, vec1 + Vector(0, 0, 10), color, true)
+						render.DrawLine(vec2, vec2 + Vector(0, 0, 10), color, true)
+						render.DrawLine(vec3, vec3 + Vector(0, 0, 10), color, true)
+						render.DrawLine(vec4, vec4 + Vector(0, 0, 10), color, true)
+						render.DrawLine(vec1, node.Pos + Vector(0, 0, 0.2), color, true)
+						render.DrawLine(vec2, node.Pos + Vector(0, 0, 0.2), color, true)
+						render.DrawLine(vec3, node.Pos + Vector(0, 0, 0.2), color, true)
+						render.DrawLine(vec4, node.Pos + Vector(0, 0, 0.2), color, true)
 					end
 				end
 			end)
