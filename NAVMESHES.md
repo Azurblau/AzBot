@@ -42,6 +42,7 @@
 | zs_imashouse_b2 | D3
 | [zs_infirmary](https://steamcommunity.com/sharedfiles/filedetails/?id=180922335) | D3 | Not compatible with v2, as the spawn is different |
 | [zs_jail_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=240000774) | D3
+| [zs_krusty_krab_large_v5](https://steamcommunity.com/sharedfiles/filedetails/?id=645191518) | D3
 | [zs_krusty_krab_v4](https://garrysmods.org/download/7190/zs-krusty-krab-v4zip) | D3 | [zs_krusty_krab_v3](https://garrysmods.org/download/1935/zs-krusty-krab-v3zip)
 | zs_lambdacore_opt | D3 | [zs_lambdacore, zs_lambdacore_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1327541254)
 | [zs_last_mansion_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=428782656) | Sulfito, D3
