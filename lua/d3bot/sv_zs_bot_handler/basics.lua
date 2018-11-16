@@ -33,7 +33,9 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	local aimStraight
 	if nodeOrNil and not nodeOrNil:GetContains(origin, nil) then aimStraight = true end
 	bot:D3bot_FaceTo(pos, origin, aimStraight and 1 or D3bot.BotAngLerpFactor, aimStraight and 0 or 1)
-	
+
+	--check if the bot needs to climb to this node
+	local shouldClimbTo = nodeOrNil and nextNodeOrNil and nextNodeOrNil.Params.ClimbTo == "Needed" and (nextNodeOrNil.Pos.z - nodeOrNil.Pos.z > D3bot.BotClimbHeightDifference) and true
 	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
 	local duckToParam = nextNodeOrNil and nextNodeOrNil.Params.DuckTo
 	local jumpParam = nodeOrNil and nodeOrNil.Params.Jump
@@ -54,8 +56,8 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 			actions.Attack = true
 		end
 	end
-	
-	local facesHindrance = bot:GetVelocity():Length2D() < 0.50 * speed - 10
+
+	local facesHindrance = not shouldClimbTo and bot:GetVelocity():Length2D() < 0.50 * speed - 10
 	local minorStuck, majorStuck = bot:D3bot_CheckStuck()
 	
 	if not facesHindrance then
@@ -68,7 +70,8 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	
 	if bot:GetMoveType() ~= MOVETYPE_LADDER then
 		if bot:IsOnGround() then
-			if jumpParam == "Always" or jumpToParam == "Always" then
+			-- if we are climbing, jump while we're on the ground
+			if shouldClimbTo or jumpParam == "Always" or jumpToParam == "Always" then
 				actions.Jump = true
 			end
 			if facesHindrance then
@@ -110,6 +113,10 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	if inTheAir then
 		--actions.Forward = false
 		--actions.Backward = false
+		if shouldClimbTo then
+			-- if we are airborne and should be climbing, try to climb the surface
+			actions.Attack2 = true
+		end
 		if math.random(2) == 1 then
 			actions.Right = true
 		else
@@ -166,7 +173,9 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	if aimPos then
 		bot:D3bot_FaceTo(aimPos, origin, D3bot.BotAttackAngLerpFactor, facesTgt and 0.2 or 1)
 	end
-	
+
+	--check if the bot needs to climb to this node
+	local shouldClimbTo = nodeOrNil and nextNodeOrNil and nextNodeOrNil.Params.ClimbTo == "Needed" and (nextNodeOrNil.Pos.z - nodeOrNil.Pos.z > D3bot.BotClimbHeightDifference) and true
 	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
 	local duckToParam = nextNodeOrNil and nextNodeOrNil.Params.DuckTo
 	local jumpParam = nodeOrNil and nodeOrNil.Params.Jump
@@ -184,8 +193,8 @@ function D3bot.Basics.WalkAttackAuto(bot)
 			actions.Attack = true
 		end
 	end
-	
-	local facesHindrance = bot:GetVelocity():Length2D() < 0.50 * speed - 10
+
+	local facesHindrance = not shouldClimbTo and bot:GetVelocity():Length2D() < 0.50 * speed - 10
 	local minorStuck, majorStuck = bot:D3bot_CheckStuck()
 	
 	if not facesHindrance then
@@ -198,7 +207,8 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	
 	if bot:GetMoveType() ~= MOVETYPE_LADDER then
 		if bot:IsOnGround() then
-			if jumpParam == "Always" or jumpToParam == "Always" then
+			-- if we are climbing, jump while we're on the ground
+			if shouldClimbTo or jumpParam == "Always" or jumpToParam == "Always" then
 				actions.Jump = true
 			end
 			if facesHindrance then
@@ -214,6 +224,10 @@ function D3bot.Basics.WalkAttackAuto(bot)
 				end
 			end
 		else
+			-- if we are airborne and should be climbing, try to climb the surface
+			if shouldClimbTo then
+				actions.Attack2 = true
+			end
 			actions.Duck = true
 		end
 	elseif minorStuck then
