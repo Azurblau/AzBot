@@ -22,7 +22,6 @@ D3bot.BotAimAngLerpFactor = 0.5
 D3bot.BotAimPosVelocityOffshoot = 0.4
 D3bot.BotJumpAntichance = 25
 D3bot.BotDuckAntichance = 25
-D3bot.BotClimbHeightDifference = 0 --how far a climb node should be above the other node to be require a climb action
 
 D3bot.ZombiesPerPlayer = 0.3
 D3bot.ZombiesPerPlayerMax = 2.0			-- Limits amount of zombies to this zombie/player ratio. (ZombiesCountAddition is not calculated in)

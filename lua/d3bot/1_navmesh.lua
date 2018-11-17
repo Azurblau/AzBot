@@ -42,7 +42,7 @@ return function(lib)
 			Direction = {"Forward", "Backward"},
 			Walking = {"Needed"},
 			Pouncing = {"Needed"},
-			ClimbTo = {"Needed"},
+			Climbing = {"Needed"},
 			DMGPerSecond = {},
 			BotMod = {} },
 		Replace = {

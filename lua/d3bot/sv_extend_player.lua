@@ -166,7 +166,7 @@ function meta:D3bot_UpdateAngsOffshoot(angOffshoot)
 	local mem = self.D3bot_Mem
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
-	if (nodeOrNil and nodeOrNil.Params.Aim == "Straight") or (nextNodeOrNil and (nextNodeOrNil.Params.AimTo == "Straight" or nextNodeOrNil.Params.ClimbTo == "Needed")) then
+	if (nodeOrNil and nodeOrNil.Params.Aim == "Straight") or (nextNodeOrNil and nextNodeOrNil.Params.AimTo == "Straight") then
 		mem.AngsOffshoot = Angle()
 		return
 	end
