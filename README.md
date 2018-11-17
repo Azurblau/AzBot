@@ -14,10 +14,11 @@ Here is a list of notable changes compared to the original version:
 - Bots now crouch when their target is low.
 - Prevent links linking a node to itself.
 - Github friendly navmesh format.
-- More example navmeshes, which make use of all the new features.
+- More example navmeshes, which make use of all the new features. See [NAVMESHES](NAVMESHES.md)
 - Survivor bots.
 - All settings in a separate lua file. (`sv_config.lua`)
 - Named bots (See `/lua/d3bot/names` to adjust or add new name lists)
+- Climbing bots. (Thanks to [orecros](https://github.com/orecros))
 - Some smaller things i possibly forgot.
 
 This fork is backward compatible, but there are some changes which prevents you to use navmeshes from this fork in the original version. To make them work just replace all occurences of `\n` with `;`.
@@ -108,7 +109,7 @@ Though I won't take measures against illegimate usage unless I have reasons to d
     - Cost: Add a penalty for paths using this node. Higher values makes it less likely for bots to use a path containing this node.
 	- Condition = Unblocked: Only use this node for pathfinding if there is no entity within a range of one inch. Detected entities are func_breakable, prop_physics, prop_dynamic, prop_door_rotating, func_door, func_physbox_multiplayer, func_movelinear.
 	- Condition = Blocked: Opposite of above. Use this for breakable pathways.
-    - DMGPerSecond: Apply damage to human players and entities located on this node. The player or entity doesn't need to be close to this node, but closest compared to all the other nodes.
+    - DMGPerSecond: Apply damage to human players and entities located on this node.
 	- BotMod: Once a non bot player passes this node, the given offset will be applied to the zombie count target. Useful to adjust the bot count on objective maps.
   - Link parameters:
     - Cost: Add a penalty for paths using this link. Higher values makes it less likely for bots to use a path containing this link.
