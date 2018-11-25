@@ -19,6 +19,8 @@ Here is a list of notable changes compared to the original version:
 - All settings in a separate lua file. (`sv_config.lua`)
 - Named bots (See `/lua/d3bot/names` to adjust or add new name lists)
 - Climbing bots. (Thanks to [orecros](https://github.com/orecros))
+- More advanced edit modes. (Thanks to necrossin)
+- Improved navmesh drawing.
 - Some smaller things i possibly forgot.
 
 This fork is backward compatible, but there are some changes which prevents you to use navmeshes from this fork in the original version. To make them work just replace all occurences of `\n` with `;`.
