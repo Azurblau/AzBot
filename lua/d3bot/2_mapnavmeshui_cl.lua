@@ -37,6 +37,8 @@ return function(lib)
 	local function isNodeIdVisible(id) return isNodeIdHighlightedOrSelected(id) or nodeVisualProperties[id] and not nodeVisualProperties[id].ShouldHide end
 	
 	function lib.SetIsMapNavMeshViewEnabled(bool)
+		local forceDrawInSkybox = false
+		local forceDrawInSkyboxCounter = 0
 		if isEnabled == bool then return end
 		isEnabled = bool
 		if isEnabled then
@@ -78,7 +80,15 @@ return function(lib)
 				
 			end)
 			hook.Add("PostDrawOpaqueRenderables", hooksId, function(bDrawingDepth, bDrawingSkybox)
-				if bDrawingSkybox then return end
+				if forceDrawInSkyboxCounter > 1 then
+					forceDrawInSkybox = true
+					print("D3bot: Force drawing of navmesh in skybox, it won't draw correctly otherwise.")
+				end
+				if not forceDrawInSkybox and bDrawingSkybox then
+					forceDrawInSkyboxCounter = forceDrawInSkyboxCounter + 1
+					return
+				end
+				forceDrawInSkyboxCounter = 0
 				local smartDraw = D3bot.Convar_Navmeshing_SmartDraw:GetBool()
 				local eyePos = EyePos()
 				render.SetColorMaterial()

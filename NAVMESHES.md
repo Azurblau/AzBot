@@ -16,7 +16,6 @@
 | [zs_alexg_motel](https://steamcommunity.com/sharedfiles/filedetails/?id=603145540) | Sulfito
 | [zs_ambush](https://steamcommunity.com/sharedfiles/filedetails/?id=183439047) | Sulfito
 | [zs_ambush_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=181039035) | Sulfito
-| [zs_ancient_sand_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=341489111) | Sulfito
 | [zs_antarctic_hospital](https://steamcommunity.com/workshop/filedetails/?id=332228832) | D3
 | zs_apex_v3 | D3 | Works with v2 | Map not released yet
 | [zs_arctic_cave](https://steamcommunity.com/sharedfiles/filedetails/?id=431856764) | Sulfito
@@ -52,7 +51,7 @@
 | zs_lost_coast_house_v3 | D3
 | [zs_marsh_opt](https://steamcommunity.com/sharedfiles/filedetails/?id=129979142) | Sulfito
 | [zs_minecraft_oasis_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=530017496) | Sulfito
-| [zs_muhosransk_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=659670860) | Sulfito
+| [zs_muhosransk_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=659670860) | D3
 | zs_nastyhouse_v3 | D3
 | zs_natalyas_cottage_v2 | Sulfito
 | [zs_obj_827_to_phoenix_v8](https://steamcommunity.com/sharedfiles/filedetails/?id=586931772) | Sulfito
