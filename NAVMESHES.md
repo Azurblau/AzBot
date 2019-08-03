@@ -51,6 +51,7 @@
 | zs_lost_coast_house_v3 | D3
 | [zs_marsh_opt](https://steamcommunity.com/sharedfiles/filedetails/?id=129979142) | Sulfito
 | [zs_minecraft_oasis_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=530017496) | Sulfito
+| [zs_mlt_defense_v2_d2](https://steamcommunity.com/sharedfiles/filedetails/?id=1191699510) | [Blueberryy](https://github.com/Blueberryy)
 | [zs_muhosransk_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=659670860) | D3
 | zs_nastyhouse_v3 | D3
 | zs_natalyas_cottage_v2 | Sulfito
@@ -79,4 +80,3 @@
 | [zs_woodhouse_rain](https://steamcommunity.com/sharedfiles/filedetails/?id=269921567) | Sulfito
 | [zs_zombie_village](https://garrysmods.org/download/45814/zs-zombie-villagezip) | D3
 | zs_zombie_village_v3 | D3 | | Same as zs_zombie_village, but with a ladder near spawn
-| [zs_mlt_defense_v2_d2](https://steamcommunity.com/sharedfiles/filedetails/?id=1191699510) | [Blueberryy](https://github.com/Blueberryy)
