@@ -80,3 +80,6 @@
 | [zs_zombie_village](https://garrysmods.org/download/45814/zs-zombie-villagezip) | D3
 | zs_zombie_village_v3 | D3 | | Same as zs_zombie_village, but with a ladder near spawn
 | [zs_mlt_defense_v2_d2](https://steamcommunity.com/sharedfiles/filedetails/?id=1191699510) | [Blueberryy](https://github.com/Blueberryy)
+| [zs_base_survival](https://steamcommunity.com/sharedfiles/filedetails/?id=923496526) | [Blueberryy](https://github.com/Blueberryy)
+| [zs_lambdacore_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1327541254) | [Blueberryy](https://github.com/Blueberryy)
+| [zs_fog_village_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=267812008) | [Blueberryy](https://github.com/Blueberryy)
