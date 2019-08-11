@@ -83,3 +83,4 @@
 | [zs_base_survival](https://steamcommunity.com/sharedfiles/filedetails/?id=923496526) | [Blueberryy](https://github.com/Blueberryy)
 | [zs_lambdacore_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1327541254) | [Blueberryy](https://github.com/Blueberryy)
 | [zs_fog_village_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=267812008) | [Blueberryy](https://github.com/Blueberryy)
+| [zs_deepfreeze_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=465881918) | [Blueberryy](https://github.com/Blueberryy)
