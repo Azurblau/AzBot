@@ -80,7 +80,6 @@
 | [zs_woodhouse_rain](https://steamcommunity.com/sharedfiles/filedetails/?id=269921567) | Sulfito
 | [zs_zombie_village](https://garrysmods.org/download/45814/zs-zombie-villagezip) | D3
 | zs_zombie_village_v3 | D3 | | Same as zs_zombie_village, but with a ladder near spawn
-
 | [zs_mlt_defense_v2_d2](https://steamcommunity.com/sharedfiles/filedetails/?id=1191699510) | [Blueberryy](https://github.com/Blueberryy)
 | [zs_base_survival](https://steamcommunity.com/sharedfiles/filedetails/?id=923496526) | [Blueberryy](https://github.com/Blueberryy)
 | [zs_lambdacore_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1327541254) | [Blueberryy](https://github.com/Blueberryy)
@@ -93,3 +92,7 @@
 | [zs_sludge](https://steamcommunity.com/sharedfiles/filedetails/?id=323893414) | [Blueberryy](https://github.com/Blueberryy)
 | [zs_botsity](https://steamcommunity.com/sharedfiles/filedetails/?id=759885233) | [Blueberryy](https://github.com/Blueberryy)
 | [zs_snow](https://steamcommunity.com/sharedfiles/filedetails/?id=269920456) | [Blueberryy](https://github.com/Blueberryy)
+| [zs_biolab_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=486459911) | [Blueberryy](https://github.com/Blueberryy)
+| [zs_cleanoffice_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=118656242) | [Blueberryy](https://github.com/Blueberryy)
+| [zs_despair](https://steamcommunity.com/sharedfiles/filedetails/?id=180575524) | [Blueberryy](https://github.com/Blueberryy)
+| [zs_dl_powercliff](https://steamcommunity.com/sharedfiles/filedetails/?id=386397916) | [Blueberryy](https://github.com/Blueberryy)
