@@ -1,4 +1,4 @@
-## Navmeshes
+# Navmeshes
 
 | Map | Creators & Contributors | Compatibility | Comment
 | --- | ----------------------- | ------------- | -------
@@ -21,29 +21,48 @@
 | [zs_arctic_cave](https://steamcommunity.com/sharedfiles/filedetails/?id=431856764) | Sulfito
 | zs_asylum_v6 | D3 | There are too many different versions
 | [zs_barren](https://steamcommunity.com/sharedfiles/filedetails/?id=181159944) | Sulfito
+| [zs_base_survival](https://steamcommunity.com/sharedfiles/filedetails/?id=923496526) | [Blueberryy]
+| [zs_biolab_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=486459911) | [Blueberryy]
+| [zs_botsity](https://steamcommunity.com/sharedfiles/filedetails/?id=759885233) | [Blueberryy]
+| [zs_buntshot](https://steamcommunity.com/sharedfiles/filedetails/?id=1453018665) | [Blueberryy]
 | [zs_cabin_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=266230437) | D3
 | zs_cabin_v3 | D3
-| zs_cadingpractice | [Blueberryy](https://github.com/Blueberryy)
+| zs_cadingpractice | [Blueberryy]
+| [zs_castle_keep](https://steamcommunity.com/sharedfiles/filedetails/?id=316514854) | [Blueberryy]
+| [zs_castle_keep_snowy](https://steamcommunity.com/sharedfiles/filedetails/?id=340180450) | [Blueberryy]
 | zs_chaste_v2 | D3 | | Not tested yet
 | [zs_city_14_fixed](https://steamcommunity.com/sharedfiles/filedetails/?id=270224423) | Sulfito
+| [zs_clav_wall](https://steamcommunity.com/sharedfiles/filedetails/?id=172052373) | [Blueberryy]
+| [zs_cleanoffice_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=118656242) | [Blueberryy]
+| [zs_concretebunker11](https://steamcommunity.com/sharedfiles/filedetails/?id=1220974093) | [Blueberryy]
 | [zs_darkside](https://steamcommunity.com/sharedfiles/filedetails/?id=325848556) | Sulfito
+| [zs_dead_complex_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=177974702) | [Blueberryy]
+| [zs_deepfreeze_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=465881918) | [Blueberryy]
 | zs_deserted | Sulfito
+| [zs_despair](https://steamcommunity.com/sharedfiles/filedetails/?id=180575524) | [Blueberryy]
+| [zs_dl_powercliff](https://steamcommunity.com/sharedfiles/filedetails/?id=386397916) | [Blueberryy]
 | [zs_dockhouse](https://steamcommunity.com/sharedfiles/filedetails/?id=302261460) | Sulfito
 | [zs_dryfield_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=199261089) | Sulfito
+| [zs_experience](https://steamcommunity.com/sharedfiles/filedetails/?id=644750894) | [Blueberryy]
 | [zs_farmhouse_fixed](https://steamcommunity.com/sharedfiles/filedetails/?id=183438832) | D3
 | [zs_farmhouse_night_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1510172478) | D3
 | [zs_final_destination_v3](https://garrysmods.org/download/11146/zs-final-destination-v3zip) | D3 | Works with all open space maps, that have no obstacles! | Most complex navmesh ever done!
 | [zs_fog_village](https://steamcommunity.com/sharedfiles/filedetails/?id=267812008) | Sulfito
+| [zs_fog_village_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=267812008) | [Blueberryy]
 | zs_forestofthedamned_2010 | D3
 | [zs_forlornbunker_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=908006837) | Sulfito
 | zs_frozen_v3 | Sulfito
+| [zs_hospital](https://steamcommunity.com/sharedfiles/filedetails/?id=260018426) | [Blueberryy]
 | [zs_house_outbreak_fixed_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=183438748) | Sulfito
+| [zs_houseparty](https://steamcommunity.com/sharedfiles/filedetails/?id=315858994) | [Blueberryy]
+| [zs_illuminati_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=446416905) | [Blueberryy]
 | zs_imashouse_b2 | D3
 | [zs_infirmary](https://steamcommunity.com/sharedfiles/filedetails/?id=180922335) | D3 | Not compatible with v2, as the spawn is different |
 | [zs_jail_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=240000774) | D3
 | [zs_krusty_krab_large_v5](https://steamcommunity.com/sharedfiles/filedetails/?id=645191518) | D3
 | [zs_krusty_krab_v4](https://garrysmods.org/download/7190/zs-krusty-krab-v4zip) | D3 | [zs_krusty_krab_v3](https://garrysmods.org/download/1935/zs-krusty-krab-v3zip)
 | zs_lambdacore_opt | D3 | [zs_lambdacore, zs_lambdacore_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1327541254)
+| [zs_lambdacore_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1327541254) | [Blueberryy]
 | [zs_last_mansion_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=428782656) | Sulfito, D3
 | [zs_lighthouse_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=180853396) | D3 | Probably works with zs_lighthouse, but not with zs_lighthouse_v2b1 and newer
 | zs_lockup_v2 | Sulfito
@@ -51,7 +70,7 @@
 | zs_lost_coast_house_v3 | D3
 | [zs_marsh_opt](https://steamcommunity.com/sharedfiles/filedetails/?id=129979142) | Sulfito
 | [zs_minecraft_oasis_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=530017496) | Sulfito
-| [zs_mlt_defense_v2_d2](https://steamcommunity.com/sharedfiles/filedetails/?id=1191699510) | [Blueberryy](https://github.com/Blueberryy)
+| [zs_mlt_defense_v2_d2](https://steamcommunity.com/sharedfiles/filedetails/?id=1191699510) | [Blueberryy]
 | [zs_muhosransk_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=659670860) | D3
 | zs_nastyhouse_v3 | D3
 | zs_natalyas_cottage_v2 | Sulfito
@@ -68,46 +87,28 @@
 | [zs_pub](https://steamcommunity.com/sharedfiles/filedetails/?id=266568628&searchtext=) | D3
 | zs_raunchierhouse_fixed2 | D3
 | [zs_raunchyhouse_opt_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=183229695) | Sulfito
-| [zs_serious_sam_arena_v13a](https://steamcommunity.com/sharedfiles/filedetails/?id=1084439626) | [Blueberryy](https://github.com/Blueberryy), TheFray | Probably also works with zs_serious_sam_arena_v11a
+| [zs_sector7](https://steamcommunity.com/sharedfiles/filedetails/?id=584824714) | [Blueberryy]
+| [zs_serious_sam_arena_v13a](https://steamcommunity.com/sharedfiles/filedetails/?id=1084439626) | [Blueberryy], TheFray | Probably also works with zs_serious_sam_arena_v11a
+| [zs_sludge](https://steamcommunity.com/sharedfiles/filedetails/?id=323893414) | [Blueberryy]
 | [zs_small_river_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=775667032) | Sulfito
+| [zs_snow](https://steamcommunity.com/sharedfiles/filedetails/?id=269920456) | [Blueberryy]
 | [zs_snowy_castle](https://steamcommunity.com/sharedfiles/filedetails/?id=320213706) | D3 | zs_snowycastle_v3 differs too much
+| [zs_square](https://steamcommunity.com/sharedfiles/filedetails/?id=618778993) | [Blueberryy]
 | [zs_stormier_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=157194940) | Sulfito
+| [zs_subversive_1](https://steamcommunity.com/sharedfiles/filedetails/?id=181260977) | [Blueberryy]
+| [zs_subversive_2_fix](https://steamcommunity.com/sharedfiles/filedetails/?id=181263962) | [Blueberryy]
+| [zs_subversive_part3_fix](https://steamcommunity.com/sharedfiles/filedetails/?id=181269286) | [Blueberryy]
+| [zs_subversive_part4_fix2](https://steamcommunity.com/sharedfiles/filedetails/?id=181277919) | [Blueberryy]
+| [zs_subway_v9](https://steamcommunity.com/sharedfiles/filedetails/?id=960750746) | [Blueberryy]
+| [zs_survivor_house](https://steamcommunity.com/sharedfiles/filedetails/?id=681410236) | [Blueberryy]
 | [zs_swimming_pool_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=154887708) | Sulfito
 | [zs_the_pub_final7](https://steamcommunity.com/sharedfiles/filedetails/?id=542535318) | Sulfito
 | [zs_uglyfort_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=540775145) | Sulfito
+| [zs_underthebunker_v2a](https://steamcommunity.com/sharedfiles/filedetails/?id=224809252) | [Blueberryy]
 | [zs_vault_106_v7](https://steamcommunity.com/sharedfiles/filedetails/?id=1271717550) | Sulfito
 | [zs_villagehouse](https://steamcommunity.com/sharedfiles/filedetails/?id=941065931) | [Azurblau](https://github.com/Azurblau)
 | [zs_woodhouse_rain](https://steamcommunity.com/sharedfiles/filedetails/?id=269921567) | Sulfito
 | [zs_zombie_village](https://garrysmods.org/download/45814/zs-zombie-villagezip) | D3
 | zs_zombie_village_v3 | D3 | | Same as zs_zombie_village, but with a ladder near spawn
-| [zs_mlt_defense_v2_d2](https://steamcommunity.com/sharedfiles/filedetails/?id=1191699510) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_base_survival](https://steamcommunity.com/sharedfiles/filedetails/?id=923496526) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_lambdacore_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1327541254) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_fog_village_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=267812008) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_deepfreeze_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=465881918) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_survivor_house](https://steamcommunity.com/sharedfiles/filedetails/?id=681410236) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_sector7](https://steamcommunity.com/sharedfiles/filedetails/?id=584824714) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_houseparty](https://steamcommunity.com/sharedfiles/filedetails/?id=315858994) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_hospital](https://steamcommunity.com/sharedfiles/filedetails/?id=260018426) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_sludge](https://steamcommunity.com/sharedfiles/filedetails/?id=323893414) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_botsity](https://steamcommunity.com/sharedfiles/filedetails/?id=759885233) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_snow](https://steamcommunity.com/sharedfiles/filedetails/?id=269920456) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_biolab_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=486459911) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_cleanoffice_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=118656242) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_despair](https://steamcommunity.com/sharedfiles/filedetails/?id=180575524) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_dl_powercliff](https://steamcommunity.com/sharedfiles/filedetails/?id=386397916) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_subversive_1](https://steamcommunity.com/sharedfiles/filedetails/?id=181260977) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_subversive_2_fix](https://steamcommunity.com/sharedfiles/filedetails/?id=181263962) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_subversive_part3_fix](https://steamcommunity.com/sharedfiles/filedetails/?id=181269286) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_subversive_part4_fix2](https://steamcommunity.com/sharedfiles/filedetails/?id=181277919) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_concretebunker11](https://steamcommunity.com/sharedfiles/filedetails/?id=1220974093) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_buntshot](https://steamcommunity.com/sharedfiles/filedetails/?id=1453018665) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_castle_keep](https://steamcommunity.com/sharedfiles/filedetails/?id=316514854) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_castle_keep_snowy](https://steamcommunity.com/sharedfiles/filedetails/?id=340180450) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_clav_wall](https://steamcommunity.com/sharedfiles/filedetails/?id=172052373) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_dead_complex_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=177974702) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_experience](https://steamcommunity.com/sharedfiles/filedetails/?id=644750894) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_illuminati_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=446416905) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_square](https://steamcommunity.com/sharedfiles/filedetails/?id=618778993) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_subway_v9](https://steamcommunity.com/sharedfiles/filedetails/?id=960750746) | [Blueberryy](https://github.com/Blueberryy)
-| [zs_underthebunker_v2a](https://steamcommunity.com/sharedfiles/filedetails/?id=224809252) | [Blueberryy](https://github.com/Blueberryy)
+
+[Blueberryy]: https://github.com/Blueberryy
