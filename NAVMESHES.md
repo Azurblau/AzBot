@@ -39,6 +39,8 @@
 | zs_chaste_v2 | D3 | | Not tested yet
 | [zs_city_14_fixed](https://steamcommunity.com/sharedfiles/filedetails/?id=270224423) | Sulfito
 | [zs_city_underfall](https://steamcommunity.com/sharedfiles/filedetails/?id=1210905573) | [Blueberryy]
+| zs_chaste_v2 | D3 | | Not tested yet
+| [zs_city_14_fixed](https://steamcommunity.com/sharedfiles/filedetails/?id=270224423) | Sulfito
 | [zs_clav_wall](https://steamcommunity.com/sharedfiles/filedetails/?id=172052373) | [Blueberryy]
 | [zs_cleanoffice_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=118656242) | [Blueberryy]
 | [zs_concretebunker11](https://steamcommunity.com/sharedfiles/filedetails/?id=1220974093) | [Blueberryy]
