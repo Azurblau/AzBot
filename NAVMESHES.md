@@ -90,13 +90,18 @@
 | zs_nastyhouse_v3 | D3
 | zs_natalyas_cottage_v2 | Sulfito
 | [zs_obj_827_to_phoenix_v8](https://steamcommunity.com/sharedfiles/filedetails/?id=586931772) | Sulfito
+| [zs_obj_bluevelvet_v4](https://steamcommunity.com/sharedfiles/filedetails/?id=210959454) | [Blueberryy]
 | [zs_obj_dump_v14](https://steamcommunity.com/sharedfiles/filedetails/?id=112595416) | D3 | Should also work with v10 - v13 |
 | zs_obj_enervation_v17 | D3 | Works with [v16](https://steamcommunity.com/sharedfiles/filedetails/?id=812163491) and probably older versions
+| [zs_obj_escapecity17_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=755129901) | [Blueberryy]
 | [zs_obj_gauntlet_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=129036224) | D3
 | [zs_obj_lambdacore_v21](https://steamcommunity.com/sharedfiles/filedetails/?id=644445805) | D3 | Should also work with v17 - v20
+| [zs_obj_minecave](https://steamcommunity.com/sharedfiles/filedetails/?id=345214265) | [Blueberryy]
 | [zs_obj_pharmacy_v24](https://steamcommunity.com/sharedfiles/filedetails/?id=1094255438) | Sulfito
 | [zs_obj_tantibus_v9](http://zsr.site.nfoservers.com/server/maps/zs_obj_tantibus_v9.bsp.bz2) | D3 | Should also work with v7, v8
 | zs_obj_tna_croak | D3
+| [zs_obj_upward_v23](https://steamcommunity.com/sharedfiles/filedetails/?id=644470714) | [Blueberryy]
+| [zs_obj_vertigo_v25](https://steamcommunity.com/sharedfiles/filedetails/?id=160096524) | [Blueberryy]
 | [zs_onett_v6](https://steamcommunity.com/sharedfiles/filedetails/?id=620613205) | Sulfito
 | [zs_pathogen](https://steamcommunity.com/sharedfiles/filedetails/?id=292859426) | [Blueberryy]
 | [zs_pinolab](https://steamcommunity.com/sharedfiles/filedetails/?id=783863075) | Sulfito
