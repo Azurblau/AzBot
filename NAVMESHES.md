@@ -122,6 +122,7 @@
 | [zs_raunchyhouse_opt_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=183229695) | Sulfito
 | [zs_ravine](https://steamcommunity.com/sharedfiles/filedetails/?id=261265554) | [Blueberryy]
 | [zs_scrapvile_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1422084631) | [Blueberryy]
+| [zs_scrapyard](https://steamcommunity.com/sharedfiles/filedetails/?id=181168111) | [Blueberryy]
 | [zs_sector7](https://steamcommunity.com/sharedfiles/filedetails/?id=584824714) | [Blueberryy]
 | [zs_serious_sam_arena_v13a](https://steamcommunity.com/sharedfiles/filedetails/?id=1084439626) | [Blueberryy], TheFray | Probably also works with zs_serious_sam_arena_v11a
 | [zs_sludge](https://steamcommunity.com/sharedfiles/filedetails/?id=323893414) | [Blueberryy]
