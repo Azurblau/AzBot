@@ -44,8 +44,6 @@
 | [zs_city_14_fixed](https://steamcommunity.com/sharedfiles/filedetails/?id=270224423) | Sulfito
 | [zs_city_underfall](https://steamcommunity.com/sharedfiles/filedetails/?id=1210905573) | [Blueberryy]
 | [zs_classics](https://steamcommunity.com/sharedfiles/filedetails/?id=440327301) | [Blueberryy]
-| zs_chaste_v2 | D3 | | Not tested yet
-| [zs_city_14_fixed](https://steamcommunity.com/sharedfiles/filedetails/?id=270224423) | Sulfito
 | [zs_clav_wall](https://steamcommunity.com/sharedfiles/filedetails/?id=172052373) | [Blueberryy]
 | [zs_cleanoffice_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=118656242) | [Blueberryy]
 | [zs_combine_survaivl](https://steamcommunity.com/sharedfiles/filedetails/?id=1113175801) | [Blueberryy]
@@ -54,7 +52,7 @@
 | [zs_darkvilla](https://steamcommunity.com/sharedfiles/filedetails/?id=181243662) | [Blueberryy]
 | [zs_darkvilla_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=181247473) | [Blueberryy]
 | [zs_dead_complex_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=177974702) | [Blueberryy]
-| [zs_deadstop](https://steamcommunity.com/sharedfiles/filedetails/?id=1399810378) | [Blueberryy] | Need improve fast zombie paths
+| [zs_deadstop](https://steamcommunity.com/sharedfiles/filedetails/?id=1399810378) | [Blueberryy] | | Need improve fast zombie paths
 | [zs_deathsand](https://steamcommunity.com/sharedfiles/filedetails/?id=1111304166) | [Blueberryy]
 | [zs_deepfreeze_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=465881918) | [Blueberryy]
 | zs_deserted | Sulfito
