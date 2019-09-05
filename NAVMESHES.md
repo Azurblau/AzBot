@@ -8,6 +8,7 @@
 | [ze_ffvii_mako_reactor_v5_3](https://gamebanana.com/maps/143887) | D3
 | ze_ffvii_temple_ancient_v3_3 | D3 | | Map is not winnable in normal ZS
 | [ze_pidaras_v1_4fix3](https://steamcommunity.com/sharedfiles/filedetails/?id=1083196334) | D3
+| [zs_3rdstreet](https://steamcommunity.com/sharedfiles/filedetails/?id=797891351) | [Blueberryy]
 | [zs_abandon_factory_redone](https://steamcommunity.com/sharedfiles/filedetails/?id=368952915) | D3
 | [zs_abandoned_mall_v9](https://steamcommunity.com/sharedfiles/filedetails/?id=1084464522) | D3 | Should work with [v10](https://steamcommunity.com/sharedfiles/filedetails/?id=620319122)
 | [zs_abandoned_subway](https://steamcommunity.com/sharedfiles/filedetails/?id=313489911) | Sulfito
@@ -26,27 +27,33 @@
 | [zs_barren](https://steamcommunity.com/sharedfiles/filedetails/?id=181159944) | Sulfito
 | [zs_base_survival](https://steamcommunity.com/sharedfiles/filedetails/?id=923496526) | [Blueberryy]
 | [zs_biolab_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=486459911) | [Blueberryy]
+| [zs_bloody_arena_1v1](https://steamcommunity.com/sharedfiles/filedetails/?id=176561630) | [Blueberryy]
 | [zs_botsity](https://steamcommunity.com/sharedfiles/filedetails/?id=759885233) | [Blueberryy]
 | [zs_boxco](https://steamcommunity.com/sharedfiles/filedetails/?id=1192815414) | [Blueberryy]
+| [zs_bunker_fixed_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=180897118) | [Blueberryy]
 | [zs_buntshot](https://steamcommunity.com/sharedfiles/filedetails/?id=1453018665) | [Blueberryy]
+| [zs_burried_office](https://steamcommunity.com/sharedfiles/filedetails/?id=177318240) | [Blueberryy]
 | [zs_cabin_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=266230437) | D3
 | zs_cabin_v3 | D3
 | zs_cadingpractice | [Blueberryy]
 | [zs_castle_keep](https://steamcommunity.com/sharedfiles/filedetails/?id=316514854) | [Blueberryy]
 | [zs_castle_keep_snowy](https://steamcommunity.com/sharedfiles/filedetails/?id=340180450) | [Blueberryy]
 | [zs_castle_mortis](https://steamcommunity.com/sharedfiles/filedetails/?id=833071229) | [Blueberryy]
+| [zs_cavecomplex_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=278418169) | [Blueberryy]
 | zs_chaste_v2 | D3 | | Not tested yet
 | [zs_city_14_fixed](https://steamcommunity.com/sharedfiles/filedetails/?id=270224423) | Sulfito
 | [zs_city_underfall](https://steamcommunity.com/sharedfiles/filedetails/?id=1210905573) | [Blueberryy]
-| zs_chaste_v2 | D3 | | Not tested yet
-| [zs_city_14_fixed](https://steamcommunity.com/sharedfiles/filedetails/?id=270224423) | Sulfito
+| [zs_classics](https://steamcommunity.com/sharedfiles/filedetails/?id=440327301) | [Blueberryy]
 | [zs_clav_wall](https://steamcommunity.com/sharedfiles/filedetails/?id=172052373) | [Blueberryy]
 | [zs_cleanoffice_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=118656242) | [Blueberryy]
+| [zs_combine_survaivl](https://steamcommunity.com/sharedfiles/filedetails/?id=1113175801) | [Blueberryy]
 | [zs_concretebunker11](https://steamcommunity.com/sharedfiles/filedetails/?id=1220974093) | [Blueberryy]
 | [zs_darkside](https://steamcommunity.com/sharedfiles/filedetails/?id=325848556) | Sulfito
 | [zs_darkvilla](https://steamcommunity.com/sharedfiles/filedetails/?id=181243662) | [Blueberryy]
 | [zs_darkvilla_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=181247473) | [Blueberryy]
 | [zs_dead_complex_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=177974702) | [Blueberryy]
+| [zs_deadstop](https://steamcommunity.com/sharedfiles/filedetails/?id=1399810378) | [Blueberryy] | | Need improve fast zombie paths
+| [zs_deathsand](https://steamcommunity.com/sharedfiles/filedetails/?id=1111304166) | [Blueberryy]
 | [zs_deepfreeze_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=465881918) | [Blueberryy]
 | zs_deserted | Sulfito
 | [zs_despair](https://steamcommunity.com/sharedfiles/filedetails/?id=180575524) | [Blueberryy]
@@ -66,6 +73,7 @@
 | zs_frozen_v3 | Sulfito
 | [zs_healthcare](https://steamcommunity.com/sharedfiles/filedetails/?id=1763061391) | [Blueberryy]
 | [zs_hospital](https://steamcommunity.com/sharedfiles/filedetails/?id=260018426) | [Blueberryy]
+| [zs_house](https://steamcommunity.com/sharedfiles/filedetails/?id=365309305) | [Blueberryy]
 | [zs_house_outbreak_fixed_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=183438748) | Sulfito
 | [zs_houseparty](https://steamcommunity.com/sharedfiles/filedetails/?id=315858994) | [Blueberryy]
 | [zs_illuminati_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=446416905) | [Blueberryy]
@@ -79,6 +87,7 @@
 | zs_lambdacore_opt | D3 | [zs_lambdacore, zs_lambdacore_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1327541254)
 | [zs_lambdacore_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1327541254) | [Blueberryy]
 | [zs_last_mansion_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=428782656) | Sulfito, D3
+| [zs_leftovers](https://steamcommunity.com/sharedfiles/filedetails/?id=1220955815) | [Blueberryy]
 | [zs_lighthouse_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=180853396) | D3 | Probably works with zs_lighthouse, but not with zs_lighthouse_v2b1 and newer
 | zs_lockup_v2 | Sulfito
 | zs_lost_coast_house_fixed_v2 | D3 | Should work with [zs_lost_coast_house_v2](https://garrysmods.org/download/9841/zs-lost-coast-house-v2) too
@@ -90,24 +99,35 @@
 | zs_nastyhouse_v3 | D3
 | zs_natalyas_cottage_v2 | Sulfito
 | [zs_obj_827_to_phoenix_v8](https://steamcommunity.com/sharedfiles/filedetails/?id=586931772) | Sulfito
+| [zs_obj_bluevelvet_v4](https://steamcommunity.com/sharedfiles/filedetails/?id=210959454) | [Blueberryy]
 | [zs_obj_dump_v14](https://steamcommunity.com/sharedfiles/filedetails/?id=112595416) | D3 | Should also work with v10 - v13 |
 | zs_obj_enervation_v17 | D3 | Works with [v16](https://steamcommunity.com/sharedfiles/filedetails/?id=812163491) and probably older versions
+| [zs_obj_escapecity17_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=755129901) | [Blueberryy]
 | [zs_obj_gauntlet_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=129036224) | D3
 | [zs_obj_lambdacore_v21](https://steamcommunity.com/sharedfiles/filedetails/?id=644445805) | D3 | Should also work with v17 - v20
+| [zs_obj_minecave](https://steamcommunity.com/sharedfiles/filedetails/?id=345214265) | [Blueberryy]
 | [zs_obj_pharmacy_v24](https://steamcommunity.com/sharedfiles/filedetails/?id=1094255438) | Sulfito
 | [zs_obj_tantibus_v9](http://zsr.site.nfoservers.com/server/maps/zs_obj_tantibus_v9.bsp.bz2) | D3 | Should also work with v7, v8
 | zs_obj_tna_croak | D3
+| [zs_obj_upward_v23](https://steamcommunity.com/sharedfiles/filedetails/?id=644470714) | [Blueberryy]
+| [zs_obj_vertigo_v25](https://steamcommunity.com/sharedfiles/filedetails/?id=160096524) | [Blueberryy]
 | [zs_onett_v6](https://steamcommunity.com/sharedfiles/filedetails/?id=620613205) | Sulfito
 | [zs_pathogen](https://steamcommunity.com/sharedfiles/filedetails/?id=292859426) | [Blueberryy]
 | [zs_pinolab](https://steamcommunity.com/sharedfiles/filedetails/?id=783863075) | Sulfito
+| [zs_plague](https://steamcommunity.com/sharedfiles/filedetails/?id=271666402) | [Blueberryy]
 | [zs_port_v5](https://steamcommunity.com/sharedfiles/filedetails/?id=266257044) | [Blueberryy] | Should also work with v4
+| [zs_portal_complex](https://steamcommunity.com/sharedfiles/filedetails/?id=1116522560) | [Blueberryy]
 | [zs_pub](https://steamcommunity.com/sharedfiles/filedetails/?id=266568628&searchtext=) | D3
 | zs_raunchierhouse_fixed2 | D3
 | [zs_raunchyhouse_opt_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=183229695) | Sulfito
+| [zs_ravine](https://steamcommunity.com/sharedfiles/filedetails/?id=261265554) | [Blueberryy]
+| [zs_scrapvile_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1422084631) | [Blueberryy]
+| [zs_scrapyard](https://steamcommunity.com/sharedfiles/filedetails/?id=181168111) | [Blueberryy]
 | [zs_sector7](https://steamcommunity.com/sharedfiles/filedetails/?id=584824714) | [Blueberryy]
 | [zs_serious_sam_arena_v13a](https://steamcommunity.com/sharedfiles/filedetails/?id=1084439626) | [Blueberryy], TheFray | Probably also works with zs_serious_sam_arena_v11a
 | [zs_sludge](https://steamcommunity.com/sharedfiles/filedetails/?id=323893414) | [Blueberryy]
 | [zs_small_river_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=775667032) | Sulfito
+| [zs_sniperfire_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=1390040927) | [Blueberryy]
 | [zs_snow](https://steamcommunity.com/sharedfiles/filedetails/?id=269920456) | [Blueberryy]
 | [zs_snowy_castle](https://steamcommunity.com/sharedfiles/filedetails/?id=320213706) | D3 | zs_snowycastle_v3 differs too much
 | [zs_splinter_final](https://steamcommunity.com/sharedfiles/filedetails/?id=180155305) | [Blueberryy]
@@ -128,6 +148,7 @@
 | [zs_vault_106_v7](https://steamcommunity.com/sharedfiles/filedetails/?id=1271717550) | Sulfito
 | [zs_villagehouse](https://steamcommunity.com/sharedfiles/filedetails/?id=941065931) | [Azurblau](https://github.com/Azurblau)
 | [zs_woodhouse_rain](https://steamcommunity.com/sharedfiles/filedetails/?id=269921567) | Sulfito
+| [zs_zaplavit_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=1394687578) | [Blueberryy]
 | [zs_zombie_village](https://garrysmods.org/download/45814/zs-zombie-villagezip) | D3
 | zs_zombie_village_v3 | D3 | | Same as zs_zombie_village, but with a ladder near spawn
 
