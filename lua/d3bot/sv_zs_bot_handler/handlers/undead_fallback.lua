@@ -12,6 +12,10 @@ HANDLER.BotClasses = {
 	"Poison Zombie", "Poison Zombie", "Poison Zombie",
 	"Zombine", "Zombine", "Zombine", "Zombine", "Zombine"
 }
+HANDLER.RandomSecondaryAttack = {
+	Ghoul = {MinTime = 5, MaxTime = 7}
+	--["Poison Zombie"] = {MinTime = 5, MaxTime = 7} -- Slows them too much
+}
 
 HANDLER.Fallback = true
 function HANDLER.SelectorFunction(zombieClassName, team)
@@ -41,6 +45,17 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 		result, actions, forwardSpeed, sideSpeed, upSpeed, aimAngle, minorStuck, majorStuck, facesHindrance = D3bot.Basics.WalkAttackAuto(bot)
 		if not result then
 			return
+		end
+	end
+
+	-- Simple hack for throwing poison randomly TODO: Only throw if possible target is close enough. Aiming. Timing.
+	local secAttack = HANDLER.RandomSecondaryAttack[GAMEMODE.ZombieClasses[bot:GetZombieClass()].Name]
+	if secAttack then
+		local mem = bot.D3bot_Mem
+		if not mem.NextThrowPoisonTime or mem.NextThrowPoisonTime <= CurTime() then
+			mem.NextThrowPoisonTime = CurTime() + secAttack.MinTime + math.random() * (secAttack.MaxTime - secAttack.MinTime)
+			actions = actions or {}
+			actions.Attack2 = true
 		end
 	end
 	
