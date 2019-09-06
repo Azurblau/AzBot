@@ -18,7 +18,7 @@
 | [zs_ambush](https://steamcommunity.com/sharedfiles/filedetails/?id=183439047) | Sulfito
 | [zs_ambush_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=181039035) | Sulfito
 | [zs_antarctic_hospital](https://steamcommunity.com/workshop/filedetails/?id=332228832) | D3
-| [zs_apex_v3](https://git.d3nexus.de/Dadido3/zs_apex/releases/download/v3/zs_apex_v3.7z) | D3 | Works with v2 | Map not released on steam workshop, yet
+| [zs_apex_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=1855660598) | D3 | Works with v2 | [Download bsp here](https://git.d3nexus.de/Dadido3/zs_apex/releases/download/v3/zs_apex_v3.7z)
 | [zs_aquabase](https://steamcommunity.com/sharedfiles/filedetails/?id=899241331) | [Blueberryy]
 | [zs_arctic_cave](https://steamcommunity.com/sharedfiles/filedetails/?id=431856764) | Sulfito
 | [zs_arena](https://steamcommunity.com/sharedfiles/filedetails/?id=707882905) | [Blueberryy]
