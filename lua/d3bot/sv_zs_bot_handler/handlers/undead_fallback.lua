@@ -79,6 +79,22 @@ function HANDLER.ThinkFunction(bot)
 	
 	local botPos = bot:GetPos()
 	
+	local tracedata = {start=nil,endpos=nil,mask=MASK_PLAYERSOLID,filter=nil}
+	tracedata.start = bot:GetPos()
+	tracedata.endpos = tracedata.start
+	tracedata.filter = bot
+	local traceResult = util.TraceEntity(tracedata,bot)
+	
+	-- Workaround for bots phasing through barricades in some versions of the gamemode
+	if bot:Alive() and traceResult.StartSolid == true and traceResult.Entity and not traceResult.Entity:IsWorld() and (traceResult.Entity and traceResult.Entity:GetClass() == "prop_physics") and GAMEMODE:ShouldCollide(bot, traceResult.Entity) and traceResult.Entity:GetCollisionGroup() ~= COLLISION_GROUP_DEBRIS and traceResult.Entity:IsNailed() then
+		--bot:Kill()
+		if mem.LastValidPos then
+			bot:SetPos(mem.LastValidPos)
+		end
+	elseif bot:Alive() then
+		mem.LastValidPos = botPos
+	end
+	
 	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
 		if not mem.TgtOrNil or IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(botPos) > HANDLER.BotTgtFixationDistMin then
 			mem.nextUpdateSurroundingPlayers = CurTime() + 1
