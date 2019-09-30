@@ -85,10 +85,8 @@ function HANDLER.ThinkFunction(bot)
 	tracedata.filter = bot
 	local traceResult = util.TraceEntity(tracedata,bot)
 	
-	if bot:Alive() and traceResult.StartSolid == true and (traceResult.Entity and not traceResult.Entity:IsWorld())
-	and (traceResult.Entity and (not traceResult.Entity.IsPlayer or not traceResult.Entity:IsPlayer()) and traceResult.Entity:GetClass() ~= "prop_obj_exit" and traceResult.Entity:GetClass() ~= "prop_obj_sigil") then -- is stuck
+	if bot:Alive() and traceResult.StartSolid == true and (traceResult.Entity and not traceResult.Entity:IsWorld())	and (traceResult.Entity and traceResult.Entity:GetClass() == "prop_physics") and GAMEMODE:ShouldCollide(bot, traceResult.Entity) then -- is stuck
 		bot:Kill()
-		return
 	end
 	
 	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
