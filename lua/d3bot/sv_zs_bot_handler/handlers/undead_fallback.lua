@@ -79,6 +79,16 @@ function HANDLER.ThinkFunction(bot)
 	
 	local botPos = bot:GetPos()
 	
+	local tracedata = {start=nil,endpos=nil,mask=MASK_PLAYERSOLID,filter=nil}
+	tracedata.start = bot:GetPos()
+	tracedata.endpos = tracedata.start
+	tracedata.filter = bot
+	local traceResult = util.TraceEntity(tracedata,bot)
+	
+	if bot:Alive() and traceResult.StartSolid == true and (traceResult.Entity and not traceResult.Entity:IsWorld()) and (traceResult.Entity and (not traceResult.Entity.IsPlayer or not traceResult.Entity:IsPlayer()) ) then -- is stuck
+		bot:Kill()
+	end
+	
 	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
 		if not mem.TgtOrNil or IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(botPos) > HANDLER.BotTgtFixationDistMin then
 			mem.nextUpdateSurroundingPlayers = CurTime() + 1
