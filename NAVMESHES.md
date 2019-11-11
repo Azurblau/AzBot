@@ -111,8 +111,9 @@
 | [zs_obj_lambdacore_v21](https://steamcommunity.com/sharedfiles/filedetails/?id=644445805) | D3 | Should also work with v17 - v20
 | [zs_obj_minecave](https://steamcommunity.com/sharedfiles/filedetails/?id=345214265) | [Blueberryy]
 | [zs_obj_pharmacy_v24](https://steamcommunity.com/sharedfiles/filedetails/?id=1094255438) | Sulfito
+| [zs_obj_station](https://steamcommunity.com/sharedfiles/filedetails/?id=222854611) | [Blueberryy]
 | [zs_obj_tantibus_v9](http://zsr.site.nfoservers.com/server/maps/zs_obj_tantibus_v9.bsp.bz2) | D3 | Should also work with v7, v8
-| zs_obj_tna_croak | D3
+| [zs_obj_tna_croak](http://zsr.site.nfoservers.com/server/maps/zs_obj_tna_croak.bsp.bz2) | D3
 | [zs_obj_upward_v23](https://steamcommunity.com/sharedfiles/filedetails/?id=644470714) | [Blueberryy]
 | [zs_obj_vertigo_v25](https://steamcommunity.com/sharedfiles/filedetails/?id=160096524) | [Blueberryy]
 | [zs_old_complex_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1836398586) | [Blueberryy]
