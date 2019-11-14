@@ -100,6 +100,7 @@
 | [zs_marsh_opt](https://steamcommunity.com/sharedfiles/filedetails/?id=129979142) | Sulfito
 | [zs_minecraft_oasis_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=530017496) | Sulfito
 | [zs_mlt_defense_v2_d2](https://steamcommunity.com/sharedfiles/filedetails/?id=1191699510) | [Blueberryy]
+| [zs_mountains_of_the_afterlife2](https://steamcommunity.com/sharedfiles/filedetails/?id=269400407) | [Blueberryy]
 | [zs_muhosransk_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=659670860) | D3
 | zs_nastyhouse_v3 | D3
 | zs_natalyas_cottage_v2 | Sulfito
