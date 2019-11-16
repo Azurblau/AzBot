@@ -48,9 +48,9 @@ function D3bot.GetTrajectories(initVel, r0, r1, segments)
 	return trajectories
 end
 
--- Remove spectating and dead players
+-- Remove spectating, meshing and dead players
 function D3bot.RemoveObsDeadTgts(tgts)
-	return D3bot.From(tgts):Where(function(k, v) return IsValid(v) and v:GetObserverMode() == OBS_MODE_NONE and v:Alive() end).R
+	return D3bot.From(tgts):Where(function(k, v) return IsValid(v) and v:GetObserverMode() == OBS_MODE_NONE and not v:IsFlagSet(FL_NOTARGET) and v:Alive() end).R
 end
 
 function D3bot.NeighbourNodeFalloff(startNode, iterations, startValue, falloff, nodes)

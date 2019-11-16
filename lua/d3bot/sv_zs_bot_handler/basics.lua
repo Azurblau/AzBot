@@ -383,7 +383,7 @@ end
 function D3bot.Basics.LookAround(bot)
 	local mem = bot.D3bot_Mem
 	if not mem then return end
-	
+
 	if math.random(200) == 1 then mem.LookTarget = table.Random(player.GetAll()) end
 	
 	if not IsValid(mem.LookTarget) then return end
