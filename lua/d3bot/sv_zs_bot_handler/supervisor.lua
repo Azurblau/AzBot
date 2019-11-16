@@ -43,7 +43,7 @@ function D3bot.MaintainBotRoles()
 		botsByTeam[team] = botsByTeam[team] or {}
 		table.insert(botsByTeam[team], v)
 	end
-	local players = D3bot.GetValidPlayers()
+	local players = player.GetAll()
 	local playersByTeam = {}
 	for k, v in ipairs(players) do
 		local team = v:Team()
@@ -128,7 +128,7 @@ function D3bot.SupervisorThinkFunction()
 end
 
 function D3bot.DoNodeTrigger()
-	local players = D3bot.RemoveObsDeadTgts(D3bot.GetValidPlayers())
+	local players = D3bot.RemoveObsDeadTgts(player.GetAll())
 	players = D3bot.From(players):Where(function(k, v) return v:Team() ~= TEAM_UNDEAD end).R
 	local ents = table.Add(players, D3bot.GetEntsOfClss(D3bot.NodeDamageEnts))
 	for i, ent in pairs(ents) do

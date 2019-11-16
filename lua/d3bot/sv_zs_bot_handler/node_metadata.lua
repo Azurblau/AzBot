@@ -47,7 +47,7 @@ hook.Add("Think", D3bot.BotHooksId.."NodeMetadataThink", function()
 	local mapNavMesh = D3bot.MapNavMesh
 	if nextNodeMetadataIncrease < CurTime() then
 		nextNodeMetadataIncrease = CurTime() + 1
-		local players = D3bot.RemoveObsDeadTgts(D3bot.GetValidPlayers())
+		local players = D3bot.RemoveObsDeadTgts(player.GetAll())
 		for _, player in pairs(players) do
 			if player:Alive() then
 				local team = player:Team()

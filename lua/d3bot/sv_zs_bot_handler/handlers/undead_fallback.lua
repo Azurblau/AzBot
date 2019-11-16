@@ -85,7 +85,7 @@ function HANDLER.ThinkFunction(bot)
 	tracedata.filter = bot
 	local traceResult = util.TraceEntity(tracedata,bot)
 	
--- Workaround for bots phasing through barricades in some versions of the gamemode
+	-- Workaround for bots phasing through barricades in some versions of the gamemode
 	if bot:Alive() and traceResult.StartSolid == true and traceResult.Entity and not traceResult.Entity:IsWorld() and (traceResult.Entity and traceResult.Entity:GetClass() == "prop_physics") and GAMEMODE:ShouldCollide(bot, traceResult.Entity) and traceResult.Entity:GetCollisionGroup() ~= COLLISION_GROUP_DEBRIS and traceResult.Entity:IsNailed() then
 		--bot:Kill()
 		if mem.LastValidPos then
@@ -98,7 +98,7 @@ function HANDLER.ThinkFunction(bot)
 	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
 		if not mem.TgtOrNil or IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(botPos) > HANDLER.BotTgtFixationDistMin then
 			mem.nextUpdateSurroundingPlayers = CurTime() + 1
-			local targets = D3bot.GetValidPlayers() -- TODO: Filter targets before sorting
+			local targets = player.GetAll() -- TODO: Filter targets before sorting
 			table.sort(targets, function(a, b) return botPos:Distance(a:GetPos()) < botPos:Distance(b:GetPos()) end)
 			for k, v in ipairs(targets) do
 				if IsValid(v) and botPos:Distance(v:GetPos()) < 500 and HANDLER.CanBeTgt(bot, v) and bot:D3bot_CanSeeTarget(nil, v) then
@@ -162,19 +162,19 @@ local potTargetEntClasses = {"prop_*turret", "prop_arsenalcrate", "prop_manhack*
 local potEntTargets = nil
 function HANDLER.CanBeTgt(bot, target)
 	if not target or not IsValid(target) then return end
-	if IsValid(target) and target:IsPlayer() and target ~= bot and target:Team() ~= TEAM_UNDEAD and target:GetObserverMode() == OBS_MODE_NONE and target:Alive() then return true end
+	if IsValid(target) and target:IsPlayer() and target ~= bot and target:Team() ~= TEAM_UNDEAD and target:GetObserverMode() == OBS_MODE_NONE and not target:IsFlagSet(FL_NOTARGET) and target:Alive() then return true end
 	if potEntTargets and table.HasValue(potEntTargets, target) then return true end
 end
 
 function HANDLER.RerollTarget(bot)
 	-- Get humans or non zombie players or any players in this order
-	local players = D3bot.RemoveObsDeadTgts( D3bot.FilterValidPlayers(team.GetPlayers(TEAM_HUMAN)))
+	local players = D3bot.RemoveObsDeadTgts(team.GetPlayers(TEAM_HUMAN))
 	if #players == 0 and TEAM_UNDEAD then
-		players = D3bot.RemoveObsDeadTgts(D3bot.GetValidPlayers())
+		players = D3bot.RemoveObsDeadTgts(player.GetAll())
 		players = D3bot.From(players):Where(function(k, v) return v:Team() ~= TEAM_UNDEAD end).R
 	end
 	if #players == 0 then
-		players = D3bot.RemoveObsDeadTgts(D3bot.GetValidPlayers())
+		players = D3bot.RemoveObsDeadTgts(player.GetAll())
 	end
 	potEntTargets = D3bot.GetEntsOfClss(potTargetEntClasses)
 	local potTargets = table.Add(players, potEntTargets)

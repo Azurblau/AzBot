@@ -31,5 +31,6 @@
         "viewmesh",
         "villagehouse",
         "zombieclass"
-    ]
+    ],
+    "editor.formatOnSave": false
 }
