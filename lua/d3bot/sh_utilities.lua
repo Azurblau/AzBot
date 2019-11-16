@@ -78,3 +78,19 @@ function D3bot.GetBots() -- Return all players controlled by this script (Can al
 	end
 	return bots
 end
+
+function D3bot.FilterValidPlayers(players)
+	local filteredPlayers = {}
+
+	for k, v in pairs( players ) do
+		if not v:IsFlagSet( FL_NOTARGET ) then
+			filteredPlayers[#filteredPlayers + 1] = v
+		end
+	end
+
+	return filteredPlayers
+end
+
+function D3bot.GetValidPlayers() -- Returns all valid players that do not have the FL_NOTARGET flag set
+	return D3bot.FilterValidPlayers(player.GetAll())
+end

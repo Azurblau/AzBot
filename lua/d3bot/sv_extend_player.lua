@@ -51,7 +51,7 @@ function meta:D3bot_CanPounceToPos(pos)
 		local hit = false
 		for _, point in ipairs(trajectory.points) do
 			if lastPoint then
-				local tr = util.TraceEntity({start = point, endpos = lastPoint, filter = player.GetAll()}, self)
+				local tr = util.TraceEntity({start = point, endpos = lastPoint, filter = D3bot.GetValidPlayers()}, self)
 				if tr.Hit then
 					hit = true
 					break
@@ -75,7 +75,7 @@ function meta:D3bot_CanSeeTarget(fraction, target)
 	local tr = D3bot.BotSeeTr
 	tr.start = self:D3bot_GetViewCenter()
 	tr.endpos = attackPos
-	tr.filter = player.GetAll()
+	tr.filter = D3bot.GetValidPlayers()
 	return attackPos and not util.TraceHull(tr).Hit
 end
 

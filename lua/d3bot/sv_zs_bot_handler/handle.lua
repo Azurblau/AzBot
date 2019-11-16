@@ -73,7 +73,7 @@ hook.Add("Think", D3bot.BotHooksId.."🤔", function()
 	-- Store history of all players (For behaviour classification, stuck checking)
 	if NextStorePos < CurTime() then
 		NextStorePos = CurTime() + 1
-		for _, ply in ipairs(player.GetAll()) do
+		for _, ply in ipairs(D3bot.GetValidPlayers()) do
 			ply:D3bot_StorePos()
 		end
 	end

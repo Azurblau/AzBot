@@ -168,7 +168,7 @@ end
 
 function HANDLER.RerollTarget(bot)
 	-- Get humans or non zombie players or any players in this order
-	local players = D3bot.RemoveObsDeadTgts(team.GetPlayers(TEAM_HUMAN))
+	local players = D3bot.RemoveObsDeadTgts(D3bot.FilterValidPlayers(team.GetPlayers(TEAM_HUMAN)))
 	if #players == 0 and TEAM_UNDEAD then
 		players = D3bot.RemoveObsDeadTgts(player.GetAll())
 		players = D3bot.From(players):Where(function(k, v) return v:Team() ~= TEAM_UNDEAD end).R
