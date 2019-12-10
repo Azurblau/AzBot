@@ -29,6 +29,7 @@ Here is a list of notable changes compared to the original version:
   - French (Thanks to [FR]Angel-Neko_X)
   - German
   - Korean
+  - Polish (Thanks to [Halamix2])
   - Russian (Thanks to [Blueberryy])
 - Some smaller things i possibly forgot.
 
@@ -184,4 +185,5 @@ Starting with highest public priority:
 - Caching of non-branching paths as a single node to optimize the pathfinding performance.
 
 [Blueberryy]: https://github.com/Blueberryy
+[Halamix2]: https://github.com/Halamix2
 [orecros]: https://github.com/orecros
