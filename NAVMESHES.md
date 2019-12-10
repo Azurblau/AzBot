@@ -45,6 +45,8 @@
 | [zs_city_14_fixed](https://steamcommunity.com/sharedfiles/filedetails/?id=270224423) | Sulfito
 | [zs_city_underfall](https://steamcommunity.com/sharedfiles/filedetails/?id=1210905573) | [Blueberryy]
 | [zs_classics](https://steamcommunity.com/sharedfiles/filedetails/?id=440327301) | [Blueberryy]
+| [zs_clav_massive](https://steamcommunity.com/sharedfiles/filedetails/?id=172051398) | [Blueberryy]
+| [zs_clav_segments_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=172051449) | [Blueberryy]
 | [zs_clav_wall](https://steamcommunity.com/sharedfiles/filedetails/?id=172052373) | [Blueberryy]
 | [zs_cleanoffice_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=118656242) | [Blueberryy]
 | [zs_combine_survaivl](https://steamcommunity.com/sharedfiles/filedetails/?id=1113175801) | [Blueberryy]
@@ -69,7 +71,7 @@
 | [zs_fireforest_redo_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=949078018) | [Blueberryy]
 | [zs_fireforest_redo_v6](https://steamcommunity.com/sharedfiles/filedetails/?id=949078018) | [Blueberryy]
 | [zs_fog_village](https://steamcommunity.com/sharedfiles/filedetails/?id=267812008) | Sulfito, [Blueberryy]
-| [zs_fog_village_v2] | [Blueberryy]
+| zs_fog_village_v2 | [Blueberryy]
 | zs_forestofthedamned_2010 | D3
 | [zs_forlornbunker_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=908006837) | Sulfito
 | zs_frozen_v3 | Sulfito
@@ -134,6 +136,7 @@
 | [zs_scrapyard](https://steamcommunity.com/sharedfiles/filedetails/?id=181168111) | [Blueberryy]
 | [zs_sector7](https://steamcommunity.com/sharedfiles/filedetails/?id=584824714) | [Blueberryy]
 | [zs_serious_sam_arena_v13a](https://steamcommunity.com/sharedfiles/filedetails/?id=1084439626) | [Blueberryy], TheFray | Probably also works with zs_serious_sam_arena_v11a
+| [zs_shelter](https://steamcommunity.com/sharedfiles/filedetails/?id=228891229) | [Blueberryy]
 | [zs_sludge](https://steamcommunity.com/sharedfiles/filedetails/?id=323893414) | [Blueberryy]
 | [zs_small_river_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=775667032) | Sulfito
 | [zs_sniperfire_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=1390040927) | [Blueberryy]
