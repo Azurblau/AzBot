@@ -28,6 +28,7 @@ Here is a list of notable changes compared to the original version:
   - English
   - French (Thanks to [FR]Angel-Neko_X)
   - German
+  - Italian (Thanks to [Wolfaloo])
   - Korean
   - Polish (Thanks to [Halamix2])
   - Russian (Thanks to [Blueberryy])
@@ -187,3 +188,4 @@ Starting with highest public priority:
 [Blueberryy]: https://github.com/Blueberryy
 [Halamix2]: https://github.com/Halamix2
 [orecros]: https://github.com/orecros
+[Wolfaloo]: https://github.com/Wolfaloo
