@@ -31,6 +31,7 @@ Here is a list of notable changes compared to the original version:
   - Italian (Thanks to [Wolfaloo])
   - Korean
   - Polish (Thanks to [Halamix2])
+  - Czech (Thanks to kekosminek)
   - Russian (Thanks to [Blueberryy])
 - Some smaller things i possibly forgot.
 
