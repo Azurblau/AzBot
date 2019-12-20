@@ -24,14 +24,16 @@ Here is a list of notable changes compared to the original version:
 - More advanced edit modes. (Thanks to necrossin)
 - Improved navmesh drawing.
 - Translations:
-  - Chinese (Thanks to [XY]EvansFix)
+  - Chinese Simplified (Thanks to [XY]EvansFix)
+  - Czech (Thanks to kekosminek)
+  - Dutch (Thanks to Ubister)
   - English
   - French (Thanks to [FR]Angel-Neko_X)
   - German
   - Italian (Thanks to [Wolfaloo])
   - Korean
   - Polish (Thanks to [Halamix2])
-  - Czech (Thanks to kekosminek)
+  - Portuguese(Brazil) (Thanks to GMBR | $herlock Bu$ter)
   - Russian (Thanks to [Blueberryy])
 - Some smaller things i possibly forgot.
 
