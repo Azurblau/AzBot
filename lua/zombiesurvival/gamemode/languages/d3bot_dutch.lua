@@ -1,13 +1,13 @@
 
 translate.AddLanguage("nl", "Dutch")
 
-LANGUAGE.D3bot_redeemwave			= "You can type !human before wave %u to play as survivor."
-LANGUAGE.D3bot_botmapsonly			= "This command is enabled on bot maps only!"
-LANGUAGE.D3bot_toolate				= "It's too late to self-redeem (can only be done before wave %u)."
-LANGUAGE.D3bot_alreadyhum			= "You're already human!"
-LANGUAGE.D3bot_noredeemlasthuman	= "Only one survivor is left, you can not self-redeem anymore!"
-LANGUAGE.D3bot_noredeemzombieescape	= "This command is disabled on zombie escape maps!"
+LANGUAGE.D3bot_redeemwave			= "Je kunt !human voor golf %u typen om als overlever te spelen."
+LANGUAGE.D3bot_botmapsonly			= "Dit commando is alleen op bot-maps ingeschakeld!"
+LANGUAGE.D3bot_toolate				= "Het is te laat voor zelfverlossing! (kan alleen voor golf %u gedaan worden)."
+LANGUAGE.D3bot_alreadyhum			= "Je bent al mens!"
+LANGUAGE.D3bot_noredeemlasthuman	= "Slechts één overlever is over, je kunt jezelf niet meer verlossen!"
+LANGUAGE.D3bot_noredeemzombieescape	= "Dit commando is uitgeschakeld op zombieontsnappings-maps!"
 
-LANGUAGE.D3bot_selfredeemdisabled	= "The self-redeem command is disabled!"
-LANGUAGE.D3bot_selfredeemrecenty	= "You already self-redeemed recently. Try again in %u seconds!"
-LANGUAGE.D3bot_selfredeemcooldown	= "You self-redeemed. Your current cooldown until next self-redeem is %u seconds!"
+LANGUAGE.D3bot_selfredeemdisabled	= "Het zelfverlossingscommando is uitgeschakeld!"
+LANGUAGE.D3bot_selfredeemrecenty	= "Je hebt jezelf kort geleden al verlost. Probeer het opnieuw in %u seconden!"
+LANGUAGE.D3bot_selfredeemcooldown	= "Je hebt je verlost. Je huidige afkoelperiode tot volgende zelfverlossing bedraagt %u seconden!"
