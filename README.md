@@ -26,6 +26,7 @@ Here is a list of notable changes compared to the original version:
 - Translations:
   - Chinese Simplified (Thanks to [XY]EvansFix)
   - Czech (Thanks to kekosminek)
+  - Danish (Thanks to MRBennetsen)
   - Dutch (Thanks to Ubister)
   - English
   - French (Thanks to [FR]Angel-Neko_X)
