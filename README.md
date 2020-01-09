@@ -36,6 +36,8 @@ Here is a list of notable changes compared to the original version:
   - Polish (Thanks to [Halamix2])
   - Portuguese(Brazil) (Thanks to GMBR | $herlock Bu$ter)
   - Russian (Thanks to [Blueberryy])
+  - Spanish (Thanks to [Fafy2801])
+  - Turkish (Thanks to ᴇXғɪʀᴇᴄʜʀᴏᴍᴇ~)
 - Some smaller things i possibly forgot.
 
 This fork is backward compatible, but there are some changes which prevents you to use navmeshes from this fork in the original version. To make them work just replace all occurrences of `\n` with `;`.
@@ -193,3 +195,4 @@ Starting with highest public priority:
 [Halamix2]: https://github.com/Halamix2
 [orecros]: https://github.com/orecros
 [Wolfaloo]: https://github.com/Wolfaloo
+[Fafy2801]: https://github.com/Fafy2801
