@@ -1,4 +1,4 @@
-translate.AddLanguage("es", "Spanish")
+translate.AddLanguage("es-ES", "Spanish")
 
 LANGUAGE.D3bot_redeemwave			= "Puedes usar !human antes de la oleada %u para jugar como sobreviviente"
 LANGUAGE.D3bot_botmapsonly			= "Este comando sólo está habilitado para mapas con bots!"
