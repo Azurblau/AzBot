@@ -39,6 +39,7 @@ Here is a list of notable changes compared to the original version:
   - Russian (Thanks to [Blueberryy])
   - Spanish (Thanks to [Fafy2801])
   - Turkish (Thanks to ᴇXғɪʀᴇᴄʜʀᴏᴍᴇ~)
+  - Ukrainian (Thanks to [ErickMaksimets])
 - Some smaller things i possibly forgot.
 
 This fork is backward compatible, but there are some changes which prevents you to use navmeshes from this fork in the original version. To make them work just replace all occurrences of `\n` with `;`.
@@ -198,4 +199,4 @@ Starting with highest public priority:
 [Wolfaloo]: https://github.com/Wolfaloo
 [Fafy2801]: https://github.com/Fafy2801
 [Half1569]: https://github.com/Half1569
-
+[ErickMaksimets]: https://github.com/ErickMaksimets
