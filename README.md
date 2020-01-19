@@ -25,7 +25,7 @@ Here is a list of notable changes compared to the original version:
 - Improved navmesh drawing.
 - Translations:
   - Chinese Simplified (Thanks to [XY]EvansFix)
-  - Chinese Traditional (Thanks to 辣鸡 | LaGi)
+  - Chinese Traditional (Thanks to [Half1569])
   - Czech (Thanks to kekosminek)
   - Danish (Thanks to MRBennetsen)
   - Dutch (Thanks to Ubister)
@@ -197,3 +197,5 @@ Starting with highest public priority:
 [orecros]: https://github.com/orecros
 [Wolfaloo]: https://github.com/Wolfaloo
 [Fafy2801]: https://github.com/Fafy2801
+[Half1569]: https://github.com/Half1569
+
