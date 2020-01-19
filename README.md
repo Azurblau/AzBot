@@ -25,6 +25,7 @@ Here is a list of notable changes compared to the original version:
 - Improved navmesh drawing.
 - Translations:
   - Chinese Simplified (Thanks to [XY]EvansFix)
+  - Chinese Traditional (Thanks to 辣鸡 | LaGi)
   - Czech (Thanks to kekosminek)
   - Danish (Thanks to MRBennetsen)
   - Dutch (Thanks to Ubister)
