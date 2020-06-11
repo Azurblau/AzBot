@@ -240,15 +240,13 @@ return function(lib)
 			end
 
 			if inViewRange then
-				if oldDraw or item:ShouldDraw(eyePos) then
-					local angs = (item:GetFocusPos() - eyePos):Angle()
-					local relP = math.AngleDifference(eyeAngs.p, angs.p)
-					local relY = math.AngleDifference(eyeAngs.y, angs.y)
-					local relAng = math.sqrt(relP * relP + relY * relY)
-					if relAng < relAngMin then
-						cursoredItemOrNil = item
-						relAngMin = relAng
-					end
+				local angs = (item:GetFocusPos() - eyePos):Angle()
+				local relP = math.AngleDifference(eyeAngs.p, angs.p)
+				local relY = math.AngleDifference(eyeAngs.y, angs.y)
+				local relAng = math.sqrt(relP * relP + relY * relY)
+				if relAng < relAngMin and (oldDraw or item:ShouldDraw(eyePos)) then
+					cursoredItemOrNil = item
+					relAngMin = relAng
 				end
 			end
 		end
