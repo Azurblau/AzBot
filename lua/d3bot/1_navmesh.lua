@@ -143,9 +143,9 @@ return function(lib)
 		if nilOrNodeB == nil then
 			local id = idOrNodeA
 			local serializedNodeIds = id:Split(lib.NavMeshLinkNodesSeparator)
-			if #serializedNodeIds != 2 then error("Link must have exactly 2 nodes to link.", 2) end
+			if #serializedNodeIds ~= 2 then error("Link must have exactly 2 nodes to link.", 2) end
 			local nodeIds = from(serializedNodeIds):SelV(tonumber).R
-			if from(nodeIds):Len().R != 2 then error("Invalid node ID.", 2) end
+			if from(nodeIds):Len().R ~= 2 then error("Invalid node ID.", 2) end
 			nodeA, nodeB = unpack(from(nodeIds):SelV(function(nodeId) return self:ForceGetNode(nodeId) end).R)
 		else
 			nodeA = idOrNodeA
@@ -229,17 +229,25 @@ return function(lib)
 	
 	function fallback:GetCursoredItemOrNil(pl)
 		local oldDraw = pl:GetInfoNum("d3bot_navmeshing_smartdraw", 1) == 0
+		local maxDrawingDistance = pl:GetInfoNum("d3bot_navmeshing_drawdistance", 0)
 		local relAngMin = 5
 		local cursoredItemOrNil
 		local eyePos, eyeAngs = pl:EyePos(), pl:EyeAngles()
+		local inViewRange = true
 		for id, item in pairs(self.ItemById) do
-			local angs = (item:GetFocusPos() - eyePos):Angle()
-			local relP = math.AngleDifference(eyeAngs.p, angs.p)
-			local relY = math.AngleDifference(eyeAngs.y, angs.y)
-			local relAng = math.sqrt(relP * relP + relY * relY)
-			if relAng < relAngMin and (oldDraw or item:ShouldDraw(eyePos)) then
-				cursoredItemOrNil = item
-				relAngMin = relAng
+			if maxDrawingDistance > 0 then
+				inViewRange = item:GetFocusPos():Distance(eyePos) <= maxDrawingDistance
+			end
+
+			if inViewRange then
+				local angs = (item:GetFocusPos() - eyePos):Angle()
+				local relP = math.AngleDifference(eyeAngs.p, angs.p)
+				local relY = math.AngleDifference(eyeAngs.y, angs.y)
+				local relAng = math.sqrt(relP * relP + relY * relY)
+				if relAng < relAngMin and (oldDraw or item:ShouldDraw(eyePos)) then
+					cursoredItemOrNil = item
+					relAngMin = relAng
+				end
 			end
 		end
 		return cursoredItemOrNil
