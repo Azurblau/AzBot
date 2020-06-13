@@ -31,6 +31,7 @@
 | [zs_bloody_arena_1v1](https://steamcommunity.com/sharedfiles/filedetails/?id=176561630) | [Blueberryy]
 | [zs_botsity](https://steamcommunity.com/sharedfiles/filedetails/?id=759885233) | [Blueberryy]
 | [zs_boxco](https://steamcommunity.com/sharedfiles/filedetails/?id=1192815414) | [Blueberryy]
+| [zs_breach](https://steamcommunity.com/sharedfiles/filedetails/?id=1936830587) | [Blueberryy]
 | [zs_bunker_fixed_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=180897118) | [Blueberryy]
 | [zs_buntshot](https://steamcommunity.com/sharedfiles/filedetails/?id=1453018665) | [Blueberryy]
 | [zs_burried_office](https://steamcommunity.com/sharedfiles/filedetails/?id=177318240) | [Blueberryy]
@@ -57,6 +58,7 @@
 | [zs_dead_complex_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=177974702) | [Blueberryy]
 | [zs_deadstop](https://steamcommunity.com/sharedfiles/filedetails/?id=1399810378) | [Blueberryy] | | Need improve fast zombie paths
 | [zs_deathsand](https://steamcommunity.com/sharedfiles/filedetails/?id=1111304166) | [Blueberryy]
+| [zs_deep_sewers_v2d](https://steamcommunity.com/sharedfiles/filedetails/?id=2126109144) | [Tuckatk], [Blueberryy]
 | [zs_deepfreeze_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=465881918) | [Blueberryy]
 | zs_deserted | Sulfito
 | [zs_despair](https://steamcommunity.com/sharedfiles/filedetails/?id=180575524) | [Blueberryy]
@@ -94,6 +96,7 @@
 | [zs_last_mansion_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=428782656) | Sulfito, D3
 | [zs_lastline](https://steamcommunity.com/sharedfiles/filedetails/?id=1904797550) | [Blueberryy]
 | [zs_leftovers](https://steamcommunity.com/sharedfiles/filedetails/?id=1220955815) | [Blueberryy]
+| [zs_lethalsector](https://steamcommunity.com/sharedfiles/filedetails/?id=1966285838) | [Blueberryy]
 | [zs_lighthouse_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=180853396) | D3 | Probably works with zs_lighthouse, but not with zs_lighthouse_v2b1 and newer
 | zs_lockup_v2 | Sulfito
 | zs_lost_coast_house_fixed_v2 | D3 | Should work with [zs_lost_coast_house_v2](https://garrysmods.org/download/9841/zs-lost-coast-house-v2) too
@@ -144,6 +147,7 @@
 | [zs_snowy_castle](https://steamcommunity.com/sharedfiles/filedetails/?id=320213706) | D3 | zs_snowycastle_v3 differs too much
 | [zs_splinter_final](https://steamcommunity.com/sharedfiles/filedetails/?id=180155305) | [Blueberryy]
 | [zs_square](https://steamcommunity.com/sharedfiles/filedetails/?id=618778993) | [Blueberryy]
+| [zs_storage](https://steamcommunity.com/sharedfiles/filedetails/?id=2074721446) | [Blueberryy]
 | [zs_stormier_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=157194940) | Sulfito
 | [zs_subversive_1](https://steamcommunity.com/sharedfiles/filedetails/?id=181260977) | [Blueberryy]
 | [zs_subversive_2_fix](https://steamcommunity.com/sharedfiles/filedetails/?id=181263962) | [Blueberryy]
@@ -166,3 +170,4 @@
 | zs_zombie_village_v3 | D3 | | Same as zs_zombie_village, but with a ladder near spawn
 
 [Blueberryy]: https://github.com/Blueberryy
+[Tuckatk]: https://github.com/Tuckatk
