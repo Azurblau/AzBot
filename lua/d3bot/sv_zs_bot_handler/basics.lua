@@ -189,7 +189,7 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	end
 	
 	if aimPos then
-		bot:D3bot_FaceTo(aimPos, origin, D3bot.BotAttackAngLerpFactor, facesTgt and 0.2 or 1)
+		bot:D3bot_FaceTo(aimPos, origin, D3bot.BotAttackAngLerpFactor, facesTgt and D3bot.FaceTargetOffshootFactor or 1)
 	end
 	
 	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
