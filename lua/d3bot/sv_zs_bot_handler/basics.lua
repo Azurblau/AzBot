@@ -160,11 +160,11 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	elseif mem.TgtOrNil and not mem.DontAttackTgt and (bot:D3bot_CanSeeTarget() or not nextNodeOrNil) then
 		aimPos = bot:D3bot_GetAttackPosOrNilFuture(nil, math.Rand(0, D3bot.BotAimPosVelocityOffshoot))
 		origin = bot:D3bot_GetViewCenter()
-		if aimPos and aimPos:Distance(bot:D3bot_GetViewCenter()) < D3bot.BotAttackDistMin then
+		if aimPos and aimPos:Distance(origin) < D3bot.BotAttackDistMin then
 			if weapon and weapon.MeleeReach then
 				local tr = util.TraceLine({
-					start = bot:D3bot_GetViewCenter(),
-					endpos = bot:D3bot_GetViewCenter() + bot:EyeAngles():Forward() * weapon.MeleeReach,
+					start = origin,
+					endpos = origin + bot:EyeAngles():Forward() * weapon.MeleeReach,
 					filter = bot
 				})
 				facesTgt = tr.Entity == mem.TgtOrNil
