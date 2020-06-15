@@ -31,7 +31,7 @@ return function(lib)
 		end
 		if GAMEMODE.SetupProps then gamemode.Call("SetupProps") end
 	end
-	hook.Add("InitPostEntity", tostring({}), function() lib.ReloadExtraProps() end)
+	hook.Add("InitPostEntityMap", tostring({}), function() lib.ReloadExtraProps() end)
 	
 	function lib.SaveExtraProps()
 		file.Write(lib.ExtraPropsPath, from(lib.ExtraPropByEnt):Sel(function(k, v)
