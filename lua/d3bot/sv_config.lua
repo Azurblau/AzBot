@@ -22,7 +22,7 @@ D3bot.BotAimAngLerpFactor = 0.5					-- See above, but for aiming with guns
 D3bot.BotAimPosVelocityOffshoot = 0.4			-- Offshoot for position prediction of moving targets in seconds. The target position is extrapolated from the moving target, whereby the target time is within the interval from now until now + the given value.
 D3bot.BotJumpAntichance = 25
 D3bot.BotDuckAntichance = 25
-D3bot.FaceTargetOffshootFactor = 0.2			-- Factor that reduces the offshoot when the target is within `D3bot.BotAttackDistMin`. Increase value to prevent bots from "locking" onto target.
+D3bot.FaceTargetOffshootFactor = 0.2			-- Factor that reduces the offshoot when the target is within `D3bot.BotAttackDistMin`. Increase value to prevent bots from "locking" onto target. A value of 1.6 should yield azBot like behavior, tweak it as you like.
 
 D3bot.ZombiesPerPlayer = 0.3
 D3bot.ZombiesPerPlayerMax = 2.0			-- Limits amount of zombies to this zombie/player ratio. (ZombiesCountAddition is not calculated in)
