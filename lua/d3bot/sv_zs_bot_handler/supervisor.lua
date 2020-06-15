@@ -22,6 +22,11 @@ end
 
 local spawnAsTeam
 hook.Add("PlayerInitialSpawn", D3bot.BotHooksId, function(pl)
+	-- Initialize mem when console bots are used
+	if D3bot.UseConsoleBots and D3bot.IsEnabled and pl:IsBot() then
+		pl:D3bot_InitializeOrReset()
+	end
+
 	if spawnAsTeam == TEAM_UNDEAD then
 		GAMEMODE.PreviouslyDied[pl:UniqueID()] = CurTime()
 		GAMEMODE:PlayerInitialSpawn(pl)
@@ -83,12 +88,16 @@ function D3bot.MaintainBotRoles()
 	if player.GetCount() < allowedTotal then
 		for team, desiredCount in pairs(desiredCountByTeam) do
 			if #(playersByTeam[team] or {}) < desiredCount then
-				--RunConsoleCommand("bot")
-				spawnAsTeam = team
-				local bot = player.CreateNextBot(D3bot.GetUsername())
-				spawnAsTeam = nil
-				if IsValid(bot) then
-					bot:D3bot_InitializeOrReset()
+				if D3bot.UseConsoleBots then
+					RunConsoleCommand("bot")
+					spawnAsTeam = team
+				else
+					spawnAsTeam = team
+					local bot = player.CreateNextBot(D3bot.GetUsername())
+					spawnAsTeam = nil
+					if IsValid(bot) then
+						bot:D3bot_InitializeOrReset()
+					end
 				end
 				return
 			end

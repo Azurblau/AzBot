@@ -43,4 +43,8 @@ D3bot.StartBonus = nil					-- Number of additional points, that players get at t
 D3bot.BotNameFile = "fng_usernames"
 --D3bot.BotNameFile = "bottish"
 
+D3bot.UseConsoleBots = false			-- If true, bots will be spawned "the old way". But this will disable custom names.
+										-- This may help if the gamemode doesn't fully support the new bot spawning.
+										-- Also, this will prevent the use of other custom bots alongside D3bot.
+
 D3bot.BotKickReason = "I did my job. :)"
