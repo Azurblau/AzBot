@@ -633,7 +633,7 @@
 368:Aim=Straight,AimTo=Straight,AreaXMax=-1251,AreaXMin=-1519.5,AreaYMax=-1024,AreaYMin=-1152,See=Disabled,X=-1385.2,Y=-1088,Z=240
 368-366:
 368-367:
-37:AreaXMax=-2680.3,AreaXMin=-2944,AreaYMax=-896,AreaYMin=-1024,DuckTo=Always,See=Disabled,X=-2777.9,Y=-958.6,Z=-37.2
+37:AreaXMax=-2680.3,AreaXMin=-2944,AreaYMax=-896,AreaYMin=-1024,DuckTo=Always,Duck=Always,X=-2777.9,Y=-958.6,Z=-37.2
 37-36:
 370:Aim=Straight,AimTo=Straight,AreaXMax=-1248.2,AreaXMin=-1272.9,AreaYMax=-1167.6,AreaYMin=-1341.9,See=Disabled,X=-1260.6,Y=-1254.7,Z=240
 370-361:
