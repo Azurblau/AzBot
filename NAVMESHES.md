@@ -140,6 +140,7 @@
 | [zs_sector7](https://steamcommunity.com/sharedfiles/filedetails/?id=584824714) | [Blueberryy]
 | [zs_serious_sam_arena_v13a](https://steamcommunity.com/sharedfiles/filedetails/?id=1084439626) | [Blueberryy], TheFray | Probably also works with zs_serious_sam_arena_v11a
 | [zs_shelter](https://steamcommunity.com/sharedfiles/filedetails/?id=228891229) | [Blueberryy]
+| [zs_sky_scrapers](https://steamcommunity.com/sharedfiles/filedetails/?id=2133211445) | [HordeRally ツ] | | My first navmesh uploaded here!
 | [zs_sludge](https://steamcommunity.com/sharedfiles/filedetails/?id=323893414) | [Blueberryy]
 | [zs_small_river_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=775667032) | Sulfito
 | [zs_sniperfire_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=1390040927) | [Blueberryy]
@@ -171,3 +172,4 @@
 
 [Blueberryy]: https://github.com/Blueberryy
 [Tuckatk]: https://github.com/Tuckatk
+[HordeRally ツ]: https://github.com/HordeRally
