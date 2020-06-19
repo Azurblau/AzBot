@@ -24,6 +24,9 @@ end)
 local nextNodeMetadataReduce = CurTime()
 local nextNodeMetadataIncrease = CurTime()
 hook.Add("Think", D3bot.BotHooksId.."NodeMetadataThink", function()
+	-- If survivor bots are disabled, ignore capturing team metadata
+	if not D3bot.SurvivorsEnabled then return end
+
 	-- Reduce values over time
 	if nextNodeMetadataReduce < CurTime() then
 		nextNodeMetadataReduce = CurTime() + 5
