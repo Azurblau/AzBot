@@ -26,7 +26,7 @@
 | zs_asylum_v6 | D3 | There are too many different versions
 | [zs_backrooms](https://steamcommunity.com/sharedfiles/filedetails/?id=1907868353) | [Blueberryy]
 | [zs_barren](https://steamcommunity.com/sharedfiles/filedetails/?id=181159944) | Sulfito
-| [zs_base_survival](https://steamcommunity.com/sharedfiles/filedetails/?id=923496526) | [Blueberryy]
+| [zs_base_survival] | [Blueberryy]
 | [zs_biolab_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=486459911) | [Blueberryy]
 | [zs_bloody_arena_1v1](https://steamcommunity.com/sharedfiles/filedetails/?id=176561630) | [Blueberryy]
 | [zs_botsity](https://steamcommunity.com/sharedfiles/filedetails/?id=759885233) | [Blueberryy]
