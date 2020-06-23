@@ -16,7 +16,7 @@ return function(lib)
 	local nodeFallback = lib.NavMeshNodeMeta.__index
 	local linkFallback = lib.NavMeshLinkMeta.__index
 	
-	lib.BotNodeMinProximity = 40
+	lib.BotNodeMinProximitySqr = 40*40
 	
 	lib.MapNavMeshNetworkStr = "D3bot Map NavMesh"
 	
@@ -200,7 +200,7 @@ return function(lib)
 	function nodeFallback:GetContains(pos, verticalLimit)
 		local z = verticalLimit and math.Clamp(self.Pos.z, pos.z - verticalLimit, pos.z + verticalLimit) or self.Pos.z
 		local pos = Vector(pos.x, pos.y, z)
-		if not self.HasArea then return pos:Distance(self.Pos) < lib.BotNodeMinProximity end
+		if not self.HasArea then return pos:DistToSqr(self.Pos) < lib.BotNodeMinProximitySqr end
 		local params = self.Params
 		return math.abs(pos.z - self.Pos.z) <= (1) and pos.x >= params.AreaXMin and pos.x <= params.AreaXMax and pos.y >= params.AreaYMin and pos.y <= params.AreaYMax
 	end
@@ -229,14 +229,14 @@ return function(lib)
 	
 	function fallback:GetCursoredItemOrNil(pl)
 		local oldDraw = pl:GetInfoNum("d3bot_navmeshing_smartdraw", 1) == 0
-		local maxDrawingDistance = pl:GetInfoNum("d3bot_navmeshing_drawdistance", 0)
+		local maxDrawingDistanceSqr = math.pow(pl:GetInfoNum("d3bot_navmeshing_drawdistance", 0), 2)
 		local relAngMin = 5
 		local cursoredItemOrNil
 		local eyePos, eyeAngs = pl:EyePos(), pl:EyeAngles()
 		local inViewRange = true
 		for id, item in pairs(self.ItemById) do
-			if maxDrawingDistance > 0 then
-				inViewRange = item:GetFocusPos():Distance(eyePos) <= maxDrawingDistance
+			if maxDrawingDistanceSqr > 0 then
+				inViewRange = item:GetFocusPos():DistToSqr(eyePos) <= maxDrawingDistanceSqr
 			end
 
 			if inViewRange then
@@ -255,17 +255,17 @@ return function(lib)
 	
 	function fallback:GetNearestNodeOrNil(pos)
 		local nearestNodeOrNil
-		local distMin = math.huge
+		local distSqrMin = math.huge
 		for id, node in pairs(self.NodeById) do
 			local nodePos = node.Pos
 			if node.HasArea then
 				local params = node.Params
 				nodePos = Vector(math.Clamp(pos.x, params.AreaXMin, params.AreaXMax), math.Clamp(pos.y, params.AreaYMin, params.AreaYMax), nodePos.z)
 			end
-			local dist = pos:Distance(nodePos)
-			if dist < distMin then
+			local distSqr = pos:DistToSqr(nodePos)
+			if distSqr < distSqrMin then
 				nearestNodeOrNil = node
-				distMin = dist
+				distSqrMin = distSqr
 			end
 		end
 		return nearestNodeOrNil

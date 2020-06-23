@@ -160,7 +160,7 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	elseif mem.TgtOrNil and not mem.DontAttackTgt and (bot:D3bot_CanSeeTarget() or not nextNodeOrNil) then
 		aimPos = bot:D3bot_GetAttackPosOrNilFuture(nil, math.Rand(0, D3bot.BotAimPosVelocityOffshoot))
 		origin = bot:D3bot_GetViewCenter()
-		if aimPos and aimPos:Distance(origin) < D3bot.BotAttackDistMin then
+		if aimPos and aimPos:DistToSqr(origin) < math.pow(D3bot.BotAttackDistMin, 2) then
 			if weapon and weapon.MeleeReach then
 				local tr = util.TraceLine({
 					start = origin,
@@ -357,7 +357,7 @@ function D3bot.Basics.AimAndShoot(bot, target, maxDistance)
 	local origin = bot:D3bot_GetViewCenter()
 	local targetPos = LerpVector(mem.AimHeightFactor or 1, target:GetPos(), target:EyePos())
 	
-	if maxDistance and origin:Distance(targetPos) > maxDistance then return end
+	if maxDistance and origin:DistToSqr(targetPos) > math.pow(maxDistance, 2) then return end
 	
 	-- TODO: Use fewer traces, cache result for a few frames.
 	local tr = util.TraceLine({

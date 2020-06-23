@@ -44,7 +44,7 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	if mem.PhaseTime and mem.PhaseTime > CurTime() - 1 and math.random(2) == 1 then
 		if not mem.TgtOrNil and not mem.PosTgtOrNil and not mem.NodeTgtOrNil then
 			-- If ghosting but there is no target, set nearby player as target
-			local friends = D3bot.From(player.GetHumans()):Where(function(k, v) return HANDLER.IsFriend(bot, v) and botPos:Distance(v:GetPos()) < 500 end).R
+			local friends = D3bot.From(player.GetHumans()):Where(function(k, v) return HANDLER.IsFriend(bot, v) and botPos:DistToSqr(v:GetPos()) < 500*500 end).R
 			bot:D3bot_SetTgtOrNil(table.Random(friends), true, nil)
 		end
 		actions.Phase = true
@@ -71,9 +71,9 @@ function HANDLER.ThinkFunction(bot)
 	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
 		mem.nextUpdateSurroundingPlayers = CurTime() + 0.5
 		local enemies = D3bot.From(player.GetAll()):Where(function(k, v) return HANDLER.IsEnemy(bot, v) end).R
-		local closeEnemies = D3bot.From(enemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 1000 end).R -- TODO: Constant for the distance
-		local closerEnemies = D3bot.From(closeEnemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 600 end).R -- TODO: Constant for the distance
-		local dangerouscloseEnemies = D3bot.From(closerEnemies):Where(function(k, v) return botPos:Distance(v:GetPos()) < 300 end).R -- TODO: Constant for the distance
+		local closeEnemies = D3bot.From(enemies):Where(function(k, v) return botPos:DistToSqr(v:GetPos()) < 1000*1000 end).R -- TODO: Constant for the distance
+		local closerEnemies = D3bot.From(closeEnemies):Where(function(k, v) return botPos:DistToSqr(v:GetPos()) < 600*600 end).R -- TODO: Constant for the distance
+		local dangerouscloseEnemies = D3bot.From(closerEnemies):Where(function(k, v) return botPos:DistToSqr(v:GetPos()) < 300*300 end).R -- TODO: Constant for the distance
 		local newAttackTarget = table.Random(closerEnemies) or table.Random(closeEnemies) or table.Random(enemies)
 		if HANDLER.CanShootTarget(bot, newAttackTarget) then mem.AttackTgtOrNil = newAttackTarget end
 		if table.Count(dangerouscloseEnemies) > 0 then
@@ -152,11 +152,11 @@ function HANDLER.ThinkFunction(bot)
 			mem.nextEscapeUpdate = CurTime() + 4 + math.random() * 2
 			
 			local escapeDoors = D3bot.GetEntsOfClss({"prop_obj_exit"})
-			local closestDoor, bestDistance = nil, math.huge
+			local closestDoor, bestDistanceSqr = nil, math.huge
 			for k, v in pairs(escapeDoors) do
-				local dist = v:GetPos():Distance(botPos)
-				if bestDistance > dist then
-					closestDoor, bestDistance = v, dist
+				local distSqr = v:GetPos():DistToSqr(botPos)
+				if bestDistanceSqr > distSqr then
+					closestDoor, bestDistanceSqr = v, distSqr
 				end
 			end
 			if closestDoor then
@@ -287,9 +287,9 @@ end
 function HANDLER.FacesBarricade(bot)
 	local tr = bot:GetEyeTrace()
 	local entity = tr.Entity
-	local distance = bot:D3bot_GetViewCenter():Distance(tr.HitPos)
+	local distanceSqr = bot:D3bot_GetViewCenter():DistToSqr(tr.HitPos)
 	if not IsValid(entity) or not entity:IsNailed() then return end
-	return distance < 100
+	return distanceSqr < 100*100
 end
 
 function HANDLER.IsEnemy(bot, ply)

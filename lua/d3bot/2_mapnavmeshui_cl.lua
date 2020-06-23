@@ -90,7 +90,7 @@ return function(lib)
 				end
 				forceDrawInSkyboxCounter = 0
 				local smartDraw = D3bot.Convar_Navmeshing_SmartDraw:GetBool()
-				local maxDrawingDistance = D3bot.Convar_Navmeshing_DrawDistance:GetInt()
+				local maxDrawingDistanceSqr = math.pow(D3bot.Convar_Navmeshing_DrawDistance:GetInt(), 2)
 				local eyePos = EyePos()
 				render.SetColorMaterial()
 				if not smartDraw then
@@ -99,8 +99,8 @@ return function(lib)
 
 				local inViewRange = true
 				for id, node in pairs(lib.MapNavMesh.NodeById) do
-					if maxDrawingDistance > 0 then
-						inViewRange = node.Pos:Distance(eyePos) <= maxDrawingDistance
+					if maxDrawingDistanceSqr > 0 then
+						inViewRange = node.Pos:DistToSqr(eyePos) <= maxDrawingDistanceSqr
 					end
 
 					if inViewRange or isNodeIdHighlightedOrSelected(id) then
@@ -132,8 +132,8 @@ return function(lib)
 				local inViewRange = true
 				for id, link in pairs(lib.MapNavMesh.LinkById) do
 					local nodeA, nodeB = unpack(link.Nodes)
-					if maxDrawingDistance > 0 then
-						inViewRange = link:GetFocusPos():Distance(eyePos) <= maxDrawingDistance
+					if maxDrawingDistanceSqr > 0 then
+						inViewRange = link:GetFocusPos():DistToSqr(eyePos) <= maxDrawingDistanceSqr
 					end
 
 					if inViewRange or isNodeIdHighlightedOrSelected(id) then
@@ -153,10 +153,10 @@ return function(lib)
 					cam.IgnoreZ(false)
 				end
 
-				local maxDrawingDistance = math.min(D3bot.Convar_Navmeshing_DrawDistance:GetInt(), 500)
-				if maxDrawingDistance <= 0 then maxDrawingDistance = 500 end
+				local maxDrawingDistanceSqr = math.pow(math.min(D3bot.Convar_Navmeshing_DrawDistance:GetInt(), 500), 2)
+				if maxDrawingDistanceSqr <= 0 then maxDrawingDistanceSqr = 500*500 end
 				for id, node in pairs(lib.MapNavMesh.NodeById) do
-					if node.HasArea and node.Pos:Distance(eyePos) <= maxDrawingDistance and (not smartDraw or isNodeIdVisible(id)) then
+					if node.HasArea and node.Pos:DistToSqr(eyePos) <= maxDrawingDistanceSqr and (not smartDraw or isNodeIdVisible(id)) then
 						local z = node.Pos.z + 0.2
 						local params = node.Params
 						local color = getOutlineColor(node)
@@ -181,14 +181,14 @@ return function(lib)
 			end)
 			hook.Add("HUDPaint", hooksId, function()
 				local smartDraw = D3bot.Convar_Navmeshing_SmartDraw:GetBool()
-				local maxDrawingDistance = math.min(D3bot.Convar_Navmeshing_DrawDistance:GetInt(), 500)
-				if maxDrawingDistance <= 0 then maxDrawingDistance = 500 end
+				local maxDrawingDistanceSqr = math.pow(math.min(D3bot.Convar_Navmeshing_DrawDistance:GetInt(), 500), 2)
+				if maxDrawingDistanceSqr <= 0 then maxDrawingDistanceSqr = 500*500 end
 				surface.SetFont("Default")
 				local eyePos = EyePos()
 				for id, item in pairs(lib.MapNavMesh.ItemById) do
 					local isCursored = item == cursoredItemOrNil
 					local itemPos = item:GetFocusPos()
-					if isCursored or itemPos:Distance(eyePos) <= maxDrawingDistance then
+					if isCursored or itemPos:DistToSqr(eyePos) <= maxDrawingDistanceSqr then
 						local pos = itemPos:ToScreen()
 						if pos.visible and (not smartDraw or isNodeIdVisible(id)) then
 							local paramsQuery = from(item.Params)
