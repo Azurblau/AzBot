@@ -67,6 +67,17 @@ function meta:D3bot_CanPounceToPos(pos)
 	return resultTrajectories
 end
 
+function meta:D3bot_CanSeeTargetCached(fraction, target)
+	local mem = self.D3bot_Mem
+	if not mem then return end
+	if not mem.CanSeeTargetCache or mem.CanSeeTargetCache.ValidUntil < CurTime() then
+		mem.CanSeeTargetCache = {}
+		mem.CanSeeTargetCache.ValidUntil = CurTime() + 0.9 + math.random() * 0.2 -- Invalidate after a second (With some jitter)
+		mem.CanSeeTargetCache.Result = self:D3bot_CanSeeTarget(fraction, target)
+	end
+	return mem.CanSeeTargetCache.Result
+end
+
 function meta:D3bot_CanSeeTarget(fraction, target)
 	local attackPos = self:D3bot_GetAttackPosOrNil(fraction, target)
 	if not attackPos then return false end

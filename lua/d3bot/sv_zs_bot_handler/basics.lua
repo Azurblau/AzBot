@@ -157,7 +157,7 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	-- TODO: Reduce can see target calls
 	if shouldClimb and nextNodeOrNil then
 		return D3bot.Basics.Walk(bot, nextNodeOrNil.Pos)
-	elseif mem.TgtOrNil and not mem.DontAttackTgt and (bot:D3bot_CanSeeTarget() or not nextNodeOrNil) then
+	elseif mem.TgtOrNil and not mem.DontAttackTgt and (bot:D3bot_CanSeeTargetCached() or not nextNodeOrNil) then
 		aimPos = bot:D3bot_GetAttackPosOrNilFuture(nil, math.Rand(0, D3bot.BotAimPosVelocityOffshoot))
 		origin = bot:D3bot_GetViewCenter()
 		if aimPos and aimPos:DistToSqr(origin) < math.pow(D3bot.BotAttackDistMin, 2) then
