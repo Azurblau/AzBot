@@ -40,6 +40,8 @@ D3bot.IsSelfRedeemEnabled = false		-- Enable or disable the !human command
 D3bot.SelfRedeemWaveMax = 1				-- The maximum wave a player can respawn (Setting it to 2 would allow the players to redeem in the first and second wave)
 D3bot.StartBonus = nil					-- Number of additional points, that players get at the start of a round.
 
+D3bot.DisableBotCrows = false			-- Disable crows from being controlled by the bot
+
 -- Uncomment the name file you want to use. If you comment out all of the name files, standard names will be used (Bot, Bot(2), Bot(3), ...)
 D3bot.BotNameFile = "fng_usernames"
 --D3bot.BotNameFile = "bottish"

@@ -9,9 +9,11 @@ function HANDLER.SelectorFunction(zombieClassName, team)
 end
 
 function HANDLER.UpdateBotCmdFunction(bot, cmd)
+	if D3bot.DisableBotCrows then return end
+
 	cmd:ClearButtons()
 	cmd:ClearMovement()
-	
+
 	-- Fix knocked down bots from sliding around. (Workaround for the NoxiousNet codebase, as ply:Freeze() got removed from status_knockdown, status_revive, ...)
 	if bot.KnockedDown and IsValid(bot.KnockedDown) or bot.Revive and IsValid(bot.Revive) then
 		return
@@ -47,8 +49,10 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 end
 
 function HANDLER.ThinkFunction(bot)
+	if D3bot.DisableBotCrows then return end
+
 	local mem = bot.D3bot_Mem
-	
+
 	if mem.nextCheckTarget and mem.nextCheckTarget < CurTime() or not mem.nextCheckTarget then
 		mem.nextCheckTarget = CurTime() + 1
 		if not HANDLER.CanBeTgt(bot, mem.TgtOrNil) or math.random(60) == 1 then
