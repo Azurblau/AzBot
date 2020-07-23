@@ -138,8 +138,10 @@ Though I won't take measures against illegitimate usage unless I have reasons to
     - Aim = Straight: Bot goes straight to the next node. Use this if bots need to get through small holes in the floor or walk on narrow paths without falling down.
     - AimTo = Straight: Bot goes straight to this node. Use this if bots need to get through narrow windows or small holes in the floor.
     - Cost: Add a penalty for paths using this node. Higher values makes it less likely for bots to use a path containing this node.
-    - Condition = Unblocked: Only use this node for pathfinding if there is no entity within a range of one inch. Detected entities are func_breakable, prop_physics, prop_dynamic, prop_door_rotating, func_door, func_physbox_multiplayer, func_movelinear.
+    - Condition = Unblocked: Bots will only use this node for pathfinding if there is no entity within a range of one inch. Detected entities are func_breakable, prop_physics, prop_dynamic, prop_door_rotating, func_door, func_physbox_multiplayer, func_movelinear.
     - Condition = Blocked: Opposite of above. Use this for breakable pathways.
+    - BlockBeforeWave: Bots will not use this node for pathfinding until the current wave is greater than or equal to the given value.
+    - BlockAfterWave: Bots will not use this node for pathfinding if the current wave is greater than the given value.
     - DMGPerSecond: Apply damage to human players and entities located on this node.
     - BotMod: Once a non bot player passes this node, the given offset will be applied to the zombie count target. Useful to adjust the bot count on objective maps.
   - Link parameters:

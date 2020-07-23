@@ -33,6 +33,15 @@ function D3bot.GetBestMeshPathOrNil(startNode, endNode, pathCostFunction, heuris
 				end
 				if linkedNode.Params.Condition == "Blocked" then blocked = not blocked end
 			end
+
+			-- Block pathing if the wave is outside of the interval [BlockBeforeWave, BlockAfterWave]
+			if linkedNode.Params.BlockBeforeWave and tonumber(linkedNode.Params.BlockBeforeWave) then
+				if GAMEMODE:GetWave() < tonumber(linkedNode.Params.BlockBeforeWave) then blocked = true end
+			end
+			if linkedNode.Params.BlockAfterWave and tonumber(linkedNode.Params.BlockAfterWave) then
+				if GAMEMODE:GetWave() > tonumber(linkedNode.Params.BlockAfterWave) then blocked = true end
+				-- TODO: Invert logic when BlockBeforeWave > BlockAfterWave. This way it's possible to describe a interval of blocked waves, instead of unblocked waves
+			end
 			
 			local able = true
 			if link.Params.Walking == "Needed" and abilities and not abilities.Walk then able = false end
@@ -89,6 +98,15 @@ function D3bot.GetEscapeMeshPathOrNil(startNode, iterations, pathCostFunction, h
 					if D3bot.NodeBlocking.classes[ent:GetClass()] then blocked = true; break end
 				end
 				if linkedNode.Params.Condition == "Blocked" then blocked = not blocked end
+			end
+
+			-- Block pathing if the wave is outside of the interval [BlockBeforeWave, BlockAfterWave]
+			if linkedNode.Params.BlockBeforeWave and tonumber(linkedNode.Params.BlockBeforeWave) then
+				if GAMEMODE:GetWave() < tonumber(linkedNode.Params.BlockBeforeWave) then blocked = true end
+			end
+			if linkedNode.Params.BlockAfterWave and tonumber(linkedNode.Params.BlockAfterWave) then
+				if GAMEMODE:GetWave() > tonumber(linkedNode.Params.BlockAfterWave) then blocked = true end
+				-- TODO: Invert logic when BlockBeforeWave > BlockAfterWave. This way it's possible to describe a interval of blocked waves, instead of unblocked waves
 			end
 			
 			local able = true

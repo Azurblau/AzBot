@@ -39,6 +39,8 @@ return function(lib)
 			AimTo = {"Straight"},
 			Cost = {},
 			Condition = {"Unblocked", "Blocked"},
+			BlockBeforeWave = {},
+			BlockAfterWave = {},
 			Direction = {"Forward", "Backward"},
 			Walking = {"Needed"},
 			Pouncing = {"Needed"},
