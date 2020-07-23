@@ -23,10 +23,10 @@
 | [zs_arctic_cave](https://steamcommunity.com/sharedfiles/filedetails/?id=431856764) | Sulfito
 | [zs_arena](https://steamcommunity.com/sharedfiles/filedetails/?id=707882905) | [Blueberryy]
 | [zs_ascent_v7](https://steamcommunity.com/sharedfiles/filedetails/?id=1127732796) | [Blueberryy]
-| zs_asylum_v6 | D3 | There are too many different versions
+| [zs_asylum_v6](https://steamcommunity.com/sharedfiles/filedetails/?id=1733617521) | D3 | There are too many different versions. Download link is a pack of maps
 | [zs_backrooms](https://steamcommunity.com/sharedfiles/filedetails/?id=1907868353) | [Blueberryy]
 | [zs_barren](https://steamcommunity.com/sharedfiles/filedetails/?id=181159944) | Sulfito
-| [zs_base_survival] | [Blueberryy]
+| zs_base_survival | [Blueberryy]
 | [zs_biolab_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=486459911) | [Blueberryy]
 | [zs_bloody_arena_1v1](https://steamcommunity.com/sharedfiles/filedetails/?id=176561630) | [Blueberryy]
 | [zs_botsity](https://steamcommunity.com/sharedfiles/filedetails/?id=759885233) | [Blueberryy]
@@ -36,13 +36,14 @@
 | [zs_buntshot](https://steamcommunity.com/sharedfiles/filedetails/?id=1453018665) | [Blueberryy]
 | [zs_burried_office](https://steamcommunity.com/sharedfiles/filedetails/?id=177318240) | [Blueberryy]
 | [zs_cabin_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=266230437) | D3
-| zs_cabin_v3 | D3
+| [zs_cabin_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=1733617521) | D3 | | Download link is a pack of maps
 | zs_cadingpractice | [Blueberryy]
 | [zs_castle_keep](https://steamcommunity.com/sharedfiles/filedetails/?id=316514854) | [Blueberryy]
 | [zs_castle_keep_snowy](https://steamcommunity.com/sharedfiles/filedetails/?id=340180450) | [Blueberryy]
 | [zs_castle_mortis](https://steamcommunity.com/sharedfiles/filedetails/?id=833071229) | [Blueberryy]
 | [zs_cavecomplex_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=278418169) | [Blueberryy]
 | zs_chaste_v2 | D3 | | Not tested yet
+| zs_chernobyl_v3 | D3 | | Not tested yet
 | [zs_city_14_fixed](https://steamcommunity.com/sharedfiles/filedetails/?id=270224423) | Sulfito
 | [zs_city_underfall](https://steamcommunity.com/sharedfiles/filedetails/?id=1210905573) | [Blueberryy]
 | [zs_classics](https://steamcommunity.com/sharedfiles/filedetails/?id=440327301) | [Blueberryy]
@@ -74,7 +75,7 @@
 | [zs_fireforest_redo_v6](https://steamcommunity.com/sharedfiles/filedetails/?id=949078018) | [Blueberryy]
 | [zs_fog_village](https://steamcommunity.com/sharedfiles/filedetails/?id=267812008) | Sulfito, [Blueberryy]
 | zs_fog_village_v2 | [Blueberryy]
-| zs_forestofthedamned_2010 | D3
+| [zs_forestofthedamned_2010](https://steamcommunity.com/sharedfiles/filedetails/?id=1733617521) | D3 | | Download link is a pack of maps
 | [zs_forlornbunker_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=908006837) | Sulfito
 | zs_frozen_v3 | Sulfito
 | [zs_hallway](https://steamcommunity.com/sharedfiles/filedetails/?id=1854220461) | [Blueberryy]
@@ -84,7 +85,8 @@
 | [zs_house_outbreak_fixed_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=183438748) | Sulfito
 | [zs_houseparty](https://steamcommunity.com/sharedfiles/filedetails/?id=315858994) | [Blueberryy]
 | [zs_illuminati_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=446416905) | [Blueberryy]
-| zs_imashouse_b2 | D3
+| [zs_imashouse](https://steamcommunity.com/sharedfiles/filedetails/?id=183229670) | D3 | | Older version, possibly inferior to the zs_imashouse_b2 mesh
+| [zs_imashouse_b2](https://steamcommunity.com/sharedfiles/filedetails/?id=1733617521) | D3 | | Download link is a pack of maps
 | [zs_infected_square_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=1099165651) | [Blueberryy]
 | [zs_infirmary](https://steamcommunity.com/sharedfiles/filedetails/?id=180922335) | D3 | Not compatible with v2, as the spawn is different |
 | [zs_jail_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=240000774) | D3
@@ -98,8 +100,8 @@
 | [zs_leftovers](https://steamcommunity.com/sharedfiles/filedetails/?id=1220955815) | [Blueberryy]
 | [zs_lethalsector](https://steamcommunity.com/sharedfiles/filedetails/?id=1966285838) | [Blueberryy]
 | [zs_lighthouse_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=180853396) | D3 | Probably works with zs_lighthouse, but not with zs_lighthouse_v2b1 and newer
-| zs_lockup_v2 | Sulfito
-| zs_lost_coast_house_fixed_v2 | D3 | Should work with [zs_lost_coast_house_v2](https://garrysmods.org/download/9841/zs-lost-coast-house-v2) too
+| [zs_lockup_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=903048163) | Sulfito
+| [zs_lost_coast_house_fixed_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=1106239759) | D3 | Should work with [zs_lost_coast_house_v2](https://garrysmods.org/download/9841/zs-lost-coast-house-v2) too
 | zs_lost_coast_house_v3 | D3
 | [zs_lv426_v4](https://steamcommunity.com/sharedfiles/filedetails/?id=658373265) | [Blueberryy]
 | [zs_marsh_opt](https://steamcommunity.com/sharedfiles/filedetails/?id=129979142) | Sulfito
@@ -107,7 +109,7 @@
 | [zs_mlt_defense_v2_d2](https://steamcommunity.com/sharedfiles/filedetails/?id=1191699510) | [Blueberryy]
 | [zs_mountains_of_the_afterlife2](https://steamcommunity.com/sharedfiles/filedetails/?id=269400407) | [Blueberryy]
 | [zs_muhosransk_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=659670860) | D3
-| zs_nastyhouse_v3 | D3
+| [zs_nastyhouse_v3](https://steamcommunity.com/sharedfiles/filedetails/?id=1733617521) | D3 | | Download link is a pack of maps
 | zs_natalyas_cottage_v2 | Sulfito
 | [zs_obj_827_to_phoenix_v8](https://steamcommunity.com/sharedfiles/filedetails/?id=586931772) | Sulfito
 | [zs_obj_bluevelvet_v4](https://steamcommunity.com/sharedfiles/filedetails/?id=210959454) | [Blueberryy]
