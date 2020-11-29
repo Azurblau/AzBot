@@ -239,7 +239,7 @@ end
 function meta:D3bot_CheckStuck()
 	local mem = self.D3bot_Mem
 	if mem.NextCheckStuck and mem.NextCheckStuck < CurTime() or not mem.NextCheckStuck then
-		mem.NextCheckStuck = CurTime() + 1
+		mem.NextCheckStuck = CurTime() + 0.9 + math.random() * 0.2
 	else
 		return
 	end

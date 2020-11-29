@@ -33,48 +33,42 @@ hook.Add("StartCommand", D3bot.BotHooksId, function(pl, cmd)
 	end
 end)
 
-local NextBot🤔 = CurTime()
 local NextSupervisor🤔 = CurTime()
 local NextStorePos = CurTime()
 hook.Add("Think", D3bot.BotHooksId.."🤔", function()
 	if not D3bot.IsEnabled then return end
 	
 	-- General bot handler think function
-	if NextBot🤔 < CurTime() then
-		NextBot🤔 = CurTime() + 0.1
+	for _, bot in ipairs(D3bot.GetBots()) do
 		
-		for _, bot in ipairs(D3bot.GetBots()) do
-			
-			if not D3bot.UseConsoleBots then
-				-- Hackish method to get bots back into game. (player.CreateNextBot created bots do not trigger the StartCommand hook while they are dead)
-				if not bot:OldAlive() then
-					gamemode.Call("PlayerDeathThink", bot)
-					if (not bot.StartSpectating or bot.StartSpectating <= CurTime()) and not (GAMEMODE.RoundEnded or bot.Revive or bot.NextSpawnTime) and bot:GetObserverMode() ~= OBS_MODE_NONE then
-						if GAMEMODE:GetWaveActive() then
-							bot:RefreshDynamicSpawnPoint()
-							bot:UnSpectateAndSpawn()
-						else
-							bot:ChangeToCrow()
-						end
+		if not D3bot.UseConsoleBots then
+			-- Hackish method to get bots back into game. (player.CreateNextBot created bots do not trigger the StartCommand hook while they are dead)
+			if not bot:OldAlive() then
+				gamemode.Call("PlayerDeathThink", bot)
+				if (not bot.StartSpectating or bot.StartSpectating <= CurTime()) and not (GAMEMODE.RoundEnded or bot.Revive or bot.NextSpawnTime) and bot:GetObserverMode() ~= OBS_MODE_NONE then
+					if GAMEMODE:GetWaveActive() then
+						bot:RefreshDynamicSpawnPoint()
+						bot:UnSpectateAndSpawn()
+					else
+						bot:ChangeToCrow()
 					end
 				end
 			end
-			
-			local handler = findHandler(bot:GetZombieClass(), bot:Team())
-			handler.ThinkFunction(bot)
 		end
 		
+		local handler = findHandler(bot:GetZombieClass(), bot:Team())
+		handler.ThinkFunction(bot)
 	end
 	
 	-- Supervisor think function
 	if NextSupervisor🤔 < CurTime() then
-		NextSupervisor🤔 = CurTime() + 0.1
+		NextSupervisor🤔 = CurTime() + 0.05 + math.random() * 0.1
 		D3bot.SupervisorThinkFunction()
 	end
 	
 	-- Store history of all players (For behaviour classification, stuck checking)
 	if NextStorePos < CurTime() then
-		NextStorePos = CurTime() + 1
+		NextStorePos = CurTime() + 0.9 + math.random() * 0.2
 		for _, ply in ipairs(player.GetAll()) do
 			ply:D3bot_StorePos()
 		end

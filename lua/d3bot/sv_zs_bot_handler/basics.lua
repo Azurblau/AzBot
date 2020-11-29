@@ -322,7 +322,7 @@ function D3bot.Basics.PounceAuto(bot)
 		if not mem.pouncing then
 			-- Started pouncing
 			actions.Attack2 = true
-			mem.pouncingTimer = CurTime() + 1
+			mem.pouncingTimer = CurTime() + 0.9 + math.random() * 0.2
 			mem.pouncingStartTime = CurTime() + weapon.PounceStartDelay
 			mem.pouncing = true
 		elseif mem.pouncingTimer and mem.pouncingTimer < CurTime() and (CurTime() - mem.pouncingTimer > 5 or bot:WaterLevel() >= 2 or bot:IsOnGround()) then

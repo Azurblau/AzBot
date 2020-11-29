@@ -97,7 +97,7 @@ function HANDLER.ThinkFunction(bot)
 	
 	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
 		if not mem.TgtOrNil or IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(botPos) > HANDLER.BotTgtFixationDistMin then
-			mem.nextUpdateSurroundingPlayers = CurTime() + 1
+			mem.nextUpdateSurroundingPlayers = CurTime() + 0.9 + math.random() * 0.2
 			local targets = player.GetAll() -- TODO: Filter targets before sorting
 			table.sort(targets, function(a, b) return botPos:DistToSqr(a:GetPos()) < botPos:DistToSqr(b:GetPos()) end)
 			for k, v in ipairs(targets) do
@@ -112,7 +112,7 @@ function HANDLER.ThinkFunction(bot)
 	end
 	
 	if mem.nextCheckTarget and mem.nextCheckTarget < CurTime() or not mem.nextCheckTarget then
-		mem.nextCheckTarget = CurTime() + 1
+		mem.nextCheckTarget = CurTime() + 0.9 + math.random() * 0.2
 		if not HANDLER.CanBeTgt(bot, mem.TgtOrNil) then
 			HANDLER.RerollTarget(bot)
 		end

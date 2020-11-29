@@ -54,7 +54,7 @@ function HANDLER.ThinkFunction(bot)
 	local mem = bot.D3bot_Mem
 
 	if mem.nextCheckTarget and mem.nextCheckTarget < CurTime() or not mem.nextCheckTarget then
-		mem.nextCheckTarget = CurTime() + 1
+		mem.nextCheckTarget = CurTime() + 0.9 + math.random() * 0.2
 		if not HANDLER.CanBeTgt(bot, mem.TgtOrNil) or math.random(60) == 1 then
 			HANDLER.RerollTarget(bot)
 		end

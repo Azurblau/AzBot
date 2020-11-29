@@ -69,7 +69,7 @@ function HANDLER.ThinkFunction(bot)
 	if not HANDLER.IsEnemy(bot, mem.AttackTgtOrNil) then mem.AttackTgtOrNil = nil end
 	
 	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
-		mem.nextUpdateSurroundingPlayers = CurTime() + 0.5
+		mem.nextUpdateSurroundingPlayers = CurTime() + 0.4 + math.random() * 0.2
 		local enemies = D3bot.From(player.GetAll()):Where(function(k, v) return HANDLER.IsEnemy(bot, v) end).R
 		local closeEnemies = D3bot.From(enemies):Where(function(k, v) return botPos:DistToSqr(v:GetPos()) < 1000*1000 end).R -- TODO: Constant for the distance
 		local closerEnemies = D3bot.From(closeEnemies):Where(function(k, v) return botPos:DistToSqr(v:GetPos()) < 600*600 end).R -- TODO: Constant for the distance
