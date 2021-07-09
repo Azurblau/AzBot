@@ -143,7 +143,7 @@ function D3bot.DoNodeTrigger()
 	for i, ent in pairs(ents) do
 		local nodeOrNil = D3bot.MapNavMesh:GetNearestNodeOrNil(ent:GetPos()) -- TODO: Don't call GetNearestNodeOrNil that often
 		if nodeOrNil then
-			if type(nodeOrNil.Params.DMGPerSecond) == "number" and nodeOrNil.Params.DMGPerSecond > 0 then
+			if not D3bot.DisableNodeDamage and type(nodeOrNil.Params.DMGPerSecond) == "number" and nodeOrNil.Params.DMGPerSecond > 0 then
 				ent:TakeDamage(nodeOrNil.Params.DMGPerSecond*2, game.GetWorld(), game.GetWorld())
 			end
 			if ent:IsPlayer() and not ent.D3bot_Mem and nodeOrNil.Params.BotMod then

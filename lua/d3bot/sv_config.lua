@@ -50,4 +50,6 @@ D3bot.UseConsoleBots = false			-- If true, bots will be spawned "the old way". B
 										-- This may help if the gamemode doesn't fully support the new bot spawning.
 										-- Also, this will prevent the use of other custom bots alongside D3bot.
 
+D3bot.DisableNodeDamage = false			-- Prevents players taking damage from any "DMGPerSecond" parameter.
+
 D3bot.BotKickReason = "I did my job. :)"

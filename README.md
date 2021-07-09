@@ -142,7 +142,7 @@ Though I won't take measures against illegitimate usage unless I have reasons to
     - Condition = Blocked: Opposite of above. Use this for breakable pathways.
     - BlockBeforeWave: Bots will not use this node for pathfinding until the current wave is greater than or equal to the given value.
     - BlockAfterWave: Bots will not use this node for pathfinding if the current wave is greater than the given value.
-    - DMGPerSecond: Apply damage to human players and entities located on this node.
+    - DMGPerSecond: Apply damage to human players and entities located on this node. Can be disabled globally in `sv_config.lua` by setting `D3bot.DisableNodeDamage = true`.
     - BotMod: Once a non bot player passes this node, the given offset will be applied to the zombie count target. Useful to adjust the bot count on objective maps.
   - Link parameters:
     - Cost: Add a penalty for paths using this link. Higher values makes it less likely for bots to use a path containing this link.
