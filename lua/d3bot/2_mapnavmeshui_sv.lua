@@ -190,11 +190,10 @@ return function(lib)
 					for idx, name in ipairs{ "AreaXMin", "AreaXMax", "AreaYMin", "AreaYMax" } do item:SetParam(name, "") end
 					lib.UpdateMapNavMeshUiSubscribers()
 				end } } }
-	for idx, editMode in ipairs(editModes) do editMode.Next = editModes[(idx % #editModes) + 1] end
 	
 	local editModeByPl = {}
 	
-	local function printEditMode(pl) pl:ChatPrint("Edit Mode: " .. editModeByPl[pl].Name) end
+	local function printEditMode(pl) pl:ChatPrint("Edit Mode: " .. editModes[editModeByPl[pl]].Name) end
 	
 	local subscribers = {}
 	local subscriptionTypeOrNilByPl = {}
@@ -214,7 +213,8 @@ return function(lib)
 		end
 		if formerSubscriptionTypeOrNil == "edit" then clearSelection(pl) end
 		if subscriptionTypeOrNil == "edit" then
-			editModeByPl[pl] = editModes[1]
+			editModeByPl[pl] = 1
+			pl:SendLua(lib.GlobalK .. ".MapNavMeshEditMode = " .. 1)
 			printEditMode(pl)
 		end
 	end
@@ -252,11 +252,12 @@ return function(lib)
 			if hasSelection(pl) then
 				clearSelection(pl)
 			else
-				editModeByPl[pl] = editModeByPl[pl].Next
+				editModeByPl[pl] = (editModeByPl[pl] % #editModes) + 1
+				pl:SendLua(lib.GlobalK .. ".MapNavMeshEditMode = " .. editModeByPl[pl])
 				printEditMode(pl)
 			end
 		else
-			local func = editModeByPl[pl].FuncByKey[key]
+			local func = editModes[editModeByPl[pl]].FuncByKey[key]
 			if func then func(pl) end
 		end
 	end)

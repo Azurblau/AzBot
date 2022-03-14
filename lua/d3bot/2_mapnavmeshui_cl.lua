@@ -90,6 +90,7 @@ return function(lib)
 				end
 				forceDrawInSkyboxCounter = 0
 				local smartDraw = D3bot.Convar_Navmeshing_SmartDraw:GetBool()
+				local previewDraw = D3bot.Convar_Navmeshing_PreviewTool:GetBool()
 				local maxDrawingDistanceSqr = math.pow(D3bot.Convar_Navmeshing_DrawDistance:GetInt(), 2)
 				local eyePos = EyePos()
 				render.SetColorMaterial()
@@ -145,6 +146,193 @@ return function(lib)
 						end
 						if smartDraw and isNodeIdHighlightedOrSelected(id) then
 							cam.IgnoreZ(false)
+						end
+					end
+				end
+				
+				if previewDraw then
+					local editmodeid = lib.MapNavMeshEditMode
+					local tr = LocalPlayer():GetEyeTrace()
+					local pos = tr.HitPos		
+					if editmodeid == 1 or editmodeid == 4 then -- Create Node / Reposition Node
+						render.DrawSphere(pos, 2, 8, 8, lib.Color["Red"])
+					elseif editmodeid == 2 then -- Link Node
+						for nodeid, _ in pairs(isHighlightedById) do
+							if lib.MapNavMesh.NodeById[nodeid] then
+								if cursoredItemOrNil then
+									pos = cursoredItemOrNil.Pos
+								else
+									pos = tr.HitPos
+								end
+
+								render.DrawBeam(lib.MapNavMesh.NodeById[nodeid].Pos + Vector(0, 0, 1), pos + Vector(0, 0, 1), 1, 0, 1, lib.Color["Red"])
+							end
+						end
+					elseif ( editmodeid == 3 or editmodeid == 5 ) then -- Merge/Split/Extend Nodes / Resize Node Area
+						for nodeid, _ in pairs(isHighlightedById) do
+							local node = lib.MapNavMesh.NodeById[nodeid]
+							if node and node.HasArea then
+								if not (smartDraw and isNodeIdHighlightedOrSelected(nodeid)) then
+									cam.IgnoreZ(true)
+								end
+					
+								local z = node.Pos.z + 0.4
+								local params = node.Params
+
+								local angs = LocalPlayer():EyeAngles()
+								local area = math.Round(math.abs(math.abs(angs.y) - 90) / 90) == 1 and "X" or "Y"
+
+								pos = tr.HitPos
+
+								local xmin, ymin = params.AreaXMin, params.AreaYMin
+								local xmax, ymax = params.AreaXMax, params.AreaYMax
+
+								local color = lib.Color["Red"]
+								
+								local ext = false
+								if area == "X" then
+									if params.AreaXMax > pos.x and params.AreaXMin < pos.x then
+										xmin = params.AreaXMin
+										xmax = params.AreaXMax
+										ymin = params.AreaYMin
+										ymax = params.AreaYMax
+
+										ext = true
+									else
+										ext = false
+									end
+
+									if not ext then
+										if xmin < pos.x then
+											xmin = pos.x
+										end
+
+										if xmax > pos.x then
+											xmax = pos.x
+										end
+									end
+								else
+									if params.AreaYMax > pos.y and params.AreaYMin < pos.y then
+										xmin = params.AreaXMin
+										xmax = params.AreaXMax
+										ymin = params.AreaYMin
+										ymax = params.AreaYMax
+
+										ext = true
+									else
+										ext = false
+									end
+
+									if not ext then
+										if ymin < pos.y then
+											ymin = pos.y
+										end
+
+										if ymax > pos.y then
+											ymax = pos.y
+										end
+									end
+								end
+								
+								if not cursoredItemOrNil then
+									if not smartDraw or isNodeIdVisible(nodeid) then
+										if ext then
+											pos = tr.HitPos
+
+											local vec2, vec3, vec4
+											if area == "X" then
+												vec2 = Vector(xmin, ymax, z)
+												vec3 = Vector(pos.x, ymax, z)
+												vec4 = Vector(pos.x, ymin, z)
+											else
+												vec2 = Vector(xmin, pos.y, z)
+												vec3 = Vector(xmax, pos.y, z)
+												vec4 = Vector(xmax, ymin, z)
+											end
+
+											if area == "X" then
+												render.DrawLine(vec3, vec4, lib.Color["Red"], true)
+
+												if editmodeid ~= 5 then
+													render.DrawSphere(Vector(((xmax + xmin) / 2), node.Pos.y, z) + Vector((pos.x - xmin) / 2, 0, 0), 2, 8, 8, lib.Color["Red"])
+													render.DrawSphere(Vector(((xmax + xmin) / 2), node.Pos.y, z) + Vector((pos.x - xmax) / 2, 0, 0), 2, 8, 8, lib.Color["Red"])
+												end
+											else
+												render.DrawLine(vec2, vec3, lib.Color["Red"], true)
+												
+												if editmodeid ~= 5 then
+													render.DrawSphere(Vector(node.Pos.x, (ymax + ymin) / 2, z) + Vector(0, (pos.y - ymin) / 2, 0), 2, 8, 8, lib.Color["Red"])
+													render.DrawSphere(Vector(node.Pos.x, (ymax + ymin) / 2, z) + Vector(0, (pos.y - ymax) / 2, 0), 2, 8, 8, lib.Color["Red"])
+												end
+											end
+										else
+											for k, cullMode in ipairs{MATERIAL_CULLMODE_CW, MATERIAL_CULLMODE_CCW} do
+												render.CullMode(cullMode)
+												render.DrawQuad(
+													Vector(xmin, ymin, z),
+													Vector(xmin, ymax, z),
+													Vector(xmax, ymax, z),
+													Vector(xmax, ymin, z),
+													lib.Color["Red"].EightAlpha)
+											end
+
+											if editmodeid ~= 5 then
+												if area == "X" then
+													render.DrawSphere(Vector((xmax + xmin) / 2, node.Pos.y, z), 2, 8, 8, lib.Color["Red"])
+												else
+													render.DrawSphere(Vector(node.Pos.x, (ymax + ymin) / 2, z), 2, 8, 8, lib.Color["Red"])
+												end
+											end
+										end
+									end
+								end
+
+								if not (smartDraw and isNodeIdHighlightedOrSelected(nodeid)) then
+									cam.IgnoreZ(false)
+								end
+							end
+						end
+					elseif editmodeid == 6 then -- Copy Node ( bad work )
+						for nodeid, _ in pairs(isHighlightedById) do
+							if isNodeIdHighlightedOrSelected(nodeid) then
+								local node = lib.MapNavMesh.NodeById[nodeid]
+								local nextnode = lib.MapNavMesh.NodeById[nodeid+1]
+								local z = node.Pos.z + 0.4
+								if node and node.HasArea then
+									local xmin, ymin = node.Params.AreaXMin, node.Params.AreaYMin
+									local xmax, ymax = node.Params.AreaXMax, node.Params.AreaYMax
+
+									local xw = node.Params.AreaXMax - node.Params.AreaXMin
+									local yh = node.Params.AreaYMax - node.Params.AreaYMin
+
+									if nextnode then
+										xw = xw + nextnode.Params.AreaXMax - nextnode.Params.AreaXMin
+										yh = yh + nextnode.Params.AreaYMax - nextnode.Params.AreaYMin
+									end
+
+									local angs = LocalPlayer():EyeAngles()
+									local area = math.Round(math.abs(math.abs(angs.y) - 90) / 90) == 1 and "X" or "Y"
+									
+									if area == "X" then
+										xmin = pos.x - xw / 2
+										xmax = pos.x + xw / 2
+									else
+										ymin = pos.y - yh / 2
+										ymax = pos.y + yh / 2
+									end
+
+									for k, cullMode in ipairs{MATERIAL_CULLMODE_CW, MATERIAL_CULLMODE_CCW} do
+										render.CullMode(cullMode) 
+
+										render.DrawQuad(
+											Vector(xmin, ymin, z),
+											Vector(xmin, ymax, z),
+											Vector(xmax, ymax, z),
+											Vector(xmax, ymin, z),
+											lib.Color["Red"].EightAlpha)
+									end							
+								end
+							end
 						end
 					end
 				end
