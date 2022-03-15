@@ -22,20 +22,31 @@ return function(lib)
 	end
 	
 	local isHighlightedById = {}
-	function lib.HighlightInMapNavMeshView(id) isHighlightedById[id] = true end
+	function lib.HighlightInMapNavMeshView(id) table.insert(isHighlightedById, id) end -- for copy nodes
 	function lib.ClearMapNavMeshViewHighlights() isHighlightedById = {} end
 	
-	local function getItemColor(item) return lib.Color[isHighlightedById[item.Id] and "Green" or (item == cursoredItemOrNil and "Orange" or (isPathPieceById[item.Id] and "Yellow" or "Red"))] end
-	local function getOutlineColor(item) return lib.Color[isHighlightedById[item.Id] and "Green" or (item == cursoredItemOrNil and "Orange" or "Black")] end
+	local function getItemColor(item) 
+		return lib.Color[table.HasValue(isHighlightedById, item.Id) and "Green" or (item == cursoredItemOrNil and "Orange" or (isPathPieceById[item.Id] and "Yellow" or "Red"))] 
+	end
+	local function getOutlineColor(item) 
+		return lib.Color[table.HasValue(isHighlightedById, item.Id) and "Green" or (item == cursoredItemOrNil and "Orange" or "Black")] 
+	end
 	
 	local isHiddenParamByParamName = from((" "):Explode("X Y Z AreaXMin AreaYMin AreaXMax AreaYMax")):VsSet().R
 	
 	local nodeVisualProperties = {}
 	local nodeVisualPropertiesQueue = {}
 	
-	local function isNodeIdHighlightedOrSelected(id) return isHighlightedById[id] or (cursoredItemOrNil and cursoredItemOrNil.Id == id) end
+	local function isNodeIdHighlightedOrSelected(id) return table.HasValue(isHighlightedById, id) or (cursoredItemOrNil and cursoredItemOrNil.Id == id) end
 	local function isNodeIdVisible(id) return isNodeIdHighlightedOrSelected(id) or nodeVisualProperties[id] and not nodeVisualProperties[id].ShouldHide end
 	
+	local function getCursoredDirection(ang) return math.Round(math.abs(math.abs(ang) - 90) / 90) end
+	local function getCursoredAxisName(excludeZOrNil)
+		local angs = LocalPlayer():EyeAngles()
+		if not excludeZOrNil and getCursoredDirection(angs.p) == 0 then return "Z" end
+		return getCursoredDirection(angs.y) == 1 and "X" or "Y"
+	end
+
 	function lib.SetIsMapNavMeshViewEnabled(bool)
 		local forceDrawInSkybox = false
 		local forceDrawInSkyboxCounter = 0
@@ -150,14 +161,44 @@ return function(lib)
 					end
 				end
 				
+				local angs = LocalPlayer():EyeAngles()
+				local area = getCursoredAxisName()
+				local anarea = area == "X" and "Y" or "X"
+				local c = nil
+
 				if previewDraw then
 					local editmodeid = lib.MapNavMeshEditMode
 					local tr = LocalPlayer():GetEyeTrace()
 					local pos = tr.HitPos		
 					if editmodeid == 1 or editmodeid == 4 then -- Create Node / Reposition Node
 						render.DrawSphere(pos, 2, 8, 8, lib.Color["Red"])
+						if editmodeid == 4 then
+							for id, nodeid in pairs(isHighlightedById) do
+								local node = lib.MapNavMesh.NodeById[nodeid] 
+								
+								if area == "X" then
+									render.DrawSphere(Vector(pos.x, node.Pos.y, node.Pos.z), 2, 8, 8, lib.Color["Red"].HalfAlpha)
+								elseif area == "Y" then
+									render.DrawSphere(Vector(node.Pos.x, pos.y, node.Pos.z), 2, 8, 8, lib.Color["Red"].HalfAlpha)
+								elseif area == "Z" then
+									render.DrawSphere(Vector(node.Pos.x, node.Pos.y, pos.z), 2, 8, 8, lib.Color["Red"].HalfAlpha)
+
+									if node.HasArea then
+										for k, cullMode in ipairs{MATERIAL_CULLMODE_CW, MATERIAL_CULLMODE_CCW} do
+											render.CullMode(cullMode)
+											render.DrawQuad(
+												Vector(node.Params.AreaXMin, node.Params.AreaYMin, pos.z),
+												Vector(node.Params.AreaXMin, node.Params.AreaYMax, pos.z),
+												Vector(node.Params.AreaXMax, node.Params.AreaYMax, pos.z),
+												Vector(node.Params.AreaXMax, node.Params.AreaYMin, pos.z),
+												lib.Color["Red"].HalfAlpha)
+										end
+									end
+								end
+							end
+						end
 					elseif editmodeid == 2 then -- Link Node
-						for nodeid, _ in pairs(isHighlightedById) do
+						for id, nodeid in pairs(isHighlightedById) do
 							if lib.MapNavMesh.NodeById[nodeid] then
 								if cursoredItemOrNil then
 									pos = cursoredItemOrNil.Pos
@@ -168,8 +209,8 @@ return function(lib)
 								render.DrawBeam(lib.MapNavMesh.NodeById[nodeid].Pos + Vector(0, 0, 1), pos + Vector(0, 0, 1), 1, 0, 1, lib.Color["Red"])
 							end
 						end
-					elseif ( editmodeid == 3 or editmodeid == 5 ) then -- Merge/Split/Extend Nodes / Resize Node Area
-						for nodeid, _ in pairs(isHighlightedById) do
+					elseif (editmodeid == 3 or editmodeid == 5) then -- Merge/Split/Extend Nodes / Resize Node Area
+						for id, nodeid in pairs(isHighlightedById) do
 							local node = lib.MapNavMesh.NodeById[nodeid]
 							if node and node.HasArea then
 								if not (smartDraw and isNodeIdHighlightedOrSelected(nodeid)) then
@@ -178,9 +219,6 @@ return function(lib)
 					
 								local z = node.Pos.z + 0.4
 								local params = node.Params
-
-								local angs = LocalPlayer():EyeAngles()
-								local area = math.Round(math.abs(math.abs(angs.y) - 90) / 90) == 1 and "X" or "Y"
 
 								pos = tr.HitPos
 
@@ -292,45 +330,35 @@ return function(lib)
 								end
 							end
 						end
-					elseif editmodeid == 6 then -- Copy Node ( bad work )
-						for nodeid, _ in pairs(isHighlightedById) do
+					elseif editmodeid == 6 then -- Copy Node
+						local off, lasty = 0, 0
+						local offid = 0
+
+						for id, nodeid in pairs(isHighlightedById) do
 							if isNodeIdHighlightedOrSelected(nodeid) then
 								local node = lib.MapNavMesh.NodeById[nodeid]
-								local nextnode = lib.MapNavMesh.NodeById[nodeid+1]
 								local z = node.Pos.z + 0.4
-								if node and node.HasArea then
-									local xmin, ymin = node.Params.AreaXMin, node.Params.AreaYMin
-									local xmax, ymax = node.Params.AreaXMax, node.Params.AreaYMax
+								
+								off = not c and tr.HitPos[area] or tr.HitPos[area] - lib.MapNavMesh.NodeById[c].Pos[area] + node.Pos[area]
 
-									local xw = node.Params.AreaXMax - node.Params.AreaXMin
-									local yh = node.Params.AreaYMax - node.Params.AreaYMin
+								local v = Vector(area == "X" and off or node.Pos.x, area == "Y" and off or node.Pos.y, area == "Z" and off or node.Pos.z)
 
-									if nextnode then
-										xw = xw + nextnode.Params.AreaXMax - nextnode.Params.AreaXMin
-										yh = yh + nextnode.Params.AreaYMax - nextnode.Params.AreaYMin
-									end
+								local nw = node.Params.AreaXMax - node.Params.AreaXMin
+								local nh = node.Params.AreaYMax - node.Params.AreaYMin
+								for k, cullMode in ipairs{MATERIAL_CULLMODE_CW, MATERIAL_CULLMODE_CCW} do
+									render.CullMode(cullMode)
+									render.DrawQuad(
+										Vector(v.x - nw / 2, v.y - nh / 2, z),
+										Vector(v.x - nw / 2, v.y + nh / 2, z),
+										Vector(v.x + nw / 2, v.y + nh / 2, z),
+										Vector(v.x + nw / 2, v.y - nh / 2, z),
+										lib.Color["Red"].EightAlpha)
+								end
 
-									local angs = LocalPlayer():EyeAngles()
-									local area = math.Round(math.abs(math.abs(angs.y) - 90) / 90) == 1 and "X" or "Y"
-									
-									if area == "X" then
-										xmin = pos.x - xw / 2
-										xmax = pos.x + xw / 2
-									else
-										ymin = pos.y - yh / 2
-										ymax = pos.y + yh / 2
-									end
+								render.DrawSphere(v, 2, 8, 8, lib.Color["Red"])
 
-									for k, cullMode in ipairs{MATERIAL_CULLMODE_CW, MATERIAL_CULLMODE_CCW} do
-										render.CullMode(cullMode) 
-
-										render.DrawQuad(
-											Vector(xmin, ymin, z),
-											Vector(xmin, ymax, z),
-											Vector(xmax, ymax, z),
-											Vector(xmax, ymin, z),
-											lib.Color["Red"].EightAlpha)
-									end							
+								if id == 1 then
+									c = nodeid 
 								end
 							end
 						end
