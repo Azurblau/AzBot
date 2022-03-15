@@ -23,6 +23,7 @@ Here is a list of notable changes compared to the original version:
 - Climbing bots. (Thanks to [orecros])
 - More advanced edit modes. (Thanks to necrossin)
 - Improved navmesh drawing.
+- Navmesh edit preview. (Thanks to [delstre])
 - Translations:
   - Chinese Simplified (Thanks to [XY]EvansFix)
   - Chinese Traditional (Thanks to [Half1569])
@@ -204,3 +205,4 @@ Starting with highest public priority:
 [Half1569]: https://github.com/Half1569
 [ErickMaksimets]: https://github.com/ErickMaksimets
 [STEAM_0:0:105668971]: https://steamcommunity.com/profiles/76561198171603670
+[delstre]: https://github.com/delstre
