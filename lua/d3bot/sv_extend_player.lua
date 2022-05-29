@@ -264,3 +264,63 @@ function meta:D3bot_CheckStuck()
 	
 	return minorStuck, majorStuck
 end
+
+if not D3bot.UsingValveNav then return end
+
+function meta:D3bot_CanSeeTarget( fraction, target )
+	local attackPos = self:D3bot_GetAttackPosOrNil( fraction, target )
+	if not attackPos then return false end
+	local mem = self.D3bot_Mem
+	if mem and mem.TgtNodeOrNil and mem.NodeOrNil ~= mem.TgtNodeOrNil and mem.TgtNodeOrNil:GetMetaData().Params.See == "Disabled" then return false end
+	local tr = D3bot.BotSeeTr
+	tr.start = self:D3bot_GetViewCenter()
+	tr.endpos = attackPos
+	tr.filter = player.GetAll()
+	return attackPos and not util.TraceHull( tr ).Hit
+end
+
+function meta:D3bot_UpdateAngsOffshoot( angOffshoot )
+	local mem = self.D3bot_Mem
+	local nodeOrNil = mem.NodeOrNil
+	local nextNodeOrNil = mem.NextNodeOrNil
+	if ( nodeOrNil and nodeOrNil:GetMetaData().Params.Aim == "Straight" ) or ( nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.AimTo == "Straight" ) then
+		mem.AngsOffshoot = Angle()
+		return
+	end
+	mem.AngsOffshoot = Angle(math.random( -angOffshoot, angOffshoot ), math.random( -angOffshoot, angOffshoot ), 0 )
+end
+
+function meta:D3bot_UpdatePath( pathCostFunction, heuristicCostFunction )
+	local mem = self.D3bot_Mem
+	if not IsValid( mem.TgtOrNil ) and not mem.PosTgtOrNil and not mem.NodeTgtOrNil then return end
+
+	local area = navmesh.GetNearestNavArea( self:GetPos() )
+
+	mem.TgtNodeOrNil = mem.NodeTgtOrNil or navmesh.GetNearestNavArea( mem.TgtOrNil and mem.TgtOrNil:GetPos() or mem.PosTgtOrNil )
+	
+	if not area or not mem.TgtNodeOrNil then return end
+	local abilities = { Walk = true }
+	if self:GetActiveWeapon() then
+		if self:GetActiveWeapon().PounceVelocity then abilities.Pounce = true end
+		if self:GetActiveWeapon().GetClimbing then abilities.Climb = true end
+	end
+	local path = D3bot.GetBestValveMeshPathOrNil( area, mem.TgtNodeOrNil, pathCostFunction, heuristicCostFunction, abilities )
+	if not path then
+		local handler = findHandler( self:GetZombieClass(), self:Team() )
+		if handler and handler.RerollTarget then handler.RerollTarget( self ) end
+		return
+	end
+	self:D3bot_SetPath( path, true )
+end
+
+function meta:D3bot_UpdatePathProgress()
+	local mem = self.D3bot_Mem
+	while mem.NextNodeOrNil do
+		if mem.NextNodeOrNil == navmesh.GetNavArea( self:GetPos(), 100 ) then
+			mem.NodeOrNil = mem.NextNodeOrNil
+			mem.NextNodeOrNil = table.remove( mem.RemainingNodes, 1 )
+		else
+			break
+		end
+	end
+end

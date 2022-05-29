@@ -6,6 +6,8 @@ function D3bot.Basics.SuicideOrRetarget(bot)
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
 	
+	if D3bot.UsingValveNav then return end
+		
 	if nodeOrNil and nextNodeOrNil and nextNodeOrNil.Pos.z > nodeOrNil.Pos.z + 55 then
 		local wallParam = nextNodeOrNil.Params.Wall
 		if wallParam == "Retarget" then
@@ -31,11 +33,20 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	local sideSpeed
 	
 	-- Check if the bot needs to climb while being on a node or going towards a node. As maneuvering while climbing is different, this will change/override some movement actions.
-	local shouldClimb = (nodeOrNil and nodeOrNil.Params.Climbing == "Needed") or (nextNodeOrNil and nextNodeOrNil.Params.Climbing == "Needed")
-	
+	local shouldClimb
+	if D3bot.UsingValveNav then
+		shouldClimb = ( nodeOrNil and nodeOrNil:GetMetaData().Params.Climbing == "Needed" ) or ( nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.Climbing == "Needed" )
+	else
+		shouldClimb = ( nodeOrNil and nodeOrNil.Params.Climbing == "Needed" ) or ( nextNodeOrNil and nextNodeOrNil.Params.Climbing == "Needed" )
+	end
+
 	-- Make bot aim straight when outside of current node area This should prevent falling down edges.
-	local aimStraight
-	if nodeOrNil and not nodeOrNil:GetContains(origin, nil) then aimStraight = true end
+	local aimStraight = false
+	if D3bot.UsingValveNav then
+		if nodeOrNil and not navmesh.GetNavArea( origin, 8 ) then aimStraight = true end
+	else
+		if nodeOrNil and not nodeOrNil:GetContains(origin, nil) then aimStraight = true end
+	end
 	if shouldClimb then
 		if bot:GetActiveWeapon() and bot:GetActiveWeapon().GetClimbing and bot:GetActiveWeapon():GetClimbing() and bot:GetActiveWeapon().GetClimbSurface then
 			local tr = bot:GetActiveWeapon():GetClimbSurface()
@@ -49,10 +60,22 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 		bot:D3bot_FaceTo(pos, origin, aimStraight and 1 or D3bot.BotAngLerpFactor, aimStraight and 0 or 1)
 	end
 	
-	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
-	local duckToParam = nextNodeOrNil and nextNodeOrNil.Params.DuckTo
-	local jumpParam = nodeOrNil and nodeOrNil.Params.Jump
-	local jumpToParam = nextNodeOrNil and nextNodeOrNil.Params.JumpTo
+	local duckParam
+	local duckToParam
+	local jumpParam
+	local jumpToParam
+
+	if D3bot.UsingValveNav then
+		duckParam = nodeOrNil and nodeOrNil:GetMetaData().Params.Duck
+		duckToParam = nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.DuckTo
+		jumpParam = nodeOrNil and nodeOrNil:GetMetaData().Params.Jump
+		jumpToParam = nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.JumpTo
+	else
+		duckParam = nodeOrNil and nodeOrNil.Params.Duck
+		duckToParam = nextNodeOrNil and nextNodeOrNil.Params.DuckTo
+		jumpParam = nodeOrNil and nodeOrNil.Params.Jump
+		jumpToParam = nextNodeOrNil and nextNodeOrNil.Params.JumpTo
+	end
 	
 	-- Slow down bot when close to target (2D distance)
 	local tempPos = Vector(pos.x, pos.y, origin.z)
@@ -152,11 +175,20 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	local facesTgt = false
 	
 	-- Check if the bot needs to climb while being on a node or going towards a node. If so, ignore everything else, and use Basics.WalkAuto, which will handle everything fine. TODO: Put everything into its own basics function
-	local shouldClimb = (nodeOrNil and nodeOrNil.Params.Climbing == "Needed") or (nextNodeOrNil and nextNodeOrNil.Params.Climbing == "Needed")
-	
+	local shouldClimb
+	if D3bot.UsingValveNav then
+		shouldClimb = ( nodeOrNil and nodeOrNil:GetMetaData().Params.Climbing == "Needed" ) or ( nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.Climbing == "Needed" )
+	else
+		shouldClimb = ( nodeOrNil and nodeOrNil.Params.Climbing == "Needed" ) or ( nextNodeOrNil and nextNodeOrNil.Params.Climbing == "Needed" )
+	end
+
 	-- TODO: Reduce can see target calls
 	if shouldClimb and nextNodeOrNil then
-		return D3bot.Basics.Walk(bot, nextNodeOrNil.Pos)
+		if D3bot.UsingValveNav then
+			return D3bot.Basics.Walk(bot, nextNodeOrNil:GetCenter() )
+		else
+			return D3bot.Basics.Walk(bot, nextNodeOrNil.Pos)
+		end
 	elseif mem.TgtOrNil and not mem.DontAttackTgt and (bot:D3bot_CanSeeTargetCached() or not nextNodeOrNil) then
 		aimPos = bot:D3bot_GetAttackPosOrNilFuture(nil, math.Rand(0, D3bot.BotAimPosVelocityOffshoot))
 		origin = bot:D3bot_GetViewCenter()
@@ -180,7 +212,11 @@ function D3bot.Basics.WalkAttackAuto(bot)
 		return D3bot.Basics.Walk(bot, mem.PosTgtOrNil, true, mem.PosTgtProximity)
 	elseif nextNodeOrNil then
 		-- Target not visible, walk towards next node
-		return D3bot.Basics.Walk(bot, nextNodeOrNil.Pos)
+		if D3bot.UsingValveNav then
+			return D3bot.Basics.Walk( bot, nextNodeOrNil:GetCenter() )
+		else
+			return D3bot.Basics.Walk( bot, nextNodeOrNil.Pos )
+		end
 	elseif mem.TgtOrNil then
 		-- There is a target entity, but the bot shouldn't attack it
 		return D3bot.Basics.Walk(bot, mem.TgtOrNil:GetPos(), true, mem.TgtProximity)
@@ -192,10 +228,22 @@ function D3bot.Basics.WalkAttackAuto(bot)
 		bot:D3bot_FaceTo(aimPos, origin, D3bot.BotAttackAngLerpFactor, facesTgt and D3bot.FaceTargetOffshootFactor or 1)
 	end
 	
-	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
-	local duckToParam = nextNodeOrNil and nextNodeOrNil.Params.DuckTo
-	local jumpParam = nodeOrNil and nodeOrNil.Params.Jump
-	local jumpToParam = nextNodeOrNil and nextNodeOrNil.Params.JumpTo
+	local duckParam
+	local duckToParam
+	local jumpParam
+	local jumpToParam
+
+	if D3bot.UsingValveNav then
+		duckParam = nodeOrNil and nodeOrNil:GetMetaData().Params.Duck
+		duckToParam = nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.DuckTo
+		jumpParam = nodeOrNil and nodeOrNil:GetMetaData().Params.Jump
+		jumpToParam = nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.JumpTo
+	else
+		duckParam = nodeOrNil and nodeOrNil.Params.Duck
+		duckToParam = nextNodeOrNil and nextNodeOrNil.Params.DuckTo
+		jumpParam = nodeOrNil and nodeOrNil.Params.Jump
+		jumpToParam = nextNodeOrNil and nextNodeOrNil.Params.JumpTo
+	end
 	
 	local speed = bot:GetMaxSpeed()
 	
@@ -276,7 +324,14 @@ function D3bot.Basics.PounceAuto(bot)
 	local tempPos = bot:GetPos()
 	local tempDist = 0
 	local pounceTargetPositions = {}
-	if nextNodeOrNil then
+	if nextNodeOrNil and D3bot.UsingValveNav then
+		tempDist = tempDist + tempPos:Distance(nextNodeOrNil:GetCenter())
+		tempPos = nextNodeOrNil:GetCenter()
+		table.insert(pounceTargetPositions, {Pos = nextNodeOrNil:GetCenter() + Vector(0, 0, 1),
+											 Dist = tempDist,
+											 TimeFactor = 1.1,
+											 ForcePounce = (nextNodeOrNil:SharesLink( nodeOrNil ) and nextNodeOrNil:SharesLink( nodeOrNil ):GetMetaData().Params.Pouncing == "Needed")})
+	elseif nextNodeOrNil then
 		tempDist = tempDist + tempPos:Distance(nextNodeOrNil.Pos)
 		tempPos = nextNodeOrNil.Pos
 		table.insert(pounceTargetPositions, {Pos = nextNodeOrNil.Pos + Vector(0, 0, 1),
@@ -285,12 +340,22 @@ function D3bot.Basics.PounceAuto(bot)
 											 ForcePounce = (nextNodeOrNil.LinkByLinkedNode[nodeOrNil] and nextNodeOrNil.LinkByLinkedNode[nodeOrNil].Params.Pouncing == "Needed")})
 	end
 	local i = 0
-	for k, v in ipairs(mem.RemainingNodes) do -- TODO: Check if it behaves as expected
-		tempDist = tempDist + tempPos:Distance(v.Pos)
-		tempPos = v.Pos
-		table.insert(pounceTargetPositions, {Pos = v.Pos + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1})
-		i = i + 1
-		if i == 2 then break end
+	if D3bot.UsingValveNav then
+		for k, v in ipairs(mem.RemainingNodes) do -- TODO: Check if it behaves as expected
+			tempDist = tempDist + tempPos:Distance(v:GetCenter())
+			tempPos = v:GetCenter()
+			table.insert(pounceTargetPositions, {Pos = v:GetCenter() + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1})
+			i = i + 1
+			if i == 2 then break end
+		end
+	else
+		for k, v in ipairs(mem.RemainingNodes) do -- TODO: Check if it behaves as expected
+			tempDist = tempDist + tempPos:Distance(v.Pos)
+			tempPos = v.Pos
+			table.insert(pounceTargetPositions, {Pos = v.Pos + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1})
+			i = i + 1
+			if i == 2 then break end
+		end
 	end
 	local tempAttackPosOrNil = bot:D3bot_GetAttackPosOrNilFuturePlatforms(0, mem.pounceFlightTime or 0)
 	if tempAttackPosOrNil then

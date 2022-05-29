@@ -1,4 +1,4 @@
-D3bot.IsEnabled = engine.ActiveGamemode() == "zombiesurvival" and table.Count(D3bot.MapNavMesh.ItemById) > 0
+D3bot.IsEnabled = engine.ActiveGamemode() == "zombiesurvival" and ( table.Count(D3bot.MapNavMesh.ItemById) > 0 or file.Exists( "maps/" .. game.GetMap() .. ".nav", "GAME" ) )
 
 D3bot.BotSeeTr = {
 	mins = Vector(-15, -15, -15),
@@ -10,6 +10,9 @@ D3bot.NodeBlocking = {
 	maxs = Vector(1, 1, 1),
 	classes = {func_breakable = true, prop_physics = true, prop_dynamic = true, prop_door_rotating = true, func_door = true, func_physbox = true, func_physbox_multiplayer = true, func_movelinear = true}
 }
+
+D3bot.ValveNav = true							-- Enable the auto-genernated nav-mesh ( Created with "nav_generate" )
+D3bot.ValveNavOverride = false					-- Enable overriding the manually created nav-mesh with the auto-generated
 
 D3bot.NodeDamageEnts = {"prop_*turret", "prop_arsenalcrate", "prop_resupply"}
 

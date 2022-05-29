@@ -122,15 +122,30 @@ function HANDLER.ThinkFunction(bot)
 		mem.nextUpdateOffshoot = CurTime() + 0.4 + math.random() * 0.2
 		bot:D3bot_UpdateAngsOffshoot(HANDLER.AngOffshoot)
 	end
-	
-	local function pathCostFunction(node, linkedNode, link)
-		local linkMetadata = D3bot.LinkMetadata[link]
-		local linkPenalty = linkMetadata and linkMetadata.ZombieDeathCost or 0
-		return linkPenalty * (mem.ConsidersPathLethality and 1 or 0)
+
+	local pathCostFunction
+
+	if D3bot.UsingValveNav then
+		if not pathCostFunction then
+			pathCostFunction = function( cArea, nArea, link )
+				local linkMetaData = link:GetMetaData()
+				local linkPenalty = linkMetaData and linkMetaData.ZombieDeathCost or 0
+				return linkPenalty * ( mem.ConsidersPathLethality and 1 or 0 )
+			end
+		end
+	else
+		if not pathCostFunction then
+			pathCostFunction = function( node, linkedNode, link )
+				local linkMetadata = D3bot.LinkMetadata[link]
+				local linkPenalty = linkMetadata and linkMetadata.ZombieDeathCost or 0
+				return linkPenalty * (mem.ConsidersPathLethality and 1 or 0)
+			end
+		end
 	end
+
 	if mem.nextUpdatePath and mem.nextUpdatePath < CurTime() or not mem.nextUpdatePath then
 		mem.nextUpdatePath = CurTime() + 0.9 + math.random() * 0.2
-		bot:D3bot_UpdatePath(pathCostFunction, nil)
+		bot:D3bot_UpdatePath( pathCostFunction, nil )
 	end
 end
 

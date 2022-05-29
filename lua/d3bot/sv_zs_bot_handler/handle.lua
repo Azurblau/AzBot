@@ -101,7 +101,12 @@ hook.Add("PlayerDeath", D3bot.BotHooksId.."PlayerDeath", function(pl)
 		local nodeOrNil = mem.NodeOrNil
 		local nextNodeOrNil = mem.NextNodeOrNil
 		if nodeOrNil and nextNodeOrNil then
-			local link = nodeOrNil.LinkByLinkedNode[nextNodeOrNil]
+			local link
+			if D3bot.UsingValveNav then
+				link = nodeOrNil:SharesLink( nextNodeOrNil )
+			else
+				link = nodeOrNil.LinkByLinkedNode[nextNodeOrNil]
+			end
 			if link then D3bot.LinkMetadata_ZombieDeath(link, D3bot.LinkDeathCostRaise) end
 		end
 	end
