@@ -458,20 +458,27 @@ return function(lib)
 			return nil, name .. lib.NavMeshItemParamNameNumPairSeparator .. numOrStr
 		end, function(a,b) return tostring(a)<tostring(b) end):Join(lib.NavMeshItemsSeparator).R
 	end
+	
 	function lib.DeserializeNavMesh(serialized)
 		serialized = serialized:gsub("\r\n", "\n")
 		serialized = serialized:gsub("\r", "\n")
 		serialized = serialized:gsub(lib.NavMeshItemsSeparatorOld, lib.NavMeshItemsSeparator)
+
 		local navMesh = lib.NewNavMesh()
+
 		for idx, serializedItem in ipairs(lib.GetSplitStr(serialized, lib.NavMeshItemsSeparator)) do
 			local serializedId, serializedParams = unpack(serializedItem:Split(lib.NavMeshItemIdParamsPairSeparator))
+
 			local item = navMesh:ForceGetItem(lib.DeserializeNavMeshItemId(serializedId))
+
 			for idx, serializedParam in ipairs(lib.GetSplitStr(serializedParams, lib.NavMeshItemParamsSeparator)) do
 				item:SetParam(unpack(serializedParam:Split(lib.NavMeshItemParamNameNumPairSeparator)))
 			end
 		end
+
 		return navMesh
 	end
+
 	function fallback:DeserializeNavMeshParams(serialized)
 		for idx, serializedItem in ipairs(lib.GetSplitStr(serialized, lib.NavMeshItemsSeparator)) do
 			local serializedName, serializedNumOrStr = unpack(serializedItem:Split(lib.NavMeshItemParamNameNumPairSeparator))

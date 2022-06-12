@@ -75,7 +75,7 @@ hook.Add( "InitPostEntity", "D3bot.SetupNavLinks", function()
 						linkData.Params.Walking = "Needed"
 					end
 					
-					if area:HasAttributes( NAV_MESH_PRECISE + NAV_MESH_CLIFF + NAV_MESH_RUN ) then
+					if area:HasAttributes( NAV_MESH_CLIFF + NAV_MESH_RUN ) then
 						linkData.Params.Pouncing = "Needed"
 					end
 				end
@@ -84,27 +84,27 @@ hook.Add( "InitPostEntity", "D3bot.SetupNavLinks", function()
 			local areaData = area:GetMetaData()
 			areaData.Params = areaData.Params or {}
 
-			if area:HasAttributes( NAV_MESH_PRECISE + NAV_MESH_CLIFF + NAV_MESH_OBSTACLE_TOP ) then
+			if area:HasAttributes( NAV_MESH_CLIFF + NAV_MESH_OBSTACLE_TOP ) then
 				areaData.Params.Climbing = "Needed"
 			end
 
-			if area:HasAttributes( NAV_MESH_PRECISE + NAV_MESH_JUMP ) then
+			if area:HasAttributes( NAV_MESH_JUMP ) then
 				areaData.Params.Jump, areaData.Params.JumpTo = "Always"
 			end
 
-			if area:HasAttributes( NAV_MESH_AVOID + NAV_MESH_JUMP ) then
+			if area:HasAttributes( NAV_MESH_NO_JUMP ) then
 				areaData.Params.Jump, areaData.Params.JumpTo = "Disabled"
 			end
 
-			if area:HasAttributes( NAV_MESH_PRECISE + NAV_MESH_CROUCH ) then
+			if area:HasAttributes( NAV_MESH_CROUCH ) then
 				areaData.Params.Duck, areaData.Params.DuckTo = "Always"
 			end
 
-			if area:HasAttributes( NAV_MESH_AVOID + NAV_MESH_CROUCH ) then
+			if area:HasAttributes( NAV_MESH_STAND ) then
 				areaData.Params.Duck, areaData.Params.DuckTo = "Disabled"
 			end
 
-			if area:HasAttributes( NAV_MESH_STOP ) then
+			if area:HasAttributes( NAV_MESH_AVOID ) then
 				areaData.Params.See = "Disabled"
 			end
 
@@ -113,7 +113,7 @@ hook.Add( "InitPostEntity", "D3bot.SetupNavLinks", function()
 			end
 
 			if area:HasAttributes( NAV_MESH_FUNC_COST ) then
-				areaData.Params.Cost = true
+				areaData.Params.Cost = true -- This will just add weight during pathfinding
 			end
 
 			if area:HasAttributes( NAV_MESH_TRANSIENT ) then
