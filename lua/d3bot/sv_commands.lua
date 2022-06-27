@@ -7,9 +7,9 @@ local function setPos(node, pos)
 end
 
 local function convert_navmesh()
-	Msg("Starting namvsh conversion...")
+	print("Starting navmesh conversion...")
 
-	local mapNavMesh = D3bot.MapNavMesh
+	local mapNavMesh = D3bot.NewNavMesh()
 
 	for _, area in ipairs(navmesh.GetAllNavAreas()) do
 		local node = mapNavMesh:NewNode()
@@ -24,30 +24,34 @@ local function convert_navmesh()
 		node:SetParam("AreaYMax", southEastCorner.y)
 	end
 
-	Msg("Nodes placed.")
+	print("Nodes placed.")
 
 	for _, area in ipairs(navmesh.GetAllNavAreas()) do
 		for _, neighbor in ipairs(area:GetAdjacentAreas()) do
-			if math.abs(area:GetCenter().z - neighbor:GetCenter().z) > 68 then continue end
-			
-			local selectedNode = mapNavMesh:GetNearestNodeOrNil(area:GetCenter())
-			
-			if selectedNode then
-				local node = mapNavMesh:GetNearestNodeOrNil(neighbor:GetCenter())
+			if math.abs(area:GetCenter().z - neighbor:GetCenter().z) <= 68 then
+				
+				local selectedNode = mapNavMesh:GetNearestNodeOrNil(area:GetCenter())
+				
+				if selectedNode then
+					local node = mapNavMesh:GetNearestNodeOrNil(neighbor:GetCenter())
 
-				if node then
-					mapNavMesh:ForceGetLink(selectedNode, node)
+					if node then
+						mapNavMesh:ForceGetLink(selectedNode, node)
+					end
 				end
 			end
 		end
 	end
 
-	Msg("Links connected.")
+	print("Links connected.")
 
+	D3bot.MapNavMesh = mapNavMesh
 	D3bot.UpdateMapNavMeshUiSubscribers()
-	
-	Msg("Complete!")
-	Msg("This mesh does not autosave. Save this manually.")
+
+	print("Complete!")
+	print("This mesh does not autosave. Save this manually.")
+	print("In order to use the converted navmesh, reload the map.")
+	print("Also, make sure that D3bot.ValveNavOverride in sv_config.lua is set to false.")
 end
 
 concommand.Add("d3bot_nav_generate", function(ply, str, args, argStr)
@@ -56,8 +60,8 @@ concommand.Add("d3bot_nav_generate", function(ply, str, args, argStr)
 	navmesh.Load()
 	
 	if not navmesh.IsLoaded() then
-		Msg("Starting Valve navmesh generation... (Be patient this takes a while!)")
-		Msg("Be sure to run this again after the map change.")
+		print("Starting Valve navmesh generation... (Be patient this takes a while!)")
+		print("Be sure to run this again after the map change.")
 		navmesh.AddWalkableSeed(ply:GetPos(), Vector(0, 0, 1))
 		navmesh.BeginGeneration()
 	end
