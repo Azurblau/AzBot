@@ -46,7 +46,7 @@ hook.Add("Think", D3bot.BotHooksId.."NodeMetadataThink", function()
 		end
 	end
 	
-	-- Increase counts over time TODO: Check if that is a ressource hog
+	-- Increase counts over time -- TODO: Check if that is a ressource hog
 	local mapNavMesh = D3bot.MapNavMesh
 	if nextNodeMetadataIncrease < CurTime() then
 		nextNodeMetadataIncrease = CurTime() + 1
