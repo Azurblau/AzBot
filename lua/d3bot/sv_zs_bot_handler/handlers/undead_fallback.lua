@@ -125,7 +125,7 @@ function HANDLER.ThinkFunction(bot)
 
 	local pathCostFunction
 
-	if D3bot.UsingValveNav then
+	if D3bot.UsingSourceNav then
 		if not pathCostFunction then
 			pathCostFunction = function( cArea, nArea, link )
 				local linkMetaData = link:GetMetaData()

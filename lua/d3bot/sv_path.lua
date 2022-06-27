@@ -284,33 +284,3 @@ function D3bot.GetEscapeValveMeshPathOrNil( startArea, iterations, pathCostFunct
 		end
 	end
 end
-
-if not D3bot.ValveNav or D3bot.UseConsoleBots or not file.Exists( "maps/" .. game.GetMap() .. ".nav", "GAME" ) then
-	if not D3bot.LoggedNavType then
-		print( "D3bot: Valve Navigation Mesh Disabled or Not Found." )
-		print( "D3bot: Using Manual Naviagation Mesh." )
-	end
-	D3bot.UsingValveNav = false
-	return
-else
-	if not D3bot.LoggedNavType then print( "D3bot: Valve Navigation Mesh Enabled." ) end
-	if not D3bot.CheckMapNavMesh( game.GetMap() ) and not D3bot.ValveNavOverride then
-		if not D3bot.LoggedNavType then	print( "D3bot: Using Valve Naviagation Mesh." ) end
-	elseif D3bot.ValveNavOverride then
-		if not D3bot.LoggedNavType then
-			print( "D3bot: Override Enabled." )
-			print( "D3bot: Using Valve Naviagation Mesh." )
-		end
-	else
-		D3bot.LoggedNavType = true
-		D3bot.UsingValveNav = false
-		return
-	end
-	D3bot.LoggedNavType = true
-end
-D3bot.UsingValveNav = true
-
-hook.Add( "InitPostEntity", "D3bot.LoadValveNavMesh", function()
-	if not D3bot.ValveNav then return end
-	navmesh.Load()
-end )

@@ -23,7 +23,7 @@ end
 local spawnAsTeam
 hook.Add("PlayerInitialSpawn", D3bot.BotHooksId, function(pl)
 	-- Initialize mem when console bots are used
-	if D3bot.UseConsoleBots and D3bot.IsEnabled and pl:IsBot() then
+	if D3bot.UseConsoleBots and D3bot.IsEnabledCached and pl:IsBot() then
 		pl:D3bot_InitializeOrReset()
 	end
 

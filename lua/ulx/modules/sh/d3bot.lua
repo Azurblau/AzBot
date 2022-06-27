@@ -1,7 +1,7 @@
 
 if engine.ActiveGamemode() == "zombiesurvival" then
 	hook.Add("PlayerSpawn", "!human info", function(pl)
-		if not D3bot.IsEnabled or not D3bot.IsSelfRedeemEnabled or pl:Team() ~= TEAM_UNDEAD or LASTHUMAN or GAMEMODE.ZombieEscape or GAMEMODE:GetWave() > D3bot.SelfRedeemWaveMax then return end
+		if not D3bot.IsEnabledCached or not D3bot.IsSelfRedeemEnabled or pl:Team() ~= TEAM_UNDEAD or LASTHUMAN or GAMEMODE.ZombieEscape or GAMEMODE:GetWave() > D3bot.SelfRedeemWaveMax then return end
 		local hint = translate.ClientFormat(pl, "D3bot_redeemwave", D3bot.SelfRedeemWaveMax + 1)
 		pl:PrintMessage(HUD_PRINTCENTER, hint)
 		pl:ChatPrint(hint)
@@ -33,7 +33,7 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 	local nextByPl = {}
 	local tierByPl = {}
 	function ulx.human(pl)
-		if not D3bot.IsEnabled then
+		if not D3bot.IsEnabledCached then
 			local response = translate.ClientGet(pl, "D3bot_botmapsonly")
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
@@ -127,16 +127,6 @@ local strParam = { type = ULib.cmds.StringArg }
 local strRestParam = { type = ULib.cmds.StringArg, ULib.cmds.takeRestOfLine }
 local optionalStrParam = { type = ULib.cmds.StringArg, ULib.cmds.optional }
 
-if not D3bot.ValveNav or D3bot.UseConsoleBots or not file.Exists( "maps/" .. game.GetMap() .. ".nav", "GAME" ) then
-	D3bot.CommandsEnable = false
-else
-	if not D3bot.CheckMapNavMesh( game.GetMap() ) and not D3bot.ValveNavOverride or D3bot.ValveNavOverride then
-		D3bot.CommandsEnable = true
-	else
-		D3bot.CommandsEnable = false
-	end
-end
-
 registerAdminCmd("BotMod", numParam, function(caller, num)
 	local formerZombiesCountAddition = D3bot.ZombiesCountAddition
 	D3bot.ZombiesCountAddition = math.Round(num)
@@ -156,6 +146,18 @@ registerSuperadminCmd("ReloadMesh", function(caller)
 	D3bot.LoadMapNavMesh()
 	D3bot.UpdateMapNavMeshUiSubscribers()
 	caller:ChatPrint("Reloaded.")
+end)
+registerSuperadminCmd("GenerateMesh", function(caller)
+	caller:ChatPrint("Started navmesh generation.")
+	D3bot.GenerateAndConvertNavmesh(caller:GetPos())
+	D3bot.UpdateMapNavMeshUiSubscribers()
+	timer.Simple(0, function()
+		if navmesh.IsGenerating() then
+			caller:ChatPrint("You have to use the GenerateMesh command again after the map has reloaded!")
+		else
+			caller:ChatPrint("Mesh got created. Save navmesh and reload map to use it.")
+		end
+	end)
 end)
 registerSuperadminCmd("RefreshMeshView", function(caller)
 	D3bot.UpdateMapNavMeshUiSubscribers()
@@ -182,34 +184,44 @@ registerSuperadminCmd("SetMapParam", strParam, optionalStrParam, function(caller
 	end)
 end)
 
-if D3bot.CommandsEnable then
-	registerSuperadminCmd("ViewPath", plsParam, strParam, strParam, function(caller, pls, startNodeId, endNodeId)
-		local nodeById = D3bot.MapNavMesh.NodeById
-		local startNode = nodeById[D3bot.DeserializeNavMeshItemId(startNodeId)]
-		local endNode = nodeById[D3bot.DeserializeNavMeshItemId(endNodeId)]
-		if not startNode or not endNode then
-			caller:ChatPrint("Not all specified nodes exist.")
-			return
-		end
-		local path = D3bot.GetBestMeshPathOrNil(startNode, endNode)
-		if not path then
-			caller:ChatPrint("Couldn't find any path for the two specified nodes.")
-			return
-		end
-		for k, pl in pairs(pls) do D3bot.ShowMapNavMeshPath(pl, path) end
-	end)
+registerSuperadminCmd("ViewPath", plsParam, strParam, strParam, function(caller, pls, startNodeId, endNodeId)
+	if D3bot.UsingSourceNav then
+		caller:ChatPrint("This command is not available when using source navmeshes.")
+		return
+	end
 
-	registerSuperadminCmd("DebugPath", plsParam, optionalStrParam, function(caller, pls, serializedEntIdxOrEmpty)
-		local ent = serializedEntIdxOrEmpty == "" and caller:GetEyeTrace().Entity or Entity(tonumber(serializedEntIdxOrEmpty) or -1)
-		if not IsValid(ent) then
-			caller:ChatPrint("No entity cursored or invalid entity index specified.")
-			return
-		end
-		caller:ChatPrint("Debugging path from player to " .. tostring(ent) .. ".")
-		for k, pl in pairs(pls) do D3bot.ShowMapNavMeshPath(pl, pl, ent) end
-	end)
-	registerSuperadminCmd("ResetPath", plsParam, function(caller, pls) for k, pl in pairs(pls) do D3bot.HideMapNavMeshPath(pl) end end)
-end
+	local nodeById = D3bot.MapNavMesh.NodeById
+	local startNode = nodeById[D3bot.DeserializeNavMeshItemId(startNodeId)]
+	local endNode = nodeById[D3bot.DeserializeNavMeshItemId(endNodeId)]
+	if not startNode or not endNode then
+		caller:ChatPrint("Not all specified nodes exist.")
+		return
+	end
+	local path = D3bot.GetBestMeshPathOrNil(startNode, endNode)
+	if not path then
+		caller:ChatPrint("Couldn't find any path for the two specified nodes.")
+		return
+	end
+	for k, pl in pairs(pls) do D3bot.ShowMapNavMeshPath(pl, path) end
+end)
+
+registerSuperadminCmd("DebugPath", plsParam, optionalStrParam, function(caller, pls, serializedEntIdxOrEmpty)
+	if D3bot.UsingSourceNav then
+		caller:ChatPrint("This command is not available when using source navmeshes.")
+		return
+	end
+
+	local ent = serializedEntIdxOrEmpty == "" and caller:GetEyeTrace().Entity or Entity(tonumber(serializedEntIdxOrEmpty) or -1)
+	if not IsValid(ent) then
+		caller:ChatPrint("No entity cursored or invalid entity index specified.")
+		return
+	end
+	caller:ChatPrint("Debugging path from player to " .. tostring(ent) .. ".")
+	for k, pl in pairs(pls) do D3bot.ShowMapNavMeshPath(pl, pl, ent) end
+end)
+
+registerSuperadminCmd("ResetPath", plsParam, function(caller, pls) for k, pl in pairs(pls) do D3bot.HideMapNavMeshPath(pl) end end)
+
 
 local modelOrNilByShortModel = {
 	pole = "models/props_c17/signpole001.mdl",

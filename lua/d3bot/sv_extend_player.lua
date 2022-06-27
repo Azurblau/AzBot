@@ -265,7 +265,7 @@ function meta:D3bot_CheckStuck()
 	return minorStuck, majorStuck
 end
 
-if not D3bot.UsingValveNav then return end
+if not D3bot.UsingSourceNav then return end
 
 function meta:D3bot_CanSeeTarget( fraction, target )
 	local attackPos = self:D3bot_GetAttackPosOrNil( fraction, target )

@@ -1,4 +1,4 @@
-if not D3bot.UsingValveNav then return end
+if not D3bot.UsingSourceNav then return end
 
 local CNavLink = CNavLink or {}
 CNavLink.__index = CNavLink

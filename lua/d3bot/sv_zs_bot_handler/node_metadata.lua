@@ -80,7 +80,7 @@ function D3bot.NodeMetadata_ZombieDeath(node) -- TODO: Call it from the death ha
 	metadata.ZombieDeathFactor = math.Clamp((metadata.ZombieDeathFactor or 0) + 0.1, 0, 1)
 end
 
-if not D3bot.UsingValveNav then return end
+if not D3bot.UsingSourceNav then return end
 
 function D3bot.LinkMetadata_ZombieDeath( link, raiseCost ) -- TODO: Combine it with the ZombieDeathFactor and make it node based, not link based
 	local metadata = link:GetMetaData()

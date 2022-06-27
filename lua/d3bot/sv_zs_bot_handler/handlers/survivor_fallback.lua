@@ -70,7 +70,7 @@ function HANDLER.ThinkFunction(bot)
 
 	-- Disable any human survivor logic when using source navmeshes, as it would need aditional adjustments to get it working.
 	-- It's not worth the effort for survivor bots.
-	if D3bot.UsingValveNav then return end
+	if D3bot.UsingSourceNav then return end
 	
 	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
 		mem.nextUpdateSurroundingPlayers = CurTime() + 0.4 + math.random() * 0.2

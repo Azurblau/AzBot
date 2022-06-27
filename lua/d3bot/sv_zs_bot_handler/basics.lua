@@ -6,7 +6,7 @@ function D3bot.Basics.SuicideOrRetarget(bot)
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
 	
-	if D3bot.UsingValveNav then return end
+	if D3bot.UsingSourceNav then return end
 		
 	if nodeOrNil and nextNodeOrNil and nextNodeOrNil.Pos.z > nodeOrNil.Pos.z + 55 then
 		local wallParam = nextNodeOrNil.Params.Wall
@@ -34,7 +34,7 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	
 	-- Check if the bot needs to climb while being on a node or going towards a node. As maneuvering while climbing is different, this will change/override some movement actions.
 	local shouldClimb
-	if D3bot.UsingValveNav then
+	if D3bot.UsingSourceNav then
 		shouldClimb = ( nodeOrNil and nodeOrNil:GetMetaData().Params.Climbing == "Needed" ) or ( nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.Climbing == "Needed" )
 	else
 		shouldClimb = ( nodeOrNil and nodeOrNil.Params.Climbing == "Needed" ) or ( nextNodeOrNil and nextNodeOrNil.Params.Climbing == "Needed" )
@@ -42,7 +42,7 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 
 	-- Make bot aim straight when outside of current node area This should prevent falling down edges.
 	local aimStraight = false
-	if D3bot.UsingValveNav then
+	if D3bot.UsingSourceNav then
 		if nodeOrNil and not navmesh.GetNavArea( origin, 8 ) then aimStraight = true end
 	else
 		if nodeOrNil and not nodeOrNil:GetContains(origin, nil) then aimStraight = true end
@@ -65,7 +65,7 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	local jumpParam
 	local jumpToParam
 
-	if D3bot.UsingValveNav then
+	if D3bot.UsingSourceNav then
 		duckParam = nodeOrNil and nodeOrNil:GetMetaData().Params.Duck
 		duckToParam = nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.DuckTo
 		jumpParam = nodeOrNil and nodeOrNil:GetMetaData().Params.Jump
@@ -176,7 +176,7 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	
 	-- Check if the bot needs to climb while being on a node or going towards a node. If so, ignore everything else, and use Basics.WalkAuto, which will handle everything fine. TODO: Put everything into its own basics function
 	local shouldClimb
-	if D3bot.UsingValveNav then
+	if D3bot.UsingSourceNav then
 		shouldClimb = ( nodeOrNil and nodeOrNil:GetMetaData().Params.Climbing == "Needed" ) or ( nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.Climbing == "Needed" )
 	else
 		shouldClimb = ( nodeOrNil and nodeOrNil.Params.Climbing == "Needed" ) or ( nextNodeOrNil and nextNodeOrNil.Params.Climbing == "Needed" )
@@ -184,7 +184,7 @@ function D3bot.Basics.WalkAttackAuto(bot)
 
 	-- TODO: Reduce can see target calls
 	if shouldClimb and nextNodeOrNil then
-		if D3bot.UsingValveNav then
+		if D3bot.UsingSourceNav then
 			return D3bot.Basics.Walk(bot, nextNodeOrNil:GetCenter() )
 		else
 			return D3bot.Basics.Walk(bot, nextNodeOrNil.Pos)
@@ -212,7 +212,7 @@ function D3bot.Basics.WalkAttackAuto(bot)
 		return D3bot.Basics.Walk(bot, mem.PosTgtOrNil, true, mem.PosTgtProximity)
 	elseif nextNodeOrNil then
 		-- Target not visible, walk towards next node
-		if D3bot.UsingValveNav then
+		if D3bot.UsingSourceNav then
 			return D3bot.Basics.Walk( bot, nextNodeOrNil:GetCenter() )
 		else
 			return D3bot.Basics.Walk( bot, nextNodeOrNil.Pos )
@@ -233,7 +233,7 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	local jumpParam
 	local jumpToParam
 
-	if D3bot.UsingValveNav then
+	if D3bot.UsingSourceNav then
 		duckParam = nodeOrNil and nodeOrNil:GetMetaData().Params.Duck
 		duckToParam = nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.DuckTo
 		jumpParam = nodeOrNil and nodeOrNil:GetMetaData().Params.Jump
@@ -324,7 +324,7 @@ function D3bot.Basics.PounceAuto(bot)
 	local tempPos = bot:GetPos()
 	local tempDist = 0
 	local pounceTargetPositions = {}
-	if nextNodeOrNil and D3bot.UsingValveNav then
+	if nextNodeOrNil and D3bot.UsingSourceNav then
 		tempDist = tempDist + tempPos:Distance(nextNodeOrNil:GetCenter())
 		tempPos = nextNodeOrNil:GetCenter()
 		table.insert(pounceTargetPositions, {Pos = nextNodeOrNil:GetCenter() + Vector(0, 0, 1),
@@ -340,7 +340,7 @@ function D3bot.Basics.PounceAuto(bot)
 											 ForcePounce = (nextNodeOrNil.LinkByLinkedNode[nodeOrNil] and nextNodeOrNil.LinkByLinkedNode[nodeOrNil].Params.Pouncing == "Needed")})
 	end
 	local i = 0
-	if D3bot.UsingValveNav then
+	if D3bot.UsingSourceNav then
 		for k, v in ipairs(mem.RemainingNodes) do -- TODO: Check if it behaves as expected
 			tempDist = tempDist + tempPos:Distance(v:GetCenter())
 			tempPos = v:GetCenter()

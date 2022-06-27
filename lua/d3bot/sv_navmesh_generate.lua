@@ -1,12 +1,12 @@
 local function round(num) return math.Round(num * 10) / 10 end
-	
+
 local function setPos(node, pos)
 	node:SetParam("X", round(pos.x))
 	node:SetParam("Y", round(pos.y))
 	node:SetParam("Z", round(pos.z))
 end
 
-local function convert_navmesh()
+function D3bot.ConvertNavmesh()
 	print("Starting navmesh conversion...")
 
 	local mapNavMesh = D3bot.NewNavMesh()
@@ -29,9 +29,9 @@ local function convert_navmesh()
 	for _, area in ipairs(navmesh.GetAllNavAreas()) do
 		for _, neighbor in ipairs(area:GetAdjacentAreas()) do
 			if math.abs(area:GetCenter().z - neighbor:GetCenter().z) <= 68 then
-				
+
 				local selectedNode = mapNavMesh:GetNearestNodeOrNil(area:GetCenter())
-				
+
 				if selectedNode then
 					local node = mapNavMesh:GetNearestNodeOrNil(neighbor:GetCenter())
 
@@ -46,7 +46,6 @@ local function convert_navmesh()
 	print("Links connected.")
 
 	D3bot.MapNavMesh = mapNavMesh
-	D3bot.UpdateMapNavMeshUiSubscribers()
 
 	print("Complete!")
 	print("This mesh does not autosave. Save this manually.")
@@ -54,21 +53,26 @@ local function convert_navmesh()
 	print("Also, make sure that D3bot.ValveNavOverride in sv_config.lua is set to false.")
 end
 
-concommand.Add("d3bot_nav_generate", function(ply, str, args, argStr)
-	if ply:IsValid() and not ply:IsSuperAdmin() then return end
-	
+function D3bot.GenerateAndConvertNavmesh(initPos)
 	navmesh.Load()
 	
 	if not navmesh.IsLoaded() then
 		print("Starting Valve navmesh generation... (Be patient this takes a while!)")
 		print("Be sure to run this again after the map change.")
-		navmesh.AddWalkableSeed(ply:GetPos(), Vector(0, 0, 1))
+		navmesh.AddWalkableSeed(initPos, Vector(0, 0, 1))
 		navmesh.BeginGeneration()
 	end
 
 	timer.Simple(1, function()
 		if not navmesh.IsGenerating() then
-			convert_navmesh()
+			D3bot.ConvertNavmesh()
 		end
 	end)
+end
+
+concommand.Add("d3bot_nav_generate", function(ply, str, args, argStr)
+	if not ply:IsValid() or not ply:IsSuperAdmin() then return end
+
+	D3bot.GenerateAndConvertNavmesh(ply:GetPos())
+	D3bot.UpdateMapNavMeshUiSubscribers()
 end)
