@@ -55,10 +55,15 @@ function D3bot.ConvertNavmesh()
 	PrintMessage(HUD_PRINTTALK, "Also, make sure that D3bot.ValveNavOverride in sv_config.lua is set to false.")
 end
 
-function D3bot.GenerateAndConvertNavmesh(initPos)
+function D3bot.GenerateAndConvertNavmesh(initPos, onGround)
 	navmesh.Load()
 	
 	if not navmesh.IsLoaded() then
+		if not onGround then
+			PrintMessage(HUD_PRINTTALK, "Please stand on flat/level terrain in the playable area before starting.")
+			return
+		end
+		
 		PrintMessage(HUD_PRINTTALK, "Starting Valve navmesh generation... (Be patient this takes a while!)")
 		PrintMessage(HUD_PRINTTALK, "Be sure to run GenerateMesh again after the map change.")
 		PrintMessage(HUD_PRINTTALK, "You may check the finished mesh by typing \"nav_edit 1\" in the developer console with cheats enabled in a non-dedicated server")
@@ -79,6 +84,6 @@ end
 concommand.Add("d3bot_nav_generate", function(ply, str, args, argStr)
 	if not ply:IsValid() or not ply:IsSuperAdmin() then return end
 
-	D3bot.GenerateAndConvertNavmesh(ply:GetPos())
+	D3bot.GenerateAndConvertNavmesh(ply:GetPos(), ply:IsOnGround())
 	D3bot.UpdateMapNavMeshUiSubscribers()
 end)
