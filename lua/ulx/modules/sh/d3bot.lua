@@ -151,13 +151,6 @@ registerSuperadminCmd("GenerateMesh", function(caller)
 	caller:ChatPrint("Started navmesh generation.")
 	D3bot.GenerateAndConvertNavmesh(caller:GetPos())
 	D3bot.UpdateMapNavMeshUiSubscribers()
-	timer.Simple(0, function()
-		if navmesh.IsGenerating() then
-			caller:ChatPrint("You have to use the GenerateMesh command again after the map has reloaded!")
-		else
-			caller:ChatPrint("Mesh got created. Save navmesh and reload map to use it.")
-		end
-	end)
 end)
 registerSuperadminCmd("RefreshMeshView", function(caller)
 	D3bot.UpdateMapNavMeshUiSubscribers()

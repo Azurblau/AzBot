@@ -7,7 +7,7 @@ local function setPos(node, pos)
 end
 
 function D3bot.ConvertNavmesh()
-	print("Starting navmesh conversion...")
+	PrintMessage(HUD_PRINTTALK, "Starting navmesh conversion...")
 
 	local mapNavMesh = D3bot.NewNavMesh()
 
@@ -24,7 +24,7 @@ function D3bot.ConvertNavmesh()
 		node:SetParam("AreaYMax", southEastCorner.y)
 	end
 
-	print("Nodes placed.")
+	PrintMessage(HUD_PRINTTALK, "Nodes placed.")
 
 	for _, area in ipairs(navmesh.GetAllNavAreas()) do
 		for _, neighbor in ipairs(area:GetAdjacentAreas()) do
@@ -43,22 +43,28 @@ function D3bot.ConvertNavmesh()
 		end
 	end
 
-	print("Links connected.")
+	PrintMessage(HUD_PRINTTALK, "Links connected.")
+	PrintMessage(HUD_PRINTTALK, " ")
 
 	D3bot.MapNavMesh = mapNavMesh
 
-	print("Complete!")
-	print("This mesh does not autosave. Save this manually.")
-	print("In order to use the converted navmesh, reload the map.")
-	print("Also, make sure that D3bot.ValveNavOverride in sv_config.lua is set to false.")
+	PrintMessage(HUD_PRINTTALK, "Complete!")
+	PrintMessage(HUD_PRINTTALK, " ")
+	PrintMessage(HUD_PRINTTALK, "This mesh does not autosave. Save this manually.")
+	PrintMessage(HUD_PRINTTALK, "In order to use the converted navmesh, reload the map.")
+	PrintMessage(HUD_PRINTTALK, "Also, make sure that D3bot.ValveNavOverride in sv_config.lua is set to false.")
 end
 
 function D3bot.GenerateAndConvertNavmesh(initPos)
 	navmesh.Load()
 	
 	if not navmesh.IsLoaded() then
-		print("Starting Valve navmesh generation... (Be patient this takes a while!)")
-		print("Be sure to run this again after the map change.")
+		PrintMessage(HUD_PRINTTALK, "Starting Valve navmesh generation... (Be patient this takes a while!)")
+		PrintMessage(HUD_PRINTTALK, "Be sure to run GenerateMesh again after the map change.")
+		PrintMessage(HUD_PRINTTALK, "You may check the finished mesh by typing \"nav_edit 1\" in the developer console with cheats enabled in a non-dedicated server")
+		PrintMessage(HUD_PRINTTALK, "See the valve developer wiki for more information, especially if your mesh is sub-optimal: https://developer.valvesoftware.com/wiki/Nav_Mesh_Editing")
+		PrintMessage(HUD_PRINTTALK, "It is recommended to check before full conversion.")
+		
 		navmesh.AddWalkableSeed(initPos, Vector(0, 0, 1))
 		navmesh.BeginGeneration()
 	end
