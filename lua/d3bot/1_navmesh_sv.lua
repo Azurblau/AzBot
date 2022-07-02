@@ -17,12 +17,22 @@ return function(lib)
 	
 	util.AddNetworkString(lib.MapNavMeshNetworkStr)
 	function lib.UploadMapNavMesh(plOrPls)
-		net.Start(lib.MapNavMeshNetworkStr)
-			local data = lib.MapNavMesh:Serialize()
-			if data ~= "" then data = util.Compress(data) end
-			net.WriteUInt(data:len(), 32)
-			net.WriteData(data, data:len())
-		net.Send(plOrPls)
+		local rawData = lib.MapNavMesh:Serialize()
+		local dataLen = rawData:len()
+		local maxSize = 2 ^ 16
+
+		for i = maxSize, dataLen + maxSize, maxSize do
+			local subDataComp = util.Compress(string.sub(rawData, i - maxSize + 1, dataLen < maxSize and dataLen or i))
+			subDataComp = subDataComp or ""
+
+			local subDataCompLen = subDataComp:len()
+			
+			net.Start(lib.MapNavMeshNetworkStr)
+			net.WriteBool(i >= dataLen)
+			net.WriteUInt(subDataCompLen, 16)
+			net.WriteData(subDataComp, subDataCompLen)
+			net.Send(plOrPls)
+		end
 	end
 	
 	file.CreateDir(lib.MapNavMeshDir)

@@ -1,8 +1,19 @@
 
 return function(lib)
+	local buffer = ""
+
 	net.Receive(lib.MapNavMeshNetworkStr, function()
-		local data = net.ReadData(net.ReadUInt(32))
-		if data ~= "" then data = util.Decompress(data) end
-		lib.MapNavMesh = lib.DeserializeNavMesh(data)
+		local finished = net.ReadBool()
+		local data = net.ReadData(net.ReadUInt(16))
+
+		if data then
+			buffer = buffer .. util.Decompress(data)
+		end
+		
+		if finished then
+			lib.MapNavMesh = lib.DeserializeNavMesh(buffer) or {}
+			print(lib.MapNavMesh)
+			buffer = ""
+		end
 	end)
 end
