@@ -25,7 +25,7 @@ end
 local findHandler = findHandler
 
 hook.Add("StartCommand", D3bot.BotHooksId, function(pl, cmd)
-	if D3bot.IsEnabled and pl.D3bot_Mem then
+	if D3bot.IsEnabledCached and pl.D3bot_Mem then
 		
 		local handler = findHandler(pl:GetZombieClass(), pl:Team())
 		handler.UpdateBotCmdFunction(pl, cmd)
@@ -36,7 +36,7 @@ end)
 local NextSupervisor🤔 = CurTime()
 local NextStorePos = CurTime()
 hook.Add("Think", D3bot.BotHooksId.."🤔", function()
-	if not D3bot.IsEnabled then return end
+	if not D3bot.IsEnabledCached then return end
 	
 	-- General bot handler think function
 	for _, bot in ipairs(D3bot.GetBots()) do
@@ -76,7 +76,7 @@ hook.Add("Think", D3bot.BotHooksId.."🤔", function()
 end)
 
 hook.Add("EntityTakeDamage", D3bot.BotHooksId.."TakeDamage", function(ent, dmg)
-	if D3bot.IsEnabled then
+	if D3bot.IsEnabledCached then
 		if ent:IsPlayer() and ent.D3bot_Mem then
 			-- Bot got damaged or damaged itself
 			local handler = findHandler(ent:GetZombieClass(), ent:Team())
@@ -93,7 +93,7 @@ hook.Add("EntityTakeDamage", D3bot.BotHooksId.."TakeDamage", function(ent, dmg)
 end)
 
 hook.Add("PlayerDeath", D3bot.BotHooksId.."PlayerDeath", function(pl)
-	if D3bot.IsEnabled and pl.D3bot_Mem then
+	if D3bot.IsEnabledCached and pl.D3bot_Mem then
 		local handler = findHandler(pl:GetZombieClass(), pl:Team())
 		handler.OnDeathFunction(pl)
 		-- Add death cost to the current link
@@ -101,7 +101,12 @@ hook.Add("PlayerDeath", D3bot.BotHooksId.."PlayerDeath", function(pl)
 		local nodeOrNil = mem.NodeOrNil
 		local nextNodeOrNil = mem.NextNodeOrNil
 		if nodeOrNil and nextNodeOrNil then
-			local link = nodeOrNil.LinkByLinkedNode[nextNodeOrNil]
+			local link
+			if D3bot.UsingSourceNav then
+				link = nodeOrNil:SharesLink( nextNodeOrNil )
+			else
+				link = nodeOrNil.LinkByLinkedNode[nextNodeOrNil]
+			end
 			if link then D3bot.LinkMetadata_ZombieDeath(link, D3bot.LinkDeathCostRaise) end
 		end
 	end
@@ -109,9 +114,9 @@ end)
 
 local hadBonusByPl = {}
 hook.Add("PlayerSpawn", D3bot.BotHooksId.."PlayerSpawn", function(pl)
-	if not D3bot.IsEnabled then return end
+	if not D3bot.IsEnabledCached then return end
 	if pl.D3bot_Mem then pl:D3bot_InitializeOrReset() end
-	if D3bot.IsEnabled and D3bot.StartBonus and D3bot.StartBonus > 0 and pl:Team() == TEAM_SURVIVOR then
+	if D3bot.IsEnabledCached and D3bot.StartBonus and D3bot.StartBonus > 0 and pl:Team() == TEAM_SURVIVOR then
 		local hadBonus = hadBonusByPl[pl]
 		hadBonusByPl[pl] = true
 		pl:SetPoints(hadBonus and 0 or D3bot.StartBonus)

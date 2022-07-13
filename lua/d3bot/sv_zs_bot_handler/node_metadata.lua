@@ -46,7 +46,7 @@ hook.Add("Think", D3bot.BotHooksId.."NodeMetadataThink", function()
 		end
 	end
 	
-	-- Increase counts over time TODO: Check if that is a ressource hog
+	-- Increase counts over time -- TODO: Check if that is a ressource hog
 	local mapNavMesh = D3bot.MapNavMesh
 	if nextNodeMetadataIncrease < CurTime() then
 		nextNodeMetadataIncrease = CurTime() + 1
@@ -78,4 +78,16 @@ function D3bot.NodeMetadata_ZombieDeath(node) -- TODO: Call it from the death ha
 	if not nodeMetadata[node] then nodeMetadata[node] = {} end
 	local metadata = nodeMetadata[node]
 	metadata.ZombieDeathFactor = math.Clamp((metadata.ZombieDeathFactor or 0) + 0.1, 0, 1)
+end
+
+if not D3bot.UsingSourceNav then return end
+
+function D3bot.LinkMetadata_ZombieDeath( link, raiseCost ) -- TODO: Combine it with the ZombieDeathFactor and make it node based, not link based
+	local metadata = link:GetMetaData()
+	metadata.ZombieDeathCost = ( metadata.ZombieDeathCost or 0 ) + raiseCost
+end
+
+function D3bot.NodeMetadata_ZombieDeath( node ) -- TODO: Call it from the death handler
+	local metadata = node:GetMetaData()
+	metadata.ZombieDeathFactor = math.Clamp( ( metadata.ZombieDeathFactor or 0 ) + 0.1, 0, 1 )
 end

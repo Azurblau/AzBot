@@ -3,7 +3,7 @@
 function GetPlayerByName(name)
 	local name = string.lower(name)
 	for _, v in ipairs(player.GetHumans()) do
-		if(string.find(string.lower(v:Name()),name,1,true) != nil)
+		if(string.find(string.lower(v:Name()),name,1,true) ~= nil)
 			then return v
 		end
 	end

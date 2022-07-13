@@ -1,7 +1,7 @@
 
 if engine.ActiveGamemode() == "zombiesurvival" then
 	hook.Add("PlayerSpawn", "!human info", function(pl)
-		if not D3bot.IsEnabled or not D3bot.IsSelfRedeemEnabled or pl:Team() ~= TEAM_UNDEAD or LASTHUMAN or GAMEMODE.ZombieEscape or GAMEMODE:GetWave() > D3bot.SelfRedeemWaveMax then return end
+		if not D3bot.IsEnabledCached or not D3bot.IsSelfRedeemEnabled or pl:Team() ~= TEAM_UNDEAD or LASTHUMAN or GAMEMODE.ZombieEscape or GAMEMODE:GetWave() > D3bot.SelfRedeemWaveMax then return end
 		local hint = translate.ClientFormat(pl, "D3bot_redeemwave", D3bot.SelfRedeemWaveMax + 1)
 		pl:PrintMessage(HUD_PRINTCENTER, hint)
 		pl:ChatPrint(hint)
@@ -33,7 +33,7 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 	local nextByPl = {}
 	local tierByPl = {}
 	function ulx.human(pl)
-		if not D3bot.IsEnabled then
+		if not D3bot.IsEnabledCached then
 			local response = translate.ClientGet(pl, "D3bot_botmapsonly")
 			pl:ChatPrint(response)
 			pl:PrintMessage(HUD_PRINTCENTER, response)
@@ -135,8 +135,8 @@ registerAdminCmd("BotMod", numParam, function(caller, num)
 end)
 
 registerSuperadminCmd("ViewMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do D3bot.SetMapNavMeshUiSubscription(pl, "view") end end)
-registerSuperadminCmd("EditMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do D3bot.SetMapNavMeshUiSubscription(pl, "edit") end caller:AddFlags(FL_NOTARGET) end)
-registerSuperadminCmd("HideMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do D3bot.SetMapNavMeshUiSubscription(pl, nil) end caller:RemoveFlags(FL_NOTARGET) end)
+registerSuperadminCmd("EditMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do D3bot.SetMapNavMeshUiSubscription(pl, "edit") pl:AddFlags(FL_NOTARGET) end end)
+registerSuperadminCmd("HideMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do D3bot.SetMapNavMeshUiSubscription(pl, nil) pl:RemoveFlags(FL_NOTARGET) end end)
 
 registerSuperadminCmd("SaveMesh", function(caller)
 	D3bot.SaveMapNavMesh()
@@ -146,6 +146,11 @@ registerSuperadminCmd("ReloadMesh", function(caller)
 	D3bot.LoadMapNavMesh()
 	D3bot.UpdateMapNavMeshUiSubscribers()
 	caller:ChatPrint("Reloaded.")
+end)
+registerSuperadminCmd("GenerateMesh", function(caller)
+	D3bot.GenerateAndConvertNavmesh(caller:GetPos(), caller:IsOnGround(), function()
+		D3bot.UpdateMapNavMeshUiSubscribers()
+	end)
 end)
 registerSuperadminCmd("RefreshMeshView", function(caller)
 	D3bot.UpdateMapNavMeshUiSubscribers()
@@ -173,6 +178,11 @@ registerSuperadminCmd("SetMapParam", strParam, optionalStrParam, function(caller
 end)
 
 registerSuperadminCmd("ViewPath", plsParam, strParam, strParam, function(caller, pls, startNodeId, endNodeId)
+	if D3bot.UsingSourceNav then
+		caller:ChatPrint("This command is not available when using source navmeshes.")
+		return
+	end
+
 	local nodeById = D3bot.MapNavMesh.NodeById
 	local startNode = nodeById[D3bot.DeserializeNavMeshItemId(startNodeId)]
 	local endNode = nodeById[D3bot.DeserializeNavMeshItemId(endNodeId)]
@@ -187,7 +197,13 @@ registerSuperadminCmd("ViewPath", plsParam, strParam, strParam, function(caller,
 	end
 	for k, pl in pairs(pls) do D3bot.ShowMapNavMeshPath(pl, path) end
 end)
+
 registerSuperadminCmd("DebugPath", plsParam, optionalStrParam, function(caller, pls, serializedEntIdxOrEmpty)
+	if D3bot.UsingSourceNav then
+		caller:ChatPrint("This command is not available when using source navmeshes.")
+		return
+	end
+
 	local ent = serializedEntIdxOrEmpty == "" and caller:GetEyeTrace().Entity or Entity(tonumber(serializedEntIdxOrEmpty) or -1)
 	if not IsValid(ent) then
 		caller:ChatPrint("No entity cursored or invalid entity index specified.")
@@ -196,7 +212,9 @@ registerSuperadminCmd("DebugPath", plsParam, optionalStrParam, function(caller, 
 	caller:ChatPrint("Debugging path from player to " .. tostring(ent) .. ".")
 	for k, pl in pairs(pls) do D3bot.ShowMapNavMeshPath(pl, pl, ent) end
 end)
+
 registerSuperadminCmd("ResetPath", plsParam, function(caller, pls) for k, pl in pairs(pls) do D3bot.HideMapNavMeshPath(pl) end end)
+
 
 local modelOrNilByShortModel = {
 	pole = "models/props_c17/signpole001.mdl",
