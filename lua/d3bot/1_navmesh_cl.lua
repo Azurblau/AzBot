@@ -12,7 +12,6 @@ return function(lib)
 		
 		if finished then
 			lib.MapNavMesh = lib.DeserializeNavMesh(buffer) or {}
-			print(lib.MapNavMesh)
 			buffer = ""
 		end
 	end)
