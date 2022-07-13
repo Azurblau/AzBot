@@ -6,12 +6,10 @@ return function(lib)
 		local finished = net.ReadBool()
 		local data = net.ReadData(net.ReadUInt(16))
 
-		if data then
-			buffer = buffer .. util.Decompress(data)
-		end
-		
+		buffer = buffer .. data
+
 		if finished then
-			lib.MapNavMesh = lib.DeserializeNavMesh(buffer) or {}
+			lib.MapNavMesh = lib.DeserializeNavMesh(util.Decompress(buffer)) or {}
 			buffer = ""
 		end
 	end)
