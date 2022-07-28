@@ -156,7 +156,7 @@
 | [zs_subversive_2_fix](https://steamcommunity.com/sharedfiles/filedetails/?id=181263962) | [Blueberryy]
 | [zs_subversive_part3_fix](https://steamcommunity.com/sharedfiles/filedetails/?id=181269286) | [Blueberryy]
 | [zs_subversive_part4_fix2](https://steamcommunity.com/sharedfiles/filedetails/?id=181277919) | [Blueberryy]
-| [zs_subway_v9](https://steamcommunity.com/sharedfiles/filedetails/?id=960750746) | [Blueberryy]
+| [zs_subway_v9](https://steamcommunity.com/sharedfiles/filedetails/?id=960750746) | [Blueberryy], [Korespond] | | Rebuilt by [Korespond]
 | [zs_survivor_house](https://steamcommunity.com/sharedfiles/filedetails/?id=681410236) | [Blueberryy]
 | [zs_swimming_pool_v2](https://steamcommunity.com/sharedfiles/filedetails/?id=154887708) | Sulfito, [Blueberryy] | | Rebuilt by [Blueberryy]
 | [zs_the_pub_final7](https://steamcommunity.com/sharedfiles/filedetails/?id=542535318) | Sulfito
@@ -173,5 +173,6 @@
 | zs_zombie_village_v3 | D3 | | Same as zs_zombie_village, but with a ladder near spawn
 
 [Blueberryy]: https://github.com/Blueberryy
-[Tuckatk]: https://github.com/Tuckatk
 [HordeRally ツ]: https://github.com/HordeRally
+[Korespond]: https://github.com/Korespond
+[Tuckatk]: https://github.com/Tuckatk
