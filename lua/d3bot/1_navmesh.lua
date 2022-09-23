@@ -1,3 +1,6 @@
+local mathMin = math.min
+local mathMax = math.max
+local mathSqrt = math.sqrt
 
 return function(lib)
 	local from = lib.From
@@ -254,25 +257,63 @@ return function(lib)
 		end
 		return cursoredItemOrNil
 	end
-	
+
+	---Returns the node that is closest to the given position.
+	---@param pos GVector
+	---@return any|nil
 	function fallback:GetNearestNodeOrNil(pos)
+		-- Optimization notes:
+		-- - We don't want to use GVectors as they would disallow specific optimizations. Also, creating vectors is slow. LuaJIT can't optimize any calls on them, as they are userdata objects outside of the Lua runtime.
+		-- - Put some math functions into upvalues, as the optimizer then can be sure the function doesn't change between calls.
+		-- - Sieve out nodes before calculating the squared distance (via non squared distance).
+
+		-- Benchmarks:
+		-- Navmesh: zs_infected_square_v1
+		-- CPU: Intel(R) Core(TM) i5-10600K CPU @ 4.10GHz
+		-- 2020-06-23 (bf9e9bd): ~1.60 ms per call.
+		-- 2022-09-23 (       ): ~0.41 ms per call.
+
 		local nearestNodeOrNil
-		local distSqrMin = math.huge
+
+		-- Current search sphere around pos.
+		local distSqrMin = math.huge -- The squared distance to the closest node.
+		local distMin    = math.huge -- The distance to the closest node.
+		local distMinNeg = -distMin -- The negated distance to the closest node.
+
+		local posX, posY, posZ = pos:Unpack()
+
 		for id, node in pairs(self.NodeById) do
-			local nodePos = node.Pos
+			local nodeX, nodeY, nodeZ = node.Pos:Unpack() -- This is unfortunately a point where anything like math.min could be modified. Therefore we need to put such references into upvalues.
+
 			if node.HasArea then
 				local params = node.Params
-				nodePos = Vector(math.Clamp(pos.x, params.AreaXMin, params.AreaXMax), math.Clamp(pos.y, params.AreaYMin, params.AreaYMax), nodePos.z)
+				nodeX = mathMin(mathMax(posX, params.AreaXMin), params.AreaXMax)
+				nodeY = mathMin(mathMax(posY, params.AreaYMin), params.AreaYMax)
 			end
-			local distSqr = pos:DistToSqr(nodePos)
-			if distSqr < distSqrMin then
-				nearestNodeOrNil = node
-				distSqrMin = distSqr
+
+			-- Sieve out nodes that definitely lie outside the search sphere.
+			-- This is the same as checking against bounding boxes of nodes that are extended by the current distMin.
+			local diffX = posX - nodeX
+			if diffX < distMin and diffX > distMinNeg then
+				local diffY = posY - nodeY
+				if diffY < distMin and diffY > distMinNeg then
+					local diffZ = posZ - nodeZ
+					if diffZ < distMin and diffZ > distMinNeg then
+						local distSqr = diffX ^ 2 + diffY ^ 2 + diffZ ^ 2
+						if distSqr < distSqrMin then
+							nearestNodeOrNil = node
+							distSqrMin = distSqr
+							distMin = mathSqrt(distSqr) -- We need the non squared distance to quickly sieve out nodes.
+							distMinNeg = -distMin
+						end
+					end
+				end
 			end
 		end
+
 		return nearestNodeOrNil
 	end
-	
+
 	local isIgnoreParameter = from((" "):Explode("X Y Z AreaXMin AreaYMin AreaXMax AreaYMax")):VsSet().R
 	
 	function nodeFallback:MergeWithNode(node)

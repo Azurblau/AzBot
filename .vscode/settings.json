@@ -48,5 +48,6 @@
         "ZPHM",
         "ZPHW"
     ],
-    "editor.formatOnSave": false
+    "editor.formatOnSave": false,
+    "Lua.runtime.version": "LuaJIT"
 }
