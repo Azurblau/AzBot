@@ -271,7 +271,7 @@ return function(lib)
 		-- Navmesh: zs_infected_square_v1
 		-- CPU: Intel(R) Core(TM) i5-10600K CPU @ 4.10GHz
 		-- 2020-06-23 (bf9e9bd): ~1.60 ms per call.
-		-- 2022-09-23 (       ): ~0.41 ms per call.
+		-- 2022-09-23 (5cd7719): ~0.41 ms per call.
 
 		local nearestNodeOrNil
 
