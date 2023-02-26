@@ -287,8 +287,19 @@ return function(lib)
 
 			if node.HasArea then
 				local params = node.Params
-				nodeX = mathMin(mathMax(posX, params.AreaXMin), params.AreaXMax)
-				nodeY = mathMin(mathMax(posY, params.AreaYMin), params.AreaYMax)
+				-- My VDS Benchmark: iterations = 10000
+				-- Navmesh: zs_infected_square_mesnik_v4
+				-- old: ~0.8-0.6 ms per call.
+				-- new: ~0.6-0.5 ms per call.
+				local areaXMin = params.AreaXMin
+				local areaXMax = params.AreaXMax
+				local areaYMin = params.AreaYMin
+				local areaYMax = params.AreaYMax
+
+				-- Use bitwise operators
+				nodeX = (posX > areaXMax and areaXMax) or (posX < areaXMin and areaXMin) or posX
+				nodeY = (posY > areaYMax and areaYMax) or (posY < areaYMin and areaYMin) or posY
+
 			end
 
 			-- Sieve out nodes that definitely lie outside the search sphere.
