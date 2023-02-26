@@ -1,5 +1,3 @@
-local mathMin = math.min
-local mathMax = math.max
 local mathSqrt = math.sqrt
 
 return function(lib)
@@ -270,8 +268,8 @@ return function(lib)
 		-- Benchmarks:
 		-- Navmesh: zs_infected_square_v1
 		-- CPU: Intel(R) Core(TM) i5-10600K CPU @ 4.10GHz
-		-- 2020-06-23 (bf9e9bd): ~1.60 ms per call.
-		-- 2022-09-23 (5cd7719): ~0.41 ms per call.
+		-- 2022-09-23 (bf9e9bd -> 5cd7719): ~1.60  ms per call -> ~0.41  ms per call. (Delta: -74%)
+		-- 2023-02-26 (07e6273 -> 0b48bf1): ~0.487 ms per call -> ~0.412 ms per call. (Delta: -15%)
 
 		local nearestNodeOrNil
 
@@ -287,19 +285,14 @@ return function(lib)
 
 			if node.HasArea then
 				local params = node.Params
-				-- My VDS Benchmark: iterations = 10000
-				-- Navmesh: zs_infected_square_mesnik_v4
-				-- old: ~0.8-0.6 ms per call.
-				-- new: ~0.6-0.5 ms per call.
 				local areaXMin = params.AreaXMin
 				local areaXMax = params.AreaXMax
 				local areaYMin = params.AreaYMin
 				local areaYMax = params.AreaYMax
 
-				-- Use bitwise operators
+				-- Clamp values by using comparison and logical operators, as it's faster than math.min(math.max(...), ...) or even math.Clamp(...).
 				nodeX = (posX > areaXMax and areaXMax) or (posX < areaXMin and areaXMin) or posX
 				nodeY = (posY > areaYMax and areaYMax) or (posY < areaYMin and areaYMin) or posY
-
 			end
 
 			-- Sieve out nodes that definitely lie outside the search sphere.
