@@ -2,6 +2,45 @@ local mathMax = math.max
 local mathHuge = math.huge
 local tableInsert = table.insert
 
+local function create_path_cache()
+	local tostring = tostring
+  local cache = {}
+  local MAX_CACHE_SIZE = 30
+
+  local function add_path(self, start_node, end_node, a_Walk, a_Pounce, a_Climb, path)
+    local key = tostring(start_node) .. "-" .. tostring(end_node) .. "-" .. tostring(a_Walk) .. "-" .. tostring(a_Pounce) .. "-" .. tostring(a_Climb)
+    if cache[key] then
+      return
+    end
+
+    if #self >= MAX_CACHE_SIZE then
+        cache[self[1]] = nil
+        for i=1, MAX_CACHE_SIZE-1 do
+            self[i] = self[i+1]
+        end
+        self[MAX_CACHE_SIZE] = nil
+    end
+    self[#self+1] = key
+    cache[key] = path
+  end
+
+  local function get_path(self, start_node, end_node, a_Walk, a_Pounce, a_Climb)
+    local key = tostring(start_node) .. "-" .. tostring(end_node) .. "-" .. tostring(a_Walk) .. "-" .. tostring(a_Pounce) .. "-" .. tostring(a_Climb)
+    return cache[key]
+  end
+
+  local mt = {
+    __index = {
+      add_path = add_path,
+      get_path = get_path,
+    },
+  }
+
+  return setmetatable({}, mt)
+end
+
+local path_cache = create_path_cache()
+
 ---Returns the best path (or nil if there is no possible path) between startNode and endNode.
 ---@param startNode any
 ---@param endNode any
@@ -10,6 +49,10 @@ local tableInsert = table.insert
 ---@param abilities any|nil
 ---@return any|nil
 function D3bot.GetBestMeshPathOrNil(startNode, endNode, pathCostFunction, heuristicCostFunction, abilities)
+	local a_Walk, a_Pounce, a_Climb = abilities.Walk, abilities.Pounce, abilities.Climb
+	local wave = GAMEMODE:GetWave()
+	cached_path1 = path_cache:get_path(startNode, endNode, a_Walk, a_Pounce, a_Climb)
+	if cached_path1 then return cached_path1 end
 	-- See: https://en.wikipedia.org/wiki/A*_search_algorithm
 
 	-- Benchmarks:
@@ -39,6 +82,7 @@ function D3bot.GetBestMeshPathOrNil(startNode, endNode, pathCostFunction, heuris
 				if not node then break end
 				tableInsert(path, 1, node)
 			end
+			path_cache:add_path(startNode, endNode, a_Walk, a_Pounce, a_Climb, path)
 			return path
 		end
 
@@ -57,18 +101,18 @@ function D3bot.GetBestMeshPathOrNil(startNode, endNode, pathCostFunction, heuris
 
 			-- Block pathing if the wave is outside of the interval [BlockBeforeWave, BlockAfterWave].
 			if linkedNodeParams.BlockBeforeWave and tonumber(linkedNodeParams.BlockBeforeWave) then
-				if GAMEMODE:GetWave() < tonumber(linkedNodeParams.BlockBeforeWave) then blocked = true end
+				if wave < tonumber(linkedNodeParams.BlockBeforeWave) then blocked = true end
 			end
 			if linkedNodeParams.BlockAfterWave and tonumber(linkedNodeParams.BlockAfterWave) then
-				if GAMEMODE:GetWave() > tonumber(linkedNodeParams.BlockAfterWave) then blocked = true end
+				if wave > tonumber(linkedNodeParams.BlockAfterWave) then blocked = true end
 				-- TODO: Invert logic when BlockBeforeWave > BlockAfterWave. This way it's possible to describe a interval of blocked waves, instead of unblocked waves
 			end
 
 			local able = true
 			if abilities then
-				if linkParams.Walking == "Needed" and not abilities.Walk then able = false end
-				if linkParams.Pouncing == "Needed" and not abilities.Pounce then able = false end
-				if linkedNodeParams.Climbing == "Needed" and not abilities.Climb then able = false end
+				if linkParams.Walking == "Needed" and not a_Walk then able = false end
+				if linkParams.Pouncing == "Needed" and not a_Pounce then able = false end
+				if linkedNodeParams.Climbing == "Needed" and not a_Climb then able = false end
 			end
 
 			if able and not blocked and not (linkParams.Direction == "Forward" and link.Nodes[2] == node) and
