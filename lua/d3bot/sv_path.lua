@@ -1,6 +1,7 @@
 local mathMax = math.max
 local mathHuge = math.huge
 local tableInsert = table.insert
+local Distance = FindMetaTable("Vector").Distance
 
 local function create_path_cache()
 	local tostring = tostring
@@ -117,12 +118,12 @@ function D3bot.GetBestMeshPathOrNil(startNode, endNode, pathCostFunction, heuris
 
 			if able and not blocked and not (linkParams.Direction == "Forward" and link.Nodes[2] == node) and
 				not (linkParams.Direction == "Backward" and link.Nodes[1] == node) then
-				local linkedNodePathCost = minimalPathCostByNode[node] + mathMax(node.Pos:Distance(linkedNode.Pos) + (linkedNodeParams.Cost or 0) + (linkParams.Cost or 0) + (pathCostFunction and pathCostFunction(node, linkedNode, link) or 0), 0) -- Prevent negative change of the link costs, otherwise it will get stuck decreasing forever.
+				local linkedNodePathCost = minimalPathCostByNode[node] + mathMax(Distance(node.Pos, linkedNode.Pos) + (linkedNodeParams.Cost or 0) + (linkParams.Cost or 0) + (pathCostFunction and pathCostFunction(node, linkedNode, link) or 0), 0) -- Prevent negative change of the link costs, otherwise it will get stuck decreasing forever.
 				if linkedNodePathCost < (minimalPathCostByNode[linkedNode] or mathHuge) then
 					entranceByNode[linkedNode] = node
 					minimalPathCostByNode[linkedNode] = linkedNodePathCost
 					local heuristic = (heuristicCostFunction and heuristicCostFunction(linkedNode) or 0)
-					minimalTotalPathCostByNode[linkedNode] = linkedNodePathCost + heuristic + linkedNode.Pos:Distance(endNode.Pos) -- Negative costs are allowed here.
+					minimalTotalPathCostByNode[linkedNode] = linkedNodePathCost + heuristic + Distance(linkedNode.Pos, endNode.Pos) -- Negative costs are allowed here.
 					evaluationNodeQueue:Enqueue(linkedNode)
 				end
 			end
@@ -178,12 +179,12 @@ function D3bot.GetBestValveMeshPathOrNil( startArea, endArea, pathCostFunction, 
 			if linkedAreaData.Params.Climbing == "Needed" and abilities and not abilities.Climb then able = false end
 			
 			if able and not blocked then
-				local newCostSoFar = current:GetCostSoFar() + math.max( current:GetCenter():Distance( linkedArea:GetCenter() ) + ( ( linkedAreaData.Params.Cost and current:GetCostSoFar() / 4 ) or 0 ) + ( ( linkData.Params.Cost and current:GetCostSoFar() / 4 ) or 0 ) + ( pathCostFunction and pathCostFunction( current, linkedArea, link ) or 0 ), 0 )
+				local newCostSoFar = current:GetCostSoFar() + math.max( Distance(current:GetCenter(), linkedArea:GetCenter() ) + ( ( linkedAreaData.Params.Cost and current:GetCostSoFar() / 4 ) or 0 ) + ( ( linkData.Params.Cost and current:GetCostSoFar() / 4 ) or 0 ) + ( pathCostFunction and pathCostFunction( current, linkedArea, link ) or 0 ), 0 )
 				if not ( linkedArea:IsOpen() or linkedArea:IsClosed() and linkedArea:GetCostSoFar() <= newCostSoFar ) then
 					cameFrom[ linkedArea:GetID() ] = current:GetID()
 					linkedArea:SetCostSoFar( newCostSoFar )
 					local heuristic = ( heuristicCostFunction and heuristicCostFunction( linkedArea ) or 0 )
-					linkedArea:SetTotalCost( newCostSoFar + heuristic + linkedArea:GetCenter():Distance( endArea:GetCenter() ) )  -- Negative costs are allowed here
+					linkedArea:SetTotalCost( newCostSoFar + heuristic + Distance(linkedArea:GetCenter(), endArea:GetCenter() ) )  -- Negative costs are allowed here
 					if linkedArea:IsClosed() then
 						linkedArea:RemoveFromClosedList()
 					end
@@ -321,7 +322,7 @@ function D3bot.GetEscapeValveMeshPathOrNil( startArea, iterations, pathCostFunct
 			if linkedAreaData.Params.Climbing == "Needed" and abilities and not abilities.Climb then able = false end
 		
 			if able and not blocked then
-				local newCostSoFar = current:GetCostSoFar() + math.max( current:GetCenter():Distance( linkedArea:GetCenter() ) + ( ( linkedAreaData.Params.Cost and current:GetCostSoFar() / 4 ) or 0 ) + ( ( linkData.Params.Cost and current:GetCostSoFar() / 4 ) or 0 ) + ( pathCostFunction and pathCostFunction( current, linkedArea, link ) or 0 ), 0 )
+				local newCostSoFar = current:GetCostSoFar() + math.max( Distance(current:GetCenter(), linkedArea:GetCenter() ) + ( ( linkedAreaData.Params.Cost and current:GetCostSoFar() / 4 ) or 0 ) + ( ( linkData.Params.Cost and current:GetCostSoFar() / 4 ) or 0 ) + ( pathCostFunction and pathCostFunction( current, linkedArea, link ) or 0 ), 0 )
 				if not ( linkedArea:IsOpen() or linkedArea:IsClosed() and linkedArea:GetCostSoFar() <= newCostSoFar ) then
 					if linkedArea:IsClosed() then
 						linkedArea:RemoveFromClosedList()
