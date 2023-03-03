@@ -75,9 +75,16 @@ function D3bot.GetBestMeshPathOrNil(startNode, endNode, pathCostFunction, heuris
 			if not a_Pounce and linkParams.Pouncing == "Needed" then able = false end
 			if not a_Climb and linkedNodeParams.Climbing == "Needed" then able = false end
 
-			if able and not blocked and not (linkParams.Direction == "Forward" and link.Nodes[2] == node) and
-				not (linkParams.Direction == "Backward" and link.Nodes[1] == node) then
-				local linkedNodePathCost = minimalPathCostByNode[node] + mathMax(Distance(node.Pos, linkedNode.Pos) + (linkedNodeParams.Cost or 0) + (linkParams.Cost or 0) + (pathCostFunction and pathCostFunction(node, linkedNode, link) or 0), 0) -- Prevent negative change of the link costs, otherwise it will get stuck decreasing forever.
+			local blockedForward = (linkParams.Direction == "Forward" and link.Nodes[2] == node)
+			local blockedBackward = (linkParams.Direction == "Backward" and link.Nodes[1] == node)
+
+			if able and not blocked and not blockedForward and not blockedBackward then
+				local linkDist = link.CachedDist
+				if not linkDist then
+					linkDist = Distance(node.Pos, linkedNode.Pos)
+					link.CachedDist = linkDist
+				end
+				local linkedNodePathCost = minimalPathCostByNode[node] + mathMax(linkDist + (linkedNodeParams.Cost or 0) + (linkParams.Cost or 0) + (pathCostFunction and pathCostFunction(node, linkedNode, link) or 0), 0) -- Prevent negative change of the link costs, otherwise it will get stuck decreasing forever.
 				if linkedNodePathCost < (minimalPathCostByNode[linkedNode] or mathHuge) then
 					entranceByNode[linkedNode] = node
 					minimalPathCostByNode[linkedNode] = linkedNodePathCost

@@ -175,6 +175,7 @@ concommand.Add("d3bot_nav_generate", function(ply, str, args, argStr)
 	if not ply:IsValid() or not ply:IsSuperAdmin() then return end
 
 	D3bot.GenerateAndConvertNavmesh(ply:GetPos(), ply:IsOnGround(), function()
+		D3bot.MapNavMesh:InvalidateCache()
 		D3bot.UpdateMapNavMeshUiSubscribers()
 	end)
 end)

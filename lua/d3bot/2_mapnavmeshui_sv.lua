@@ -51,6 +51,7 @@ return function(lib)
 					if not cursoredPos then return end
 					local node = lib.MapNavMesh:NewNode()
 					setPos(node, cursoredPos)
+					lib.MapNavMesh:InvalidateCache()
 					lib.UpdateMapNavMeshUiSubscribers()
 				end } },
 		{	Name = "Link Nodes",
@@ -65,6 +66,7 @@ return function(lib)
 						if not node then return end
 						lib.MapNavMesh:ForceGetLink(selectedNode, node)
 						clearSelection(pl)
+						lib.MapNavMesh:InvalidateCache()
 						lib.UpdateMapNavMeshUiSubscribers()
 					end
 				end } },
@@ -80,6 +82,7 @@ return function(lib)
 						if not node then return end
 						selectedNode:MergeWithNode(node)
 						clearSelection(pl)
+						lib.MapNavMesh:InvalidateCache()
 						lib.UpdateMapNavMeshUiSubscribers()
 					end
 				end,
@@ -93,6 +96,7 @@ return function(lib)
 						selectedNode:Extend(cursoredPos, cursoredAxisName)
 					end
 					clearSelection(pl)
+					lib.MapNavMesh:InvalidateCache()
 					lib.UpdateMapNavMeshUiSubscribers()
 				end } },
 		{	Name = "Reposition Node",
@@ -106,6 +110,7 @@ return function(lib)
 						local cursoredPos = getCursoredPosOrNil(pl)
 						if not cursoredPos then return end
 						setPos(selectedNode, cursoredPos)
+						lib.MapNavMesh:InvalidateCache()
 						lib.UpdateMapNavMeshUiSubscribers()
 					end
 				end,
@@ -116,6 +121,7 @@ return function(lib)
 					if not cursoredPos then return end
 					local cursoredAxisName = getCursoredAxisName(pl)
 					selectedNode:SetParam(cursoredAxisName, round(cursoredPos[cursoredAxisName:lower()]))
+					lib.MapNavMesh:InvalidateCache()
 					lib.UpdateMapNavMeshUiSubscribers()
 				end } },
 		{	Name = "Resize Node Area",
@@ -133,6 +139,7 @@ return function(lib)
 					local cursoredPosKey = cursoredAxisName:lower()
 					local cursoredDimension = round(cursoredPos[cursoredPosKey])
 					selectedNode:SetParam("Area" .. cursoredAxisName .. (cursoredDimension < selectedNode.Pos[cursoredPosKey] and "Min" or "Max"), cursoredDimension)
+					lib.MapNavMesh:InvalidateCache()
 					lib.UpdateMapNavMeshUiSubscribers()
 				end } },
 		{	Name = "Copy Nodes",
@@ -159,6 +166,7 @@ return function(lib)
 							if linkedNewNodeOrNil then lib.MapNavMesh:ForceGetLink(newNode, linkedNewNodeOrNil) end
 						end
 					end
+					lib.MapNavMesh:InvalidateCache()
 					lib.UpdateMapNavMeshUiSubscribers()
 				end } },
 		{	Name = "Set/Unset Last Parameter",
@@ -167,6 +175,7 @@ return function(lib)
 					local item = lib.MapNavMesh:GetCursoredItemOrNil(pl)
 					if not item or not lib.lastParamKey or not lib.lastParamValue then return end
 					item:SetParam(lib.lastParamKey, lib.lastParamValue)
+					lib.MapNavMesh:InvalidateCache()
 					lib.UpdateMapNavMeshUiSubscribers()
 				end,
 				[IN_ATTACK2] = function(pl)
@@ -174,6 +183,7 @@ return function(lib)
 					if not item then return end
 					if not item or not lib.lastParamKey then return end
 					item:SetParam(lib.lastParamKey, "")
+					lib.MapNavMesh:InvalidateCache()
 					lib.UpdateMapNavMeshUiSubscribers()
 				end } },
 		{	Name = "Delete Item or Area",
@@ -182,12 +192,14 @@ return function(lib)
 					local item = lib.MapNavMesh:GetCursoredItemOrNil(pl)
 					if not item then return end
 					item:Remove()
+					lib.MapNavMesh:InvalidateCache()
 					lib.UpdateMapNavMeshUiSubscribers()
 				end,
 				[IN_ATTACK2] = function(pl)
 					local item = lib.MapNavMesh:GetCursoredItemOrNil(pl)
 					if not item then return end
 					for idx, name in ipairs{ "AreaXMin", "AreaXMax", "AreaYMin", "AreaYMax" } do item:SetParam(name, "") end
+					lib.MapNavMesh:InvalidateCache()
 					lib.UpdateMapNavMeshUiSubscribers()
 				end } } }
 	

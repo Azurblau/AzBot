@@ -131,6 +131,14 @@ return function(lib)
 		return r
 	end
 	
+	---Invalidates the cache(s) of the navmesh.
+	---This has to be called after every modification of the navmesh.
+	function fallback:InvalidateCache()
+		for id, link in pairs(lib.MapNavMesh.LinkById) do
+			link.CachedDist = nil -- Used to speed up path finding.
+		end
+	end
+
 	function fallback:ForceGetItem(id) return isnumber(id) and self:ForceGetNode(id) or self:ForceGetLink(id) end
 	function fallback:NewNode() return self:ForceGetNode(#self.ItemById + 1) end
 	function fallback:ForceGetNode(id)
