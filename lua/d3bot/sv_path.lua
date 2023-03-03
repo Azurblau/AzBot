@@ -22,6 +22,7 @@ function D3bot.GetBestMeshPathOrNil(startNode, endNode, pathCostFunction, heuris
 	-- CPU: Intel(R) Core(TM) i5-10600K CPU @ 4.10GHz
 	-- 2022-09-24 (769f186 -> 41406ab): ~4.95 ms per call -> ~4.45 ms per call. (Delta: -10%)
 	-- 2023-03-03 (052cafa -> bb6972b): ~5.179 ms per call -> ~4.480 ms per call. (Delta: -13%)
+	-- 2023-03-03 (dba4671 -> 2669bf9): ~4.453 ms per call -> ~3.901 ms per call. (Delta: -11%)
 
 	local minimalTotalPathCostByNode = {}
 	local minimalPathCostByNode = { [startNode] = 0 }
