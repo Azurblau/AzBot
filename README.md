@@ -25,6 +25,7 @@ Here is a list of notable changes compared to the original version:
 - Improved navmesh drawing.
 - Navmesh edit preview. (Thanks to [delstre])
 - Ability to use source navmeshes, and option to convert those navmeshes into D3bot ones. (Thanks to [Bagellll])
+- Code optimizations. (Thanks to [Antizombie])
 - Translations:
   - Chinese Simplified (Thanks to [XY]EvansFix)
   - Chinese Traditional (Thanks to [Half1569])
@@ -198,13 +199,14 @@ Starting with highest public priority:
 - Equipment upgrading behavior for survivor bots.
 - Caching of non-branching paths as a single node to optimize the pathfinding performance.
 
-[Blueberryy]: https://github.com/Blueberryy
-[Halamix2]: https://github.com/Halamix2
-[orecros]: https://github.com/orecros
-[Wolfaloo]: https://github.com/Wolfaloo
-[Fafy2801]: https://github.com/Fafy2801
-[Half1569]: https://github.com/Half1569
-[ErickMaksimets]: https://github.com/ErickMaksimets
-[STEAM_0:0:105668971]: https://steamcommunity.com/profiles/76561198171603670
-[delstre]: https://github.com/delstre
+[Antizombie]: https://github.com/Antizombie
 [Bagellll]: https://github.com/Bagellll
+[Blueberryy]: https://github.com/Blueberryy
+[delstre]: https://github.com/delstre
+[ErickMaksimets]: https://github.com/ErickMaksimets
+[Fafy2801]: https://github.com/Fafy2801
+[Halamix2]: https://github.com/Halamix2
+[Half1569]: https://github.com/Half1569
+[orecros]: https://github.com/orecros
+[STEAM_0:0:105668971]: https://steamcommunity.com/profiles/76561198171603670
+[Wolfaloo]: https://github.com/Wolfaloo
