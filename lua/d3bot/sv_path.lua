@@ -11,6 +11,8 @@ local Distance = FindMetaTable("Vector").Distance
 ---@param abilities table
 ---@return any|nil
 function D3bot.GetBestMeshPathOrNil(startNode, endNode, pathCostFunction, heuristicCostFunction, abilities)
+	if not abilities then return nil end
+
 	local a_Walk, a_Pounce, a_Climb = abilities.Walk, abilities.Pounce, abilities.Climb
 	local wave = GAMEMODE:GetWave()
 	-- See: https://en.wikipedia.org/wiki/A*_search_algorithm
@@ -67,12 +69,11 @@ function D3bot.GetBestMeshPathOrNil(startNode, endNode, pathCostFunction, heuris
 				-- TODO: Invert logic when BlockBeforeWave > BlockAfterWave. This way it's possible to describe a interval of blocked waves, instead of unblocked waves
 			end
 
+			-- Check if the bot is able to use certain paths.
 			local able = true
-			if abilities then
-				if linkParams.Walking == "Needed" and not a_Walk then able = false end
-				if linkParams.Pouncing == "Needed" and not a_Pounce then able = false end
-				if linkedNodeParams.Climbing == "Needed" and not a_Climb then able = false end
-			end
+			if not a_Walk and linkParams.Walking == "Needed" then able = false end
+			if not a_Pounce and linkParams.Pouncing == "Needed" then able = false end
+			if not a_Climb and linkedNodeParams.Climbing == "Needed" then able = false end
 
 			if able and not blocked and not (linkParams.Direction == "Forward" and link.Nodes[2] == node) and
 				not (linkParams.Direction == "Backward" and link.Nodes[1] == node) then
