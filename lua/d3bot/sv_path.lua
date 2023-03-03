@@ -8,7 +8,7 @@ local Distance = FindMetaTable("Vector").Distance
 ---@param endNode any
 ---@param pathCostFunction function|nil
 ---@param heuristicCostFunction function|nil
----@param abilities any|nil
+---@param abilities table
 ---@return any|nil
 function D3bot.GetBestMeshPathOrNil(startNode, endNode, pathCostFunction, heuristicCostFunction, abilities)
 	local a_Walk, a_Pounce, a_Climb = abilities.Walk, abilities.Pounce, abilities.Climb

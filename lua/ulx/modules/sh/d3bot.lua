@@ -190,7 +190,9 @@ registerSuperadminCmd("ViewPath", plsParam, strParam, strParam, function(caller,
 		caller:ChatPrint("Not all specified nodes exist.")
 		return
 	end
-	local path = D3bot.GetBestMeshPathOrNil(startNode, endNode)
+
+	local abilities = {Walk = true}
+	local path = D3bot.GetBestMeshPathOrNil(startNode, endNode, nil, nil, abilities)
 	if not path then
 		caller:ChatPrint("Couldn't find any path for the two specified nodes.")
 		return
