@@ -82,7 +82,10 @@ function D3bot.MaintainBotRoles()
 			--randomBot:KillSilent()
 			randomBot:Kill()
 			if randomBot:GetBarricadeGhosting() then
-				randomBot:SetBarricadeGhosting(false)
+				timer.Simple(0, function() -- Call it on the very next frame to ensure SetBarricadeGhosting(true) isn't being called last
+					if not IsValid(randomBot) then return end
+					randomBot:SetBarricadeGhosting(false)
+				end)
 			end
 			return
 		end
@@ -101,7 +104,10 @@ function D3bot.MaintainBotRoles()
 					if IsValid(bot) then
 						bot:D3bot_InitializeOrReset()
 						if team == TEAM_UNDEAD and bot:GetBarricadeGhosting() then
-							bot:SetBarricadeGhosting(false)
+							timer.Simple(0, function() -- Call it on the very next frame to ensure SetBarricadeGhosting(true) isn't being called last
+								if not IsValid(bot) then return end
+								bot:SetBarricadeGhosting(false)
+							end)
 						end
 					end
 				end
