@@ -81,7 +81,9 @@ function D3bot.MaintainBotRoles()
 			randomBot:StripWeapons()
 			--randomBot:KillSilent()
 			randomBot:Kill()
-			randomBot:SetBarricadeGhosting(false)
+			if randomBot:GetBarricadeGhosting() then
+				randomBot:SetBarricadeGhosting(false)
+			end
 			return
 		end
 	end
@@ -98,7 +100,7 @@ function D3bot.MaintainBotRoles()
 					spawnAsTeam = nil
 					if IsValid(bot) then
 						bot:D3bot_InitializeOrReset()
-						if team == TEAM_UNDEAD then
+						if team == TEAM_UNDEAD and bot:GetBarricadeGhosting() then
 							bot:SetBarricadeGhosting(false)
 						end
 					end
