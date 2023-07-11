@@ -57,7 +57,24 @@
         "ZPHW"
     ],
     "editor.formatOnSave": false,
-    "Lua.runtime.version": "LuaJIT",
+    "lua.format.useTabs": true,
+    "lua.format.lineWidth": 240,
+    "Lua.runtime.special": {
+        "include": "require"
+    },
+    "Lua.workspace.library": [
+        "libgmod/"
+    ],
+    "Lua.diagnostics.globals": [
+        "CLIENT",
+        "SERVER",
+        "ULib",
+        "SWEP",
+        "GAMEMODE",
+        "D3bot"
+    ],
     "licenser.author": "David Vogel",
-    "licenser.license": "GPLv3"
+    "licenser.license": "GPLv3",
+    "Lua.runtime.version": "LuaJIT",
+    "Lua.runtime.unicodeName": true
 }
