@@ -76,25 +76,9 @@ end
 
 function HANDLER.ThinkFunction(bot)
 	local mem = bot.D3bot_Mem
-	
+
 	local botPos = bot:GetPos()
-	
-	local tracedata = {start=nil,endpos=nil,mask=MASK_PLAYERSOLID,filter=nil}
-	tracedata.start = bot:GetPos()
-	tracedata.endpos = tracedata.start
-	tracedata.filter = bot
-	local traceResult = util.TraceEntity(tracedata,bot)
-	
-	-- Workaround for bots phasing through barricades in some versions of the gamemode
-	if bot:Alive() and traceResult.StartSolid == true and traceResult.Entity and not traceResult.Entity:IsWorld() and (traceResult.Entity and traceResult.Entity:GetClass() == "prop_physics") and GAMEMODE:ShouldCollide(bot, traceResult.Entity) and traceResult.Entity:GetCollisionGroup() ~= COLLISION_GROUP_DEBRIS and traceResult.Entity:IsNailed() then
-		--bot:Kill()
-		if mem.LastValidPos then
-			bot:SetPos(mem.LastValidPos)
-		end
-	elseif bot:Alive() then
-		mem.LastValidPos = botPos
-	end
-	
+
 	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
 		if not mem.TgtOrNil or IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(botPos) > HANDLER.BotTgtFixationDistMin then
 			mem.nextUpdateSurroundingPlayers = CurTime() + 0.9 + math.random() * 0.2
@@ -110,14 +94,14 @@ function HANDLER.ThinkFunction(bot)
 			end
 		end
 	end
-	
+
 	if mem.nextCheckTarget and mem.nextCheckTarget < CurTime() or not mem.nextCheckTarget then
 		mem.nextCheckTarget = CurTime() + 0.9 + math.random() * 0.2
 		if not HANDLER.CanBeTgt(bot, mem.TgtOrNil) then
 			HANDLER.RerollTarget(bot)
 		end
 	end
-	
+
 	if mem.nextUpdateOffshoot and mem.nextUpdateOffshoot < CurTime() or not mem.nextUpdateOffshoot then
 		mem.nextUpdateOffshoot = CurTime() + 0.4 + math.random() * 0.2
 		bot:D3bot_UpdateAngsOffshoot(HANDLER.AngOffshoot)
