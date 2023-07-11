@@ -55,6 +55,16 @@ function D3bot.MaintainBotRoles()
 		playersByTeam[team] = playersByTeam[team] or {}
 		table.insert(playersByTeam[team], v)
 	end
+
+	-- Check if any zombie bot is in barricade ghosting mode.
+	-- This can happen in some gamemodes, we fix that here.
+	-- See https://github.com/Dadido3/D3bot/issues/99 for details.
+	for _, bot in ipairs(bots) do
+		if bot:GetBarricadeGhosting() and bot:Team() == TEAM_UNDEAD and bot:Alive() then
+			--bot:Say(string.format("I was a nasty bot that noclips through barricades! (%s)", bot))
+			bot:SetBarricadeGhosting(false)
+		end
+	end
 	
 	-- Sort by frags and being boss zombie
 	if botsByTeam[TEAM_UNDEAD] then
@@ -81,12 +91,6 @@ function D3bot.MaintainBotRoles()
 			randomBot:StripWeapons()
 			--randomBot:KillSilent()
 			randomBot:Kill()
-			if randomBot:GetBarricadeGhosting() then
-				timer.Simple(0, function() -- Call it on the very next frame to ensure SetBarricadeGhosting(true) isn't being called last
-					if not IsValid(randomBot) then return end
-					randomBot:SetBarricadeGhosting(false)
-				end)
-			end
 			return
 		end
 	end
@@ -103,12 +107,6 @@ function D3bot.MaintainBotRoles()
 					spawnAsTeam = nil
 					if IsValid(bot) then
 						bot:D3bot_InitializeOrReset()
-						if team == TEAM_UNDEAD and bot:GetBarricadeGhosting() then
-							timer.Simple(0, function() -- Call it on the very next frame to ensure SetBarricadeGhosting(true) isn't being called last
-								if not IsValid(bot) then return end
-								bot:SetBarricadeGhosting(false)
-							end)
-						end
 					end
 				end
 				return
