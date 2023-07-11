@@ -95,6 +95,26 @@ function meta:D3bot_FaceTo(pos, origin, lerpFactor, offshootFactor)
 	mem.Angs = LerpAngle(lerpFactor, mem.Angs, (pos - origin):Angle() + mem.AngsOffshoot * (offshootFactor or 1))
 end
 
+---Finds the closest (nailed) barricade entity and sets it as bot target.
+---If there is no closeby entity, this will do nothing.
+function meta:D3bot_SetClosestBarricadeTarget()
+	local traceData = {
+		start = self:GetShootPos(),
+		endpos = self:GetShootPos() + self:GetAimVector() * 30,
+		filter = self,
+		mask = MASK_PLAYERSOLID,
+		collisiongroup = COLLISION_GROUP_DEBRIS_TRIGGER,
+		ignoreworld = true,
+		mins = Vector(-10, -10, -10),
+		maxs = Vector(10, 10, 10),
+	}
+	local tr = util.TraceHull(traceData)
+
+	if tr.Hit and tr.Entity and IsValid(tr.Entity) and tr.Entity:GetClass() == "prop_physics" and tr.Entity.IsNailed and tr.Entity:IsNailed() then
+		self:D3bot_SetTgtOrNil(tr.Entity, false, nil)
+	end
+end
+
 function meta:D3bot_RerollClass(classes)
 	if not GAMEMODE:GetWaveActive() then return end
 	if self:GetZombieClassTable().Name == "Zombie Torso" then return end

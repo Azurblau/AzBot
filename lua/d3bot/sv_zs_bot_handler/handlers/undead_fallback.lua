@@ -36,6 +36,8 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 		cmd:SetButtons(IN_ATTACK)
 		return
 	end
+
+	local mem = bot.D3bot_Mem
 	
 	bot:D3bot_UpdatePathProgress()
 	D3bot.Basics.SuicideOrRetarget(bot)
@@ -48,15 +50,27 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 		end
 	end
 
-	-- Simple hack for throwing poison randomly TODO: Only throw if possible target is close enough. Aiming. Timing.
+	-- Simple hack for throwing poison randomly
+	-- TODO: Only throw if possible target is close enough. Aiming. Timing.
 	local secAttack = HANDLER.RandomSecondaryAttack[GAMEMODE.ZombieClasses[bot:GetZombieClass()].Name]
 	if secAttack then
-		local mem = bot.D3bot_Mem
 		if not mem.NextThrowPoisonTime or mem.NextThrowPoisonTime <= CurTime() then
 			mem.NextThrowPoisonTime = CurTime() + secAttack.MinTime + math.random() * (secAttack.MaxTime - secAttack.MinTime)
 			actions = actions or {}
 			actions.Attack2 = true
 		end
+	end
+
+	-- Simple logic to attack barricades.
+	local mem = bot.D3bot_Mem
+	if facesHindrance then
+		mem.BarricadeHindranceCounter = (mem.BarricadeHindranceCounter or 0) +1
+		if mem.BarricadeHindranceCounter > 120 then
+			mem.BarricadeHindranceCounter = nil
+			bot:D3bot_SetClosestBarricadeTarget()
+		end
+	else
+		mem.BarricadeHindranceCounter = nil
 	end
 	
 	local buttons
@@ -162,8 +176,11 @@ local potEntTargets = nil
 function HANDLER.CanBeTgt(bot, target)
 	if not target or not IsValid(target) then return end
 	if target:IsPlayer() and target ~= bot and target:Team() ~= TEAM_UNDEAD and target:GetObserverMode() == OBS_MODE_NONE and not target:IsFlagSet(FL_NOTARGET) and target:Alive() then return true end
-	if target:GetClass() == "prop_obj_sigil" and target:GetSigilCorrupted() then return end -- Special case to ignore corrupted sigils.
+	if target:GetClass() == "prop_obj_sigil" and target:GetSigilCorrupted() then return false end -- Special case to ignore corrupted sigils.
+	if target:GetClass() == "prop_physics" and target.IsNailed and target:IsNailed() then return true end -- Special case for barricade props.
 	if potEntTargets and table.HasValue(potEntTargets, target) then return true end
+
+	return false
 end
 
 function HANDLER.RerollTarget(bot)
