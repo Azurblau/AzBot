@@ -314,71 +314,76 @@ end
 function D3bot.Basics.PounceAuto(bot)
 	local mem = bot.D3bot_Mem
 	if not mem then return end
-	
+
+	local nodeOrNil = mem.NodeOrNil
+	local nextNodeOrNil = mem.NextNodeOrNil
+
 	if not bot:IsOnGround() or bot:GetMoveType() == MOVETYPE_LADDER then return end
-	
+
 	local weapon = bot:GetActiveWeapon()
 	if not weapon and not weapon.PounceVelocity then return end
-	
-	-- Fill table with possible pounce target positions, ordered with increasing priority
-	local tempPos = bot:GetPos()
-	local tempDist = 0
+
+	-- Fill table with possible pounce target positions, ordered with increasing priority.
+
+	local tempPos = bot:GetPos() -- Current position of the bot or a node.
+	local tempDist = 0           -- Approximates the walking distance with the help of tempPos.
 	local pounceTargetPositions = {}
 	if nextNodeOrNil and D3bot.UsingSourceNav then
 		tempDist = tempDist + tempPos:Distance(nextNodeOrNil:GetCenter())
 		tempPos = nextNodeOrNil:GetCenter()
-		table.insert(pounceTargetPositions, {Pos = nextNodeOrNil:GetCenter() + Vector(0, 0, 1),
-											 Dist = tempDist,
-											 TimeFactor = 1.1,
-											 ForcePounce = (nextNodeOrNil:SharesLink( nodeOrNil ) and nextNodeOrNil:SharesLink( nodeOrNil ):GetMetaData().Params.Pouncing == "Needed")})
+		table.insert(pounceTargetPositions, {
+			Pos = nextNodeOrNil:GetCenter() + Vector(0, 0, 1),
+			Dist = tempDist,
+			TimeFactor = 1.1,
+			ForcePounce = (nextNodeOrNil:SharesLink(nodeOrNil) and nextNodeOrNil:SharesLink(nodeOrNil):GetMetaData().Params.Pouncing == "Needed")
+		})
 	elseif nextNodeOrNil then
 		tempDist = tempDist + tempPos:Distance(nextNodeOrNil.Pos)
 		tempPos = nextNodeOrNil.Pos
-		table.insert(pounceTargetPositions, {Pos = nextNodeOrNil.Pos + Vector(0, 0, 1),
-											 Dist = tempDist,
-											 TimeFactor = 1.1,
-											 ForcePounce = (nextNodeOrNil.LinkByLinkedNode[nodeOrNil] and nextNodeOrNil.LinkByLinkedNode[nodeOrNil].Params.Pouncing == "Needed")})
+		table.insert(pounceTargetPositions, {
+			Pos = nextNodeOrNil.Pos + Vector(0, 0, 1),
+			Dist = tempDist,
+			TimeFactor = 1.1,
+			ForcePounce = (nextNodeOrNil.LinkByLinkedNode[nodeOrNil] and nextNodeOrNil.LinkByLinkedNode[nodeOrNil].Params.Pouncing == "Needed")
+		})
 	end
-	local i = 0
 	if D3bot.UsingSourceNav then
-		for k, v in ipairs(mem.RemainingNodes) do -- TODO: Check if it behaves as expected
+		for i, v in ipairs(mem.RemainingNodes) do -- TODO: Check if it behaves as expected
 			tempDist = tempDist + tempPos:Distance(v:GetCenter())
 			tempPos = v:GetCenter()
-			table.insert(pounceTargetPositions, {Pos = v:GetCenter() + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1})
-			i = i + 1
-			if i == 2 then break end
+			table.insert(pounceTargetPositions, { Pos = v:GetCenter() + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1 })
+			if i >= 2 then break end
 		end
 	else
-		for k, v in ipairs(mem.RemainingNodes) do -- TODO: Check if it behaves as expected
+		for i, v in ipairs(mem.RemainingNodes) do -- TODO: Check if it behaves as expected
 			tempDist = tempDist + tempPos:Distance(v.Pos)
 			tempPos = v.Pos
-			table.insert(pounceTargetPositions, {Pos = v.Pos + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1})
-			i = i + 1
-			if i == 2 then break end
+			table.insert(pounceTargetPositions, { Pos = v.Pos + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1 })
+			if i >= 2 then break end
 		end
 	end
 	local tempAttackPosOrNil = bot:D3bot_GetAttackPosOrNilFuturePlatforms(0, mem.pounceFlightTime or 0)
 	if tempAttackPosOrNil then
 		tempDist = tempDist + bot:GetPos():Distance(tempAttackPosOrNil)
-		table.insert(pounceTargetPositions, {Pos = tempAttackPosOrNil + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 0.8, HeightDiff = 100}) -- TODO: Global bot 'IQ' level influences TimeFactor, the lower the more likely they will cut off the players path
+		table.insert(pounceTargetPositions, { Pos = tempAttackPosOrNil + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 0.8, HeightDiff = 100 }) -- TODO: Global bot 'IQ' level influences TimeFactor, the lower the more likely they will cut off the players path
 	elseif mem.PosTgtOrNil then
 		tempDist = tempDist + bot:GetPos():Distance(mem.PosTgtOrNil)
-		table.insert(pounceTargetPositions, {Pos = mem.PosTgtOrNil + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 0.8, HeightDiff = 100})
+		table.insert(pounceTargetPositions, { Pos = mem.PosTgtOrNil + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 0.8, HeightDiff = 100 })
 	end
-	
+
 	-- Find best trajectory
 	local trajectory
 	for _, pounceTargetPos in ipairs(table.Reverse(pounceTargetPositions)) do
 		local trajectories = bot:D3bot_CanPounceToPos(pounceTargetPos.Pos)
 		local timeToTarget = pounceTargetPos.Dist / bot:GetMaxSpeed()
-		if trajectories and (pounceTargetPos.ForcePounce or (pounceTargetPos.HeightDiff and pounceTargetPos.Pos.z - bot:GetPos().z > pounceTargetPos.HeightDiff) or timeToTarget > (trajectories[1].t1 + weapon.PounceStartDelay)*pounceTargetPos.TimeFactor) then
+		if trajectories and (pounceTargetPos.ForcePounce or (pounceTargetPos.HeightDiff and pounceTargetPos.Pos.z - bot:GetPos().z > pounceTargetPos.HeightDiff) or timeToTarget > (trajectories[1].t1 + weapon.PounceStartDelay) * pounceTargetPos.TimeFactor) then
 			trajectory = trajectories[1]
 			break
 		end
 	end
-	
+
 	local actions = {}
-	
+
 	if (trajectory and CurTime() >= weapon:GetNextPrimaryFire() and CurTime() >= weapon:GetNextSecondaryFire() and CurTime() >= weapon.NextAllowPounce) or mem.pouncing then
 		if trajectory then
 			mem.Angs = Angle(-math.deg(trajectory.pitch), math.deg(trajectory.yaw), 0)
@@ -396,10 +401,10 @@ function D3bot.Basics.PounceAuto(bot)
 			mem.pounceFlightTime = nil
 			bot:D3bot_UpdatePathProgress()
 		end
-		
+
 		return true, actions, 0, nil, nil, mem.Angs, false
 	end
-	
+
 	return
 end
 
