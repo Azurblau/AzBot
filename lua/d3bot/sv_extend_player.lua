@@ -227,7 +227,7 @@ function meta:D3bot_UpdatePath(pathCostFunction, heuristicCostFunction)
 	end
 	local path = D3bot.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, pathCostFunction, heuristicCostFunction, abilities)
 	if not path then
-		local handler = findHandler(self:GetZombieClass(), self:Team())
+		local handler = FindHandler(self:GetZombieClass(), self:Team())
 		if handler and handler.RerollTarget then handler.RerollTarget(self) end
 		return
 	end
@@ -326,7 +326,7 @@ function meta:D3bot_UpdatePath( pathCostFunction, heuristicCostFunction )
 	end
 	local path = D3bot.GetBestValveMeshPathOrNil( area, mem.TgtNodeOrNil, pathCostFunction, heuristicCostFunction, abilities )
 	if not path then
-		local handler = findHandler( self:GetZombieClass(), self:Team() )
+		local handler = FindHandler( self:GetZombieClass(), self:Team() )
 		if handler and handler.RerollTarget then handler.RerollTarget( self ) end
 		return
 	end

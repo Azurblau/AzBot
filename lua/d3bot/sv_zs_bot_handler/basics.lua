@@ -11,7 +11,7 @@ function D3bot.Basics.SuicideOrRetarget(bot)
 	if nodeOrNil and nextNodeOrNil and nextNodeOrNil.Pos.z > nodeOrNil.Pos.z + 55 then
 		local wallParam = nextNodeOrNil.Params.Wall
 		if wallParam == "Retarget" then
-			local handler = findHandler(bot:GetZombieClass(), bot:Team())
+			local handler = FindHandler(bot:GetZombieClass(), bot:Team())
 			if handler and handler.RerollTarget then handler.RerollTarget(bot) end
 			return
 		elseif wallParam == "Suicide" then
