@@ -223,6 +223,8 @@ function D3bot.Basics.WalkAttackAuto(bot)
 		aimPos = bot:D3bot_GetAttackPosOrNilFuture(nil, math.Rand(0, D3bot.BotAimPosVelocityOffshoot))
 		origin = bot:D3bot_GetViewCenter()
 		if aimPos and aimPos:DistToSqr(origin) < math.pow(D3bot.BotAttackDistMin, 2) then
+			---@type GWeapon|table
+			local weapon = bot:GetActiveWeapon()
 			if weapon and weapon.MeleeReach then
 				local tr = util.TraceLine({
 					start = origin,
