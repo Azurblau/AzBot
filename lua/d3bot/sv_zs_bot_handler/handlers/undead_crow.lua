@@ -30,8 +30,9 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
 	
-	local result, actions, forwardSpeed, sideSpeed, upSpeed, aimAngle = nil, nil, 0, nil
+	local result, actions, forwardSpeed, sideSpeed, upSpeed, aimAngle, minorStuck, majorStuck, facesHindrance
 
+	forwardSpeed = 0.0
 	if nextNodeOrNil and D3bot.UsingSourceNav then
 		result, actions, forwardSpeed, sideSpeed, upSpeed, aimAngle, minorStuck, majorStuck, facesHindrance = D3bot.Basics.Walk( bot, nextNodeOrNil:GetCenter() + Vector(0, 0, 64) )
 	elseif nextNodeOrNil then
