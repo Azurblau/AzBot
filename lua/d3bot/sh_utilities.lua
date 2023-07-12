@@ -53,8 +53,15 @@ function D3bot.RemoveObsDeadTgts(tgts)
 	return D3bot.From(tgts):Where(function(k, v) return IsValid(v) and v:GetObserverMode() == OBS_MODE_NONE and not v:IsFlagSet(FL_NOTARGET) and v:Alive() end).R
 end
 
+---Calculates a falloff on the given nodes.
+---@param startNode D3NavmeshNode|nil -- The node to start on.
+---@param iterations integer -- The maximum number of iterations.
+---@param startValue number -- The starting value.
+---@param falloff number -- The falloff factor for every followed link.
+---@param nodes table<D3NavmeshNode, number> -- The starting node-number pairs.
+---@return table<D3NavmeshNode, number> -- Result is a map of nodes with number values.
 function D3bot.NeighbourNodeFalloff(startNode, iterations, startValue, falloff, nodes)
-	if not startNode then return end
+	if not startNode then return {} end
 	local nodes = nodes or {}
 	local queue = {startNode}
 	nodes[startNode] = (nodes[startNode] or 0) + startValue
@@ -69,7 +76,9 @@ function D3bot.NeighbourNodeFalloff(startNode, iterations, startValue, falloff, 
 	return nodes
 end
 
-function D3bot.GetBots() -- Return all players controlled by this script (Can also be real players)
+---Return all players that are controller by D3bot, this includes real players that D3bot is in control of.
+---@return GPlayer[]
+function D3bot.GetBots()
 	local bots = {}
 	for _, v in pairs(player.GetAll()) do
 		if v.D3bot_Mem then
