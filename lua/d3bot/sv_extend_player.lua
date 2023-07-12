@@ -25,12 +25,8 @@ function meta:D3bot_GetAttackPosOrNilFuturePlatforms(fraction, t)
 	return tgt:IsPlayer() and LerpVector(fraction or 0.75, tgt:GetPos(), tgt:EyePos()) + phys:GetVelocity()*t or tgt:WorldSpaceCenter()
 end
 
-function meta:D3bot_GetViewCenter()
-	return self:GetPos() + (self:Crouching() and self:GetViewOffsetDucked() or self:GetViewOffset())
-end
-
 function meta:D3bot_IsLookingAt(targetPos, conditionCos)
-	return self:GetAimVector():Dot((targetPos - self:D3bot_GetViewCenter()):GetNormalized()) > (conditionCos or 0.95)
+	return self:GetAimVector():Dot((targetPos - self:EyePos()):GetNormalized()) > (conditionCos or 0.95)
 end
 
 function meta:D3bot_CanPounceToPos(pos)
@@ -84,7 +80,7 @@ function meta:D3bot_CanSeeTarget(fraction, target)
 	local mem = self.D3bot_Mem
 	if mem and mem.TgtNodeOrNil and mem.NodeOrNil ~= mem.TgtNodeOrNil and mem.TgtNodeOrNil.Params.See == "Disabled" then return false end
 	local tr = D3bot.BotSeeTr
-	tr.start = self:D3bot_GetViewCenter()
+	tr.start = self:EyePos()
 	tr.endpos = attackPos
 	tr.filter = player.GetAll()
 	return attackPos and not util.TraceHull(tr).Hit
@@ -293,7 +289,7 @@ function meta:D3bot_CanSeeTarget( fraction, target )
 	local mem = self.D3bot_Mem
 	if mem and mem.TgtNodeOrNil and mem.NodeOrNil ~= mem.TgtNodeOrNil and mem.TgtNodeOrNil:GetMetaData().Params.See == "Disabled" then return false end
 	local tr = D3bot.BotSeeTr
-	tr.start = self:D3bot_GetViewCenter()
+	tr.start = self:EyePos()
 	tr.endpos = attackPos
 	tr.filter = player.GetAll()
 	return attackPos and not util.TraceHull( tr ).Hit

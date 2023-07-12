@@ -479,7 +479,7 @@ function D3bot.Basics.AimAndShoot(bot, target, maxDistance)
 	end
 	actions.Reload = reloading and math.random(5) == 1
 
-	local origin = bot:D3bot_GetViewCenter()
+	local origin = bot:GetShootPos()
 	local targetPos = LerpVector(mem.AimHeightFactor or 1, target:GetPos(), target:EyePos())
 
 	if maxDistance and origin:DistToSqr(targetPos) > math.pow(maxDistance, 2) then return false, {}, nil, nil, nil, angle_zero, false, false, false end
@@ -524,9 +524,9 @@ function D3bot.Basics.LookAround(bot)
 
 	if not IsValid(mem.LookTarget) then return false, {}, nil, nil, nil, angle_zero, false, false, false end
 
-	local origin = bot:D3bot_GetViewCenter()
+	local origin = bot:EyePos()
 
-	bot:D3bot_FaceTo(mem.LookTarget:D3bot_GetViewCenter(), origin, D3bot.BotAngLerpFactor * 0.3, 0)
+	bot:D3bot_FaceTo(mem.LookTarget:EyePos(), origin, D3bot.BotAngLerpFactor * 0.3, 0)
 
 	return true, {}, 0, nil, nil, mem.Angs, false, false, false
 end

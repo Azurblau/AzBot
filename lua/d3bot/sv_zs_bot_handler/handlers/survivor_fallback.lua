@@ -277,8 +277,8 @@ end
 
 function HANDLER.CanShootTarget(bot, target)
 	if not IsValid(target) then return end
-	local origin = bot:D3bot_GetViewCenter()
-	local targetPos = target:D3bot_GetViewCenter()
+	local origin = bot:EyePos()
+	local targetPos = target:EyePos()
 	local tr = util.TraceLine({
 		start = origin,
 		endpos = targetPos,
@@ -291,7 +291,7 @@ end
 function HANDLER.FacesBarricade(bot)
 	local tr = bot:GetEyeTrace()
 	local entity = tr.Entity
-	local distanceSqr = bot:D3bot_GetViewCenter():DistToSqr(tr.HitPos)
+	local distanceSqr = bot:EyePos():DistToSqr(tr.HitPos)
 	if not IsValid(entity) or not entity:IsNailed() then return end
 	return distanceSqr < 100*100
 end
