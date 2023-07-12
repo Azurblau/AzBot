@@ -48,8 +48,9 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 		if nodeOrNil and not nodeOrNil:GetContains(origin, nil) then aimStraight = true end
 	end
 	if shouldClimb then
-		if bot:GetActiveWeapon() and bot:GetActiveWeapon().GetClimbing and bot:GetActiveWeapon():GetClimbing() and bot:GetActiveWeapon().GetClimbSurface then
-			local tr = bot:GetActiveWeapon():GetClimbSurface()
+		local weapon = bot:GetActiveWeapon()
+		if weapon and weapon.GetClimbing and weapon:GetClimbing() and weapon.GetClimbSurface then
+			local tr = weapon:GetClimbSurface()
 			if tr.Hit then
 				bot:D3bot_FaceTo(origin - tr.HitNormal, origin, D3bot.BotAngLerpFactor, 0)
 			end
@@ -128,7 +129,8 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 				-- If we are airborne and should be climbing, try to climb the surface
 				actions.Attack2 = true
 				-- Calculate climbing speeds
-				if bot:GetActiveWeapon() and bot:GetActiveWeapon().GetClimbing and bot:GetActiveWeapon():GetClimbing() then
+				local weapon = bot:GetActiveWeapon()
+				if weapon and weapon.GetClimbing and weapon:GetClimbing() then
 					local yaw1 = bot:GetForward():Angle().Yaw
 					local yaw2 = (Vector(pos.x, pos.y, origin.z) - origin):Angle().Yaw
 					sideSpeed = math.AngleDifference(yaw1, yaw2)
