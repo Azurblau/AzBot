@@ -179,8 +179,8 @@ function meta:D3bot_InitializeOrReset()
 	mem.NextNodeOrNil = nil									-- Next node of the current path
 	mem.RemainingNodes = {}									-- All remaining nodes of the current path
 	mem.ConsidersPathLethality = considerPathLethality		-- If true, the bot will consider lethality of the paths
-	mem.Angs = Angle()										-- Current angle, used to smooth out movement
-	mem.AngsOffshoot = Angle()								-- Offshoot angle, to make bots movement more random
+	mem.Angs = angle_zero									-- Current angle, used to smooth out movement
+	mem.AngsOffshoot = angle_zero							-- Offshoot angle, to make bots movement more random
 	
 	mem.DontAttackTgt = nil									-- 
 	mem.TgtProximity = nil									-- 
@@ -198,7 +198,7 @@ function meta:D3bot_UpdateAngsOffshoot(angOffshoot)
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
 	if (nodeOrNil and nodeOrNil.Params.Aim == "Straight") or (nextNodeOrNil and nextNodeOrNil.Params.AimTo == "Straight") then
-		mem.AngsOffshoot = Angle()
+		mem.AngsOffshoot = angle_zero
 		return
 	end
 	mem.AngsOffshoot = Angle(math.random(-angOffshoot, angOffshoot), math.random(-angOffshoot, angOffshoot), 0)
@@ -304,7 +304,7 @@ function meta:D3bot_UpdateAngsOffshoot( angOffshoot )
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
 	if ( nodeOrNil and nodeOrNil:GetMetaData().Params.Aim == "Straight" ) or ( nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.AimTo == "Straight" ) then
-		mem.AngsOffshoot = Angle()
+		mem.AngsOffshoot = angle_zero
 		return
 	end
 	mem.AngsOffshoot = Angle(math.random( -angOffshoot, angOffshoot ), math.random( -angOffshoot, angOffshoot ), 0 )
