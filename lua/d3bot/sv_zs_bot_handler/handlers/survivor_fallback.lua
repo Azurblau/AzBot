@@ -240,7 +240,7 @@ function HANDLER.FindEscapePath(bot, startNode, enemies)
 		if node == startNode then
 			local direction = (linkedNode.Pos - node.Pos)
 			directionPenalty = (1 - direction:Dot(escapeDirection)) * 1000
-			--clDebugOverlay.Line(GetPlayerByName("D3"), node.Pos, linkedNode.Pos, nil, Color(directionPenalty/2000*255, 0, 0), true)
+			--ClDebugOverlay.Line(GetPlayerByName("D3"), node.Pos, linkedNode.Pos, nil, Color(directionPenalty/2000*255, 0, 0), true)
 		end
 		local nodeMetadata = D3bot.NodeMetadata[linkedNode]
 		local playerFactorBySurvivors = nodeMetadata and nodeMetadata.PlayerFactorByTeam and nodeMetadata.PlayerFactorByTeam[TEAM_SURVIVOR] or 0
