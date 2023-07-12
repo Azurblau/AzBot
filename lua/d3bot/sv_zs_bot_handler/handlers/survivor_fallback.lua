@@ -22,7 +22,7 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	local botPos = bot:GetPos()
 	
 	local result, actions, forwardSpeed, sideSpeed, upSpeed, aimAngle, minorStuck, majorStuck, facesHindrance = D3bot.Basics.WalkAttackAuto(bot)
-	if result and math.abs(forwardSpeed) > 30 then
+	if result and math.abs(forwardSpeed or 0) > 30 then
 		actions.Attack = false
 	else
 		result, actions, forwardSpeed, sideSpeed, upSpeed, aimAngle = D3bot.Basics.AimAndShoot(bot, mem.AttackTgtOrNil, mem.maxShootingDistance) -- TODO: Make bots walk backwards while shooting
@@ -85,7 +85,7 @@ function HANDLER.ThinkFunction(bot)
 			-- Check if undead can see/walk to bot, and then calculate escape path.
 			if mem.AttackTgtOrNil:D3bot_CanSeeTarget(nil, bot) and (not mem.NextNodeOrNil or (mem.lastEscapePath or 0) < CurTime() - 2) then
 				mem.lastEscapePath = CurTime()
-				escapePath = HANDLER.FindEscapePath(bot, D3bot.MapNavMesh:GetNearestNodeOrNil(botPos), closerEnemies)
+				local escapePath = HANDLER.FindEscapePath(bot, D3bot.MapNavMesh:GetNearestNodeOrNil(botPos), closerEnemies)
 				if escapePath then
 					--D3bot.Debug.DrawPath(GetPlayerByName("D3"), escapePath, nil, nil, true)
 					mem.holdPathTime = CurTime() + 2
@@ -98,7 +98,7 @@ function HANDLER.ThinkFunction(bot)
 			end
 			if not mem.NextNodeOrNil and ((mem.nextHumanPath or 0) < CurTime() or bot:WaterLevel() == 3) then
 				mem.nextHumanPath = CurTime() + 10 + math.random() * 20
-				path = HANDLER.FindPathToHuman(D3bot.MapNavMesh:GetNearestNodeOrNil(botPos))
+				local path = HANDLER.FindPathToHuman(D3bot.MapNavMesh:GetNearestNodeOrNil(botPos))
 				if path then
 					--D3bot.Debug.DrawPath(GetPlayerByName("D3"), path, nil, Color(0, 0, 255), true)
 					mem.holdPathTime = CurTime() + 20
@@ -129,7 +129,7 @@ function HANDLER.ThinkFunction(bot)
 		mem.nextHeldWeaponUpdate = CurTime() + 1 + math.random() * 1
 		local weapons = bot:GetWeapons()
 		local filteredWeapons = {}
-		local bestRating, bestWeapon = 0, nil
+		local bestRating, bestWeapon, bestMaxDistance = 0, nil, nil
 		local enemyDistance = mem.AttackTgtOrNil and mem.AttackTgtOrNil:GetPos():Distance(bot:GetPos()) or 300
 		for _, v in pairs(weapons) do
 			local weaponType, rating, maxDistance = HANDLER.WeaponRatingFunction(v, enemyDistance)
