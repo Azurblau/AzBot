@@ -90,5 +90,6 @@
     "Lua.runtime.unicodeName": true,
     "Lua.diagnostics.disable": [
         "missing-parameter"
-    ]
+    ],
+    "Lua.diagnostics.libraryFiles": "Disable"
 }
