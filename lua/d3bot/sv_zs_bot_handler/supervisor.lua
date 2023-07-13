@@ -65,6 +65,8 @@ function D3bot.MaintainBotRoles()
 			bot:SetBarricadeGhosting(false)
 		end
 	end
+
+	-- TODO: Fix invisible bots when CLASS.OverrideModel is used (most common with Frigid Revenant and other OverrideModel zombies in 2018 ZS if they have a low opacity OverrideModel)
 	
 	-- Sort by frags and being boss zombie
 	if botsByTeam[TEAM_UNDEAD] then
@@ -137,11 +139,11 @@ local NextNodeDamage = CurTime()
 local NextMaintainBotRoles = CurTime()
 function D3bot.SupervisorThinkFunction()
 	if NextMaintainBotRoles < CurTime() then
-		NextMaintainBotRoles = CurTime() + 1
+		NextMaintainBotRoles = CurTime() + D3bot.BotUpdateDelay
 		D3bot.MaintainBotRoles()
 	end
 	if (NextNodeDamage or 0) < CurTime() then
-		NextNodeDamage = CurTime() + 2
+		NextNodeDamage = CurTime() + D3bot.NodeDamageInterval
 		D3bot.DoNodeTrigger()
 	end
 end
@@ -154,7 +156,7 @@ function D3bot.DoNodeTrigger()
 		local nodeOrNil = D3bot.MapNavMesh:GetNearestNodeOrNil(ent:GetPos()) -- TODO: Don't call GetNearestNodeOrNil that often
 		if nodeOrNil then
 			if not D3bot.DisableNodeDamage and type(nodeOrNil.Params.DMGPerSecond) == "number" and nodeOrNil.Params.DMGPerSecond > 0 then
-				ent:TakeDamage(nodeOrNil.Params.DMGPerSecond*2, game.GetWorld(), game.GetWorld())
+				ent:TakeDamage(nodeOrNil.Params.DMGPerSecond, game.GetWorld(), game.GetWorld())
 			end
 			if ent:IsPlayer() and not ent.D3bot_Mem and nodeOrNil.Params.BotMod then
 				D3bot.NodeZombiesCountAddition = nodeOrNil.Params.BotMod
