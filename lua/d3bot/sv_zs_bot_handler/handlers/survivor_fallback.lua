@@ -8,6 +8,9 @@ function HANDLER.SelectorFunction(zombieClassName, team)
 	return team == TEAM_SURVIVOR
 end
 
+---Updates the bot move data every frame.
+---@param bot GPlayer|table
+---@param cmd GCUserCmd
 function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	cmd:ClearButtons()
 	cmd:ClearMovement()
@@ -25,7 +28,7 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	if result and math.abs(forwardSpeed or 0) > 30 then
 		actions.Attack = false
 	else
-		result, actions, forwardSpeed, sideSpeed, upSpeed, aimAngle = D3bot.Basics.AimAndShoot(bot, mem.AttackTgtOrNil, mem.maxShootingDistance) -- TODO: Make bots walk backwards while shooting
+		result, actions, forwardSpeed, sideSpeed, upSpeed, aimAngle = D3bot.Basics.AimAndShoot(bot, mem.AttackTgtOrNil, mem.MaxShootingDistance) -- TODO: Make bots walk backwards while shooting
 		if not result then
 			result, actions, forwardSpeed, sideSpeed, upSpeed, aimAngle = D3bot.Basics.LookAround(bot)
 			if not result then return end
@@ -62,6 +65,8 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	if buttons then cmd:SetButtons(buttons) end
 end
 
+---Called every frame.
+---@param bot GPlayer
 function HANDLER.ThinkFunction(bot)
 	local mem = bot.D3bot_Mem
 	local botPos = bot:GetPos()
@@ -146,7 +151,7 @@ function HANDLER.ThinkFunction(bot)
 		end
 		if bestWeapon then
 			bot:SelectWeapon(bestWeapon)
-			mem.maxShootingDistance = bestMaxDistance
+			mem.MaxShootingDistance = bestMaxDistance
 		end
 	end
 	
@@ -170,6 +175,9 @@ function HANDLER.ThinkFunction(bot)
 	end
 end
 
+---Called when the bot takes damage.
+---@param bot GPlayer
+---@param dmg GCTakeDamageInfo
 function HANDLER.OnTakeDamageFunction(bot, dmg)
 	local attacker = dmg:GetAttacker()
 	if not HANDLER.CanBeAttackTgt(bot, attacker) then return end
@@ -180,10 +188,16 @@ function HANDLER.OnTakeDamageFunction(bot, dmg)
 	--bot:Say("help")
 end
 
-function HANDLER.OnDoDamageFunction(bot, dmg)
+---Called when the bot damages something.
+---@param bot GPlayer -- The bot that caused the damage.
+---@param ent GEntity -- The entity that took damage.
+---@param dmg GCTakeDamageInfo -- Information about the damage.
+function HANDLER.OnDoDamageFunction(bot, ent, dmg)
 	--bot:Say("Gotcha!")
 end
 
+---Called when the bot dies.
+---@param bot GPlayer
 function HANDLER.OnDeathFunction(bot)
 	--bot:Say("rip me!")
 end

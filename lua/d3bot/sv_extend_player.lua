@@ -1,5 +1,5 @@
 ---@class GPlayer
----@field public D3bot_LastDamage number -- The last time (CurTime()) the bot has caused damage.
+---@field public D3bot_LastDamage number? -- The last time (CurTime()) the bot has caused damage.
 local meta = FindMetaTable("Player")
 
 ---Get attack position for the player entity.
@@ -237,6 +237,8 @@ function meta:D3bot_InitializeOrReset()
 	---@field public BarricadeAttackPos GVector? -- The position of an attackable barricade entity. If non nil, the bot tries to attack it if close enough.
 	---@field public AntiStuckCounter number?
 	---@field public AntiStuckTime number?
+	---@field public AttackTgtOrNil GPlayer? -- Specific to survivor bots: The target player to attack.
+	---@field public MaxShootingDistance number? -- Specific to survivor bots: Maximum shooting distance.
 	self.D3bot_Mem = self.D3bot_Mem or {}
 	local mem = self.D3bot_Mem
 	

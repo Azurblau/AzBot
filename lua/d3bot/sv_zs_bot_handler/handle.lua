@@ -86,7 +86,7 @@ hook.Add("EntityTakeDamage", D3bot.BotHooksId.."TakeDamage", function(ent, dmg)
 		if attacker ~= ent and attacker:IsPlayer() and attacker.D3bot_Mem then
 			-- A Bot did damage something
 			local handler = FindHandler(attacker:GetZombieClass(), attacker:Team())
-			handler.OnDoDamageFunction(attacker, dmg)
+			handler.OnDoDamageFunction(attacker, ent, dmg)
 			attacker.D3bot_LastDamage = CurTime()
 		end
 	end

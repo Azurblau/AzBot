@@ -128,9 +128,10 @@ function HANDLER.OnTakeDamageFunction(bot, dmg)
 end
 
 ---Called when the bot damages something.
----@param bot GPlayer
----@param dmg GCTakeDamageInfo
-function HANDLER.OnDoDamageFunction(bot, dmg)
+---@param bot GPlayer -- The bot that caused the damage.
+---@param ent GEntity -- The entity that took damage.
+---@param dmg GCTakeDamageInfo -- Information about the damage.
+function HANDLER.OnDoDamageFunction(bot, ent, dmg)
 	local mem = bot.D3bot_Mem
 	--bot:Say("Gotcha!")
 end

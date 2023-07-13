@@ -161,10 +161,18 @@ function HANDLER.OnTakeDamageFunction(bot, dmg)
 end
 
 ---Called when the bot damages something.
----@param bot GPlayer
----@param dmg GCTakeDamageInfo
-function HANDLER.OnDoDamageFunction(bot, dmg)
+---@param bot GPlayer -- The bot that caused the damage.
+---@param ent GEntity -- The entity that took damage.
+---@param dmg GCTakeDamageInfo -- Information about the damage.
+function HANDLER.OnDoDamageFunction(bot, ent, dmg)
 	local mem = bot.D3bot_Mem
+
+	-- If the zombie hits a barricade prop, store that hit position for the next attack.
+	if ent and ent:IsValid() and ent:GetClass() == "prop_physics" and ent.IsNailed and ent:IsNailed() then
+		mem.BarricadeAttackEntity, mem.BarricadeAttackPos = ent, dmg:GetDamagePosition()
+	end
+
+	--ClDebugOverlay.Sphere(GetPlayerByName("D3"), dmg:GetDamagePosition(), 2, 1, Color(255,255,255), false)
 	--bot:Say("Gotcha!")
 end
 
