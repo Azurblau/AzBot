@@ -470,6 +470,7 @@
 295:AreaXMax=960,AreaXMin=704,AreaYMax=-1792,AreaYMin=-2176,See=Disabled,X=832,Y=-1984,Z=1296
 295-419:
 295-436:Direction=Forward
+295-595:
 297:AreaXMax=-3920,AreaXMin=-5008,AreaYMax=6028,AreaYMin=4620,DMGPerSecond=1,X=-3960.6,Y=5609.4,Z=32
 299:AreaXMax=1024,AreaXMin=986,AreaYMax=-260,AreaYMin=-896,X=1005.3,Y=-578,Z=-144
 299-300:
@@ -727,6 +728,7 @@
 419-422:
 420:AreaXMax=960,AreaXMin=704,AreaYMax=-1008,AreaYMin=-1408,See=Disabled,X=832,Y=-1208,Z=1296
 420-436:Direction=Forward
+420-594:
 422:AreaXMax=1856,AreaXMin=960,AreaYMax=-1408,AreaYMin=-1792,See=Disabled,X=1408,Y=-1600,Z=1296
 422-423:
 423:AreaXMax=1216,AreaXMin=960,AreaYMax=-1210.8,AreaYMin=-1408,See=Disabled,X=1088,Y=-1309.4,Z=1296
@@ -750,6 +752,7 @@
 435-431:
 436:AreaXMax=960,AreaXMin=708,AreaYMax=-1408,AreaYMin=-1792,See=Disabled,X=834,Y=-1600,Z=1136
 436-437:
+436-595:
 437:AreaXMax=1024,AreaXMin=960,AreaYMax=-1408,AreaYMin=-1792,X=992,Y=-1600,Z=1136
 437-429:
 438:AreaXMax=1344,AreaXMin=1216,AreaYMax=-1280,AreaYMin=-1408,See=Disabled,X=1280,Y=-1344,Z=1296
@@ -1032,6 +1035,9 @@
 592-576:
 593:AreaXMax=-2704,AreaXMin=-2832,AreaYMax=-2305.6999511719,AreaYMin=-2480,X=-2768,Y=-2392.8,Z=2848
 593-573:
+594:AreaXMax=960,AreaXMin=704,AreaYMax=-1408,AreaYMin=-1446.5,Climbing=Needed,X=832,Y=-1408,Z=1296
+594-436:
+595:AreaXMax=960,AreaXMin=704,AreaYMax=-1758.8,AreaYMin=-1792,Climbing=Needed,X=832,Y=-1792,Z=1296
 6:AreaXMax=-1480,AreaXMin=-2648,AreaYMax=-1056,AreaYMin=-2048,X=-2105.2,Y=-1506.7,Z=-144
 6-28:
 6-33:
