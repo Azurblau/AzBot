@@ -11,6 +11,9 @@ function HANDLER.SelectorFunction(zombieClassName, team)
 	return team == TEAM_UNDEAD and zombieClassName == "Headcrab"
 end
 
+---Updates the bot move data every frame.
+---@param bot GPlayer|table
+---@param cmd GCUserCmd
 function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	cmd:ClearButtons()
 	cmd:ClearMovement()
@@ -59,14 +62,15 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 
 	if majorStuck and GAMEMODE:GetWaveActive() then bot:Kill() end
 
-	bot:SetEyeAngles(aimAngle)
-	cmd:SetViewAngles(aimAngle)
-	cmd:SetForwardMove(forwardSpeed)
+	if aimAngle then bot:SetEyeAngles(aimAngle)	cmd:SetViewAngles(aimAngle) end
+	if forwardSpeed then cmd:SetForwardMove(forwardSpeed) end
 	if sideSpeed then cmd:SetSideMove(sideSpeed) end
 	if upSpeed then cmd:SetUpMove(upSpeed) end
 	cmd:SetButtons(buttons)
 end
 
+---Called every frame.
+---@param bot GPlayer
 function HANDLER.ThinkFunction(bot)
 	local mem = bot.D3bot_Mem
 
@@ -111,6 +115,9 @@ function HANDLER.ThinkFunction(bot)
 	end
 end
 
+---Called when the bot takes damage.
+---@param bot GPlayer
+---@param dmg GCTakeDamageInfo
 function HANDLER.OnTakeDamageFunction(bot, dmg)
 	local attacker = dmg:GetAttacker()
 	if not HANDLER.CanBeTgt(bot, attacker) then return end
@@ -120,11 +127,16 @@ function HANDLER.OnTakeDamageFunction(bot, dmg)
 	--bot:Say("Ouch! Fuck you "..attacker:GetName().."! I'm gonna kill you!")
 end
 
+---Called when the bot damages something.
+---@param bot GPlayer
+---@param dmg GCTakeDamageInfo
 function HANDLER.OnDoDamageFunction(bot, dmg)
 	local mem = bot.D3bot_Mem
 	--bot:Say("Gotcha!")
 end
 
+---Called when the bot dies.
+---@param bot GPlayer
 function HANDLER.OnDeathFunction(bot)
 	--bot:Say("rip me!")
 	bot:D3bot_RerollClass(D3bot.Handlers.Undead_Fallback.BotClasses) -- Reuse list of available classes.
@@ -137,14 +149,20 @@ end
 
 local potTargetEntClasses = {"prop_*turret", "prop_arsenalcrate", "prop_manhack*"}
 local potEntTargets = nil
+
+---Returns whether a target is valid.
+---@param bot GPlayer
+---@param target GPlayer|GEntity|any
 function HANDLER.CanBeTgt(bot, target)
 	if not target or not IsValid(target) then return end
 	if IsValid(target) and target:IsPlayer() and target ~= bot and target:Team() ~= TEAM_UNDEAD and target:GetObserverMode() == OBS_MODE_NONE and not target:IsFlagSet(FL_NOTARGET) and target:Alive() then return true end
 	if potEntTargets and table.HasValue(potEntTargets, target) then return true end
 end
 
+---Rerolls the bot's target.
+---@param bot GPlayer
 function HANDLER.RerollTarget(bot)
-	-- Get humans or non zombie players or any players in this order
+	-- Get humans or non zombie players or any players in this order.
 	local players = D3bot.RemoveObsDeadTgts(team.GetPlayers(TEAM_HUMAN))
 	if #players == 0 and TEAM_UNDEAD then
 		players = D3bot.RemoveObsDeadTgts(player.GetAll())

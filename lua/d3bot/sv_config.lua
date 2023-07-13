@@ -14,7 +14,6 @@ D3bot.ValveNavOverride = false					-- Enable overriding the manually created nav
 
 D3bot.NodeDamageEnts = {"prop_*turret", "prop_arsenalcrate", "prop_resupply"}
 
-D3bot.BotAttackDistMin = 100
 D3bot.LinkDeathCostRaise = 300
 D3bot.BotConsideringDeathCostAntichance = 3
 D3bot.BotAngLerpFactor = 0.125					-- Linear interpolation factor between the current viewing angle and target viewing angle.
@@ -23,7 +22,7 @@ D3bot.BotAimAngLerpFactor = 0.5					-- See above, but for aiming with guns.
 D3bot.BotAimPosVelocityOffshoot = 0.4			-- Offshoot for position prediction of moving targets in seconds. The target position is extrapolated from the moving target, whereby the target time is within the interval from now until now + the given value.
 D3bot.BotJumpAntichance = 25
 D3bot.BotDuckAntichance = 25
-D3bot.FaceTargetOffshootFactor = 0.2			-- Factor that reduces the offshoot when the target is within `D3bot.BotAttackDistMin`. Increase value to prevent bots from "locking" onto target.
+D3bot.FaceTargetOffshootFactor = 0.2			-- Factor that reduces the offshoot when the target is within attack range. Increase value to prevent bots from "locking" onto target.
 
 D3bot.ZombiesPerPlayer = 0.3			-- Number of bot zombies per player.
 D3bot.ZombiesPerPlayerMax = 2.0			-- Limits amount of zombies to this zombie/player ratio. (Not including ZombiesCountAddition)

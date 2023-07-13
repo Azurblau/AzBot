@@ -24,6 +24,7 @@ setmetatable( CNavLink, { __call = CNavLink.new } )
 
 D3bot.CNavLink = CNavLink
 
+---@class GCNavArea
 local CNavArea = FindMetaTable( "CNavArea" )
 
 local NavAreaMetaData = NavAreaMetaData or {}

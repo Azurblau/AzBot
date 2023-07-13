@@ -22,26 +22,29 @@ function HANDLER.SelectorFunction(zombieClassName, team)
 	return team == TEAM_UNDEAD
 end
 
+---Updates the bot move data every frame.
+---@param bot GPlayer|table
+---@param cmd GCUserCmd
 function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	cmd:ClearButtons()
 	cmd:ClearMovement()
-	
+
 	-- Fix knocked down bots from sliding around. (Workaround for the NoxiousNet codebase, as ply:Freeze() got removed from status_knockdown, status_revive, ...)
 	if bot.KnockedDown and IsValid(bot.KnockedDown) or bot.Revive and IsValid(bot.Revive) then
 		return
 	end
-	
+
 	if not bot:Alive() then
-		-- Get back into the game
+		-- Get back into the game.
 		cmd:SetButtons(IN_ATTACK)
 		return
 	end
 
 	local mem = bot.D3bot_Mem
-	
+
 	bot:D3bot_UpdatePathProgress()
 	D3bot.Basics.SuicideOrRetarget(bot)
-	
+
 	local result, actions, forwardSpeed, sideSpeed, upSpeed, aimAngle, minorStuck, majorStuck, facesHindrance = D3bot.Basics.PounceAuto(bot)
 	if not result then
 		result, actions, forwardSpeed, sideSpeed, upSpeed, aimAngle, minorStuck, majorStuck, facesHindrance = D3bot.Basics.WalkAttackAuto(bot)
@@ -50,7 +53,16 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 		end
 	end
 
-	-- Simple hack for throwing poison randomly
+	-- If facesHindrance is true, let the bot search for nearby barricade objects.
+	-- But only if the bot didn't do damage for some time.
+	if facesHindrance and CurTime() - (bot.D3bot_LastDamage or 0) > 2 then
+		local entity, entityPos = bot:D3bot_FindBarricadeEntity(1) -- One random line trace per frame.
+		if entity and entityPos then
+			mem.BarricadeAttackEntity, mem.BarricadeAttackPos = entity, entityPos
+		end
+	end
+
+	-- Simple hack for throwing poison randomly.
 	-- TODO: Only throw if possible target is close enough. Aiming. Timing.
 	local secAttack = HANDLER.RandomSecondaryAttack[GAMEMODE.ZombieClasses[bot:GetZombieClass()].Name]
 	if secAttack then
@@ -61,33 +73,22 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 		end
 	end
 
-	-- Simple logic to attack barricades.
-	local mem = bot.D3bot_Mem
-	if facesHindrance then
-		mem.BarricadeHindranceCounter = (mem.BarricadeHindranceCounter or 0) +1
-		if mem.BarricadeHindranceCounter > 120 then
-			mem.BarricadeHindranceCounter = nil
-			bot:D3bot_SetClosestBarricadeTarget()
-		end
-	else
-		mem.BarricadeHindranceCounter = nil
-	end
-	
 	local buttons
 	if actions then
 		buttons = bit.bor(actions.MoveForward and IN_FORWARD or 0, actions.MoveBackward and IN_BACK or 0, actions.MoveLeft and IN_MOVELEFT or 0, actions.MoveRight and IN_MOVERIGHT or 0, actions.Attack and IN_ATTACK or 0, actions.Attack2 and IN_ATTACK2 or 0, actions.Duck and IN_DUCK or 0, actions.Jump and IN_JUMP or 0, actions.Use and IN_USE or 0)
 	end
-	
+
 	if majorStuck and GAMEMODE:GetWaveActive() then bot:Kill() end
-	
-	bot:SetEyeAngles(aimAngle)
-	cmd:SetViewAngles(aimAngle)
-	cmd:SetForwardMove(forwardSpeed)
+
+	if aimAngle then bot:SetEyeAngles(aimAngle)	cmd:SetViewAngles(aimAngle) end
+	if forwardSpeed then cmd:SetForwardMove(forwardSpeed) end
 	if sideSpeed then cmd:SetSideMove(sideSpeed) end
 	if upSpeed then cmd:SetUpMove(upSpeed) end
 	cmd:SetButtons(buttons)
 end
 
+---Called every frame.
+---@param bot GPlayer
 function HANDLER.ThinkFunction(bot)
 	local mem = bot.D3bot_Mem
 
@@ -147,6 +148,9 @@ function HANDLER.ThinkFunction(bot)
 	end
 end
 
+---Called when the bot takes damage.
+---@param bot GPlayer
+---@param dmg GCTakeDamageInfo
 function HANDLER.OnTakeDamageFunction(bot, dmg)
 	local attacker = dmg:GetAttacker()
 	if not HANDLER.CanBeTgt(bot, attacker) then return end
@@ -156,11 +160,16 @@ function HANDLER.OnTakeDamageFunction(bot, dmg)
 	--bot:Say("Ouch! Fuck you "..attacker:GetName().."! I'm gonna kill you!")
 end
 
+---Called when the bot damages something.
+---@param bot GPlayer
+---@param dmg GCTakeDamageInfo
 function HANDLER.OnDoDamageFunction(bot, dmg)
 	local mem = bot.D3bot_Mem
 	--bot:Say("Gotcha!")
 end
 
+---Called when the bot dies.
+---@param bot GPlayer
 function HANDLER.OnDeathFunction(bot)
 	--bot:Say("rip me!")
 	bot:D3bot_RerollClass(HANDLER.BotClasses) -- TODO: Situation depending reroll of the zombie class
@@ -173,18 +182,23 @@ end
 
 local potTargetEntClasses = {"prop_*turret", "prop_arsenalcrate", "prop_manhack*", "prop_obj_sigil"}
 local potEntTargets = nil
+
+---Returns whether a target is valid.
+---@param bot GPlayer
+---@param target GPlayer|GEntity|any
 function HANDLER.CanBeTgt(bot, target)
 	if not target or not IsValid(target) then return end
 	if target:IsPlayer() and target ~= bot and target:Team() ~= TEAM_UNDEAD and target:GetObserverMode() == OBS_MODE_NONE and not target:IsFlagSet(FL_NOTARGET) and target:Alive() then return true end
 	if target:GetClass() == "prop_obj_sigil" and target:GetSigilCorrupted() then return false end -- Special case to ignore corrupted sigils.
-	if target:GetClass() == "prop_physics" and target.IsNailed and target:IsNailed() then return true end -- Special case for barricade props.
 	if potEntTargets and table.HasValue(potEntTargets, target) then return true end
 
 	return false
 end
 
+---Rerolls the bot's target.
+---@param bot GPlayer
 function HANDLER.RerollTarget(bot)
-	-- Get humans or non zombie players or any players in this order
+	-- Get humans or non zombie players or any players in this order.
 	local players = D3bot.RemoveObsDeadTgts(team.GetPlayers(TEAM_HUMAN))
 	if #players == 0 and TEAM_UNDEAD then
 		players = D3bot.RemoveObsDeadTgts(player.GetAll())
