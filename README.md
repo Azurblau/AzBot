@@ -26,6 +26,7 @@ Here is a list of notable changes compared to the original version:
 - Navmesh edit preview. (Thanks to [delstre])
 - Ability to use source navmeshes, and option to convert those navmeshes into D3bot ones. (Thanks to [Bagellll])
 - Code optimizations. (Thanks to [Antizombie])
+- Support for ZS sub-gamemodes such as Pants Mode, Baby Mode & Classic Mode. (Thanks to [Sigilmare])
 - Translations:
   - Chinese Simplified (Thanks to [XY]EvansFix)
   - Chinese Traditional (Thanks to [Half1569])
@@ -180,7 +181,7 @@ Though I won't take measures against illegitimate usage unless I have reasons to
 - All links are normally bidirectional (see also: Wall = Suicide parameter or Direction = Forward/Backward).
 - Bots can take any route with tendency towards the shortest.
 - Bots stubbornly move towards the next node unless they enter another node at time of path refresh (occurs roughly every second). Link wisely.
-- Bots may aim too perfect, the precision can be changed inside `sv_config.lua` with the option `D3bot.FaceTargetOffshootFactor`. (Suggestion for the fix by [STEAM_0:0:105668971])
+- Bots may aim too perfect, the precision can be changed inside `sv_config.lua` with the option `D3bot.FaceTargetOffshootFactor`. (Suggestion for the fix by [Sigilmare])
 
 ![Bots in action](./media/screenshot2.jpg)
 
@@ -199,6 +200,7 @@ Starting with highest public priority:
 - Equipment upgrading behavior for survivor bots.
 - Caching of non-branching paths as a single node to optimize the pathfinding performance.
 
+[Sigilmare]: http://steamcommunity.com/profiles/76561198171603670
 [Antizombie]: https://github.com/Antizombie
 [Bagellll]: https://github.com/Bagellll
 [Blueberryy]: https://github.com/Blueberryy
@@ -208,5 +210,4 @@ Starting with highest public priority:
 [Halamix2]: https://github.com/Halamix2
 [Half1569]: https://github.com/Half1569
 [orecros]: https://github.com/orecros
-[STEAM_0:0:105668971]: https://steamcommunity.com/profiles/76561198171603670
 [Wolfaloo]: https://github.com/Wolfaloo
