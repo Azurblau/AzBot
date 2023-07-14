@@ -7,7 +7,7 @@ end
 
 local handlerLookup = {}
 
-function findHandler(zombieClass, team)
+function FindHandler(zombieClass, team)
 	if handlerLookup[team] and handlerLookup[team][zombieClass] then -- TODO: Put cached handler into bot object
 		return handlerLookup[team][zombieClass]
 	end
@@ -22,12 +22,12 @@ function findHandler(zombieClass, team)
 		end
 	end
 end
-local findHandler = findHandler
+local FindHandler = FindHandler
 
 hook.Add("StartCommand", D3bot.BotHooksId, function(pl, cmd)
 	if D3bot.IsEnabledCached and pl.D3bot_Mem then
 		
-		local handler = findHandler(pl:GetZombieClass(), pl:Team())
+		local handler = FindHandler(pl:GetZombieClass(), pl:Team())
 		handler.UpdateBotCmdFunction(pl, cmd)
 		
 	end
@@ -56,7 +56,7 @@ hook.Add("Think", D3bot.BotHooksId.."🤔", function()
 			end
 		end
 		
-		local handler = findHandler(bot:GetZombieClass(), bot:Team())
+		local handler = FindHandler(bot:GetZombieClass(), bot:Team())
 		handler.ThinkFunction(bot)
 	end
 	
@@ -79,14 +79,14 @@ hook.Add("EntityTakeDamage", D3bot.BotHooksId.."TakeDamage", function(ent, dmg)
 	if D3bot.IsEnabledCached then
 		if ent:IsPlayer() and ent.D3bot_Mem then
 			-- Bot got damaged or damaged itself
-			local handler = findHandler(ent:GetZombieClass(), ent:Team())
+			local handler = FindHandler(ent:GetZombieClass(), ent:Team())
 			handler.OnTakeDamageFunction(ent, dmg)
 		end
 		local attacker = dmg:GetAttacker()
 		if attacker ~= ent and attacker:IsPlayer() and attacker.D3bot_Mem then
 			-- A Bot did damage something
-			local handler = findHandler(attacker:GetZombieClass(), attacker:Team())
-			handler.OnDoDamageFunction(attacker, dmg)
+			local handler = FindHandler(attacker:GetZombieClass(), attacker:Team())
+			handler.OnDoDamageFunction(attacker, ent, dmg)
 			attacker.D3bot_LastDamage = CurTime()
 		end
 	end
@@ -94,7 +94,7 @@ end)
 
 hook.Add("PlayerDeath", D3bot.BotHooksId.."PlayerDeath", function(pl)
 	if D3bot.IsEnabledCached and pl.D3bot_Mem then
-		local handler = findHandler(pl:GetZombieClass(), pl:Team())
+		local handler = FindHandler(pl:GetZombieClass(), pl:Team())
 		handler.OnDeathFunction(pl)
 		-- Add death cost to the current link
 		local mem = pl.D3bot_Mem

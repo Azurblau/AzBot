@@ -105,6 +105,7 @@ function D3bot.MaintainBotRoles()
 					spawnAsTeam = team
 				else
 					spawnAsTeam = team
+					---@type GPlayer|table
 					local bot = player.CreateNextBot(D3bot.GetUsername())
 					spawnAsTeam = nil
 					if IsValid(bot) then

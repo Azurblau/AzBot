@@ -19,8 +19,8 @@ return function(lib)
 			if model then
 				local extraProp = {
 					Model = model,
-					Pos = Vector(tonumber(x), tonumber(y), tonumber(z)),
-					Ang = Angle(tonumber(p), tonumber(y2), tonumber(r)) }
+					Pos = Vector(tonumber(x) or 0, tonumber(y) or 0, tonumber(z) or 0),
+					Ang = Angle(tonumber(p) or 0, tonumber(y2) or 0, tonumber(r) or 0) }
 				local ent = ents.Create("prop_physics")
 				lib.ExtraPropByEnt[ent] = extraProp
 				ent:SetModel(extraProp.Model)

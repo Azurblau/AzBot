@@ -1,5 +1,7 @@
 D3bot.Basics = {}
 
+---Let the bot suicide or retarget, based on the node parameters of the current and next node.
+---@param bot GPlayer
 function D3bot.Basics.SuicideOrRetarget(bot)
 	local mem = bot.D3bot_Mem
 	
@@ -11,7 +13,7 @@ function D3bot.Basics.SuicideOrRetarget(bot)
 	if nodeOrNil and nextNodeOrNil and nextNodeOrNil.Pos.z > nodeOrNil.Pos.z + 55 then
 		local wallParam = nextNodeOrNil.Params.Wall
 		if wallParam == "Retarget" then
-			local handler = findHandler(bot:GetZombieClass(), bot:Team())
+			local handler = FindHandler(bot:GetZombieClass(), bot:Team())
 			if handler and handler.RerollTarget then handler.RerollTarget(bot) end
 			return
 		elseif wallParam == "Suicide" then
@@ -21,45 +23,76 @@ function D3bot.Basics.SuicideOrRetarget(bot)
 	end
 end
 
-function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be inside the current or next node.
+---Basic walking handler.
+---@param bot GPlayer|table
+---@param pos GVector -- Target position the bot should walk towards. Should be inside the current or next node.
+---@param aimAngle GAngle? -- Target aim angle of the bot. If not set, the bot will aim to the walking direction.
+---@param slowdown boolean? -- Set to true if the bot will slow down when it is close to its target.
+---@param proximity number? -- The proxmimity where the bot starts to slow down.
+---@return boolean valid -- True if the handler ran corrcetly.
+---@return table actions -- Table with a set of actions.
+---@return number? forwardSpeed -- The needed forwards speed for the bot.
+---@return number? sideSpeed -- The needed side speed for the bot.
+---@return number? upSpeed -- The needed upwards speed for the bot.
+---@return GAngle aimAngle -- The resulting aim angle for the bot.
+---@return boolean minorStuck -- True if the bot seems to be stuck on a ladder or similar.
+---@return boolean majorStuck -- True if the bot seems to be stuck on props, or runs in circles.
+---@return boolean facesHindrance -- True if the bot is walking slower than expected.
+function D3bot.Basics.Walk(bot, pos, aimAngle, slowdown, proximity)
 	local mem = bot.D3bot_Mem
-	
+
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
-	
+
+	local offshootAngle
 	local origin = bot:GetPos()
 	local actions = {}
-	
-	local sideSpeed
-	
+
 	-- Check if the bot needs to climb while being on a node or going towards a node. As maneuvering while climbing is different, this will change/override some movement actions.
 	local shouldClimb
 	if D3bot.UsingSourceNav then
-		shouldClimb = ( nodeOrNil and nodeOrNil:GetMetaData().Params.Climbing == "Needed" ) or ( nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.Climbing == "Needed" )
+		shouldClimb = (nodeOrNil and nodeOrNil:GetMetaData().Params.Climbing == "Needed") or (nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.Climbing == "Needed")
 	else
-		shouldClimb = ( nodeOrNil and nodeOrNil.Params.Climbing == "Needed" ) or ( nextNodeOrNil and nextNodeOrNil.Params.Climbing == "Needed" )
+		shouldClimb = (nodeOrNil and nodeOrNil.Params.Climbing == "Needed") or (nextNodeOrNil and nextNodeOrNil.Params.Climbing == "Needed")
 	end
 
 	-- Make bot aim straight when outside of current node area This should prevent falling down edges.
 	local aimStraight = false
 	if D3bot.UsingSourceNav then
-		if nodeOrNil and not navmesh.GetNavArea( origin, 8 ) then aimStraight = true end
+		if nodeOrNil and not navmesh.GetNavArea(origin, 8) then aimStraight = true end
 	else
 		if nodeOrNil and not nodeOrNil:GetContains(origin, nil) then aimStraight = true end
 	end
 	if shouldClimb then
-		if bot:GetActiveWeapon() and bot:GetActiveWeapon().GetClimbing and bot:GetActiveWeapon():GetClimbing() and bot:GetActiveWeapon().GetClimbSurface then
-			local tr = bot:GetActiveWeapon():GetClimbSurface()
-			if tr.Hit then
-				bot:D3bot_FaceTo(origin - tr.HitNormal, origin, D3bot.BotAngLerpFactor, 0)
+		---@type GWeapon|table
+		local weapon = bot:GetActiveWeapon()
+		if weapon and weapon.GetClimbing and weapon:GetClimbing() and weapon.GetClimbSurface then
+			local tr = weapon:GetClimbSurface()
+			if tr and tr.Hit then
+				offshootAngle = angle_zero
+				bot:D3bot_AngsRotateTo((-tr.HitNormal):Angle(), D3bot.BotAngLerpFactor)
 			end
 		else
-			bot:D3bot_FaceTo(Vector(pos.x, pos.y, origin.z), origin, 1, 0)
+			offshootAngle = angle_zero
+			bot:D3bot_AngsRotateTo(Vector(pos.x-origin.x, pos.y-origin.y, 0):Angle(), 1)
 		end
 	else
-		bot:D3bot_FaceTo(pos, origin, aimStraight and 1 or D3bot.BotAngLerpFactor, aimStraight and 0 or 1)
+		if mem.BarricadeAttackEntity and mem.BarricadeAttackPos and mem.BarricadeAttackEntity:IsValid() and mem.BarricadeAttackPos:DistToSqr(origin) < 100*100 then
+			-- We have a barricade entity to attack, so we aim for this one.
+			offshootAngle = bot:D3bot_GetOffshoot(0.1)
+			aimAngle = aimAngle or (mem.BarricadeAttackPos - bot:GetShootPos()):Angle()
+			bot:D3bot_AngsRotateTo(aimAngle + offshootAngle, 0.5)
+			--ClDebugOverlay.Line(GetPlayerByName("D3"), bot:GetShootPos(), mem.BarricadeAttackPos, 1, Color(0,255,0), false)
+		else
+			-- Target is invalid or too far away, forget about it.
+			-- We will either use the given aim angle, or calculate it based on the walk position.
+			offshootAngle = bot:D3bot_GetOffshoot(aimStraight and 0 or 1)
+			aimAngle = aimAngle or (pos - origin):Angle()
+			bot:D3bot_AngsRotateTo(aimAngle + offshootAngle, aimStraight and 1 or D3bot.BotAngLerpFactor)
+			mem.BarricadeAttackPos, mem.BarricadeAttackEntity = nil, nil
+		end
 	end
-	
+
 	local duckParam
 	local duckToParam
 	local jumpParam
@@ -76,37 +109,45 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 		jumpParam = nodeOrNil and nodeOrNil.Params.Jump
 		jumpToParam = nextNodeOrNil and nextNodeOrNil.Params.JumpTo
 	end
-	
-	-- Slow down bot when close to target (2D distance)
-	local tempPos = Vector(pos.x, pos.y, origin.z)
-	local invProximity = math.Clamp((origin:Distance(tempPos) - (proximity or 10))/60, 0, 1)
+
+	-- Set up movement vector, which is relative to the player's 2D forward direction.
+	-- Positive x is forward, positive y is left and positive z is upwards.
+	---@type GVector
+	local movementVector = pos - origin
+	-- Slow down bot when close to target (2D distance).
+	local invProximity = math.Clamp((movementVector:Length2D() - (proximity or 10)) / 60, 0, 1)
 	local speed = bot:GetMaxSpeed() * (slowdown and invProximity or 1)
-	
-	-- Antistuck when bot is possibly stuck crouching below something
+	movementVector.z = 0
+	movementVector:Normalize()
+	movementVector:Mul(speed)
+	movementVector:Rotate(Angle(0, offshootAngle.yaw - mem.Angs.yaw, 0))
+
+	-- Antistuck when bot is possibly stuck crouching below something.
 	if mem.AntiStuckTime and mem.AntiStuckTime > CurTime() then
 		if not bot:Crouching() then
 			mem.AntiStuckTime = nil
 		else
-			speed = -40
+			movementVector = -0.5 * movementVector
 			actions.Jump = true
 			actions.Attack = true
 		end
 	end
 
-	local facesHindrance = not shouldClimb and bot:GetVelocity():Length2D() < 0.50 * speed - 10
+	local velocity = bot:GetVelocity():Length2D()
+	local facesHindrance = velocity < 0.25 * speed
 	local minorStuck, majorStuck = bot:D3bot_CheckStuck()
-	
+
 	if not facesHindrance then
 		mem.lastNoHindrance = CurTime()
 	end
-	
+
 	if duckParam == "Always" or duckToParam == "Always" then
 		actions.Duck = true
 	end
-	
+
 	if bot:GetMoveType() ~= MOVETYPE_LADDER then
 		if bot:IsOnGround() then
-			-- If we should climb, jump while we're on the ground
+			-- If we should climb, jump while we're on the ground.
 			if shouldClimb or jumpParam == "Always" or jumpToParam == "Always" then
 				actions.Jump = true
 			end
@@ -117,23 +158,21 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 				if math.random(D3bot.BotDuckAntichance) == 1 then
 					actions.Duck = true
 				end
-				-- Check if bot is possibly stuck below something
-				if bot:Crouching() and not actions.Duck and (not bot.D3bot_LastDamage or bot.D3bot_LastDamage < CurTime() - 2) and (not mem.lastNoHindrance or mem.lastNoHindrance < CurTime() - 2) then
-					mem.AntiStuckTime = CurTime() + 1
-				end
 			end
 		else
 			actions.Duck = true
 			if shouldClimb then
-				-- If we are airborne and should be climbing, try to climb the surface
+				-- If we are airborne and should be climbing, try to climb the surface.
 				actions.Attack2 = true
-				-- Calculate climbing speeds
-				if bot:GetActiveWeapon() and bot:GetActiveWeapon().GetClimbing and bot:GetActiveWeapon():GetClimbing() then
-					local yaw1 = bot:GetForward():Angle().Yaw
-					local yaw2 = (Vector(pos.x, pos.y, origin.z) - origin):Angle().Yaw
-					sideSpeed = math.AngleDifference(yaw1, yaw2)
-					speed = (pos.z - origin.z + 20) * 10
-					if (math.abs(speed) < 20 or bot:GetVelocity():Length() < 10) and math.abs(sideSpeed) > 1 then speed = 0 end
+				-- Calculate climbing speeds.
+				---@type GWeapon|table
+				local weapon = bot:GetActiveWeapon()
+				if weapon and weapon.GetClimbing and weapon:GetClimbing() then
+					local yaw1 = bot:GetForward():Angle().yaw
+					local yaw2 = Vector(pos.x-origin.x, pos.y-origin.y, 0):Angle().yaw
+					movementVector.y = math.AngleDifference(yaw2, yaw1)
+					movementVector.x = (pos.z - origin.z + 20) * 10
+					if (math.abs(movementVector.x) < 20 or bot:GetVelocity():Length() < 10) and math.abs(movementVector.y) > 1 then movementVector.x = 0 end
 				end
 			end
 		end
@@ -143,38 +182,59 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 		actions.Duck = true
 		actions.Use = true
 	end
-	
+
 	if duckParam == "Disabled" or duckToParam == "Disabled" then
 		actions.Duck = false
 	end
 	if math.random(1, 2) == 1 or jumpParam == "Disabled" or jumpToParam == "Disabled" or (not actions.Duck and bot:Crouching()) then
 		actions.Jump = false
 	end
-	
-	actions.Attack = facesHindrance
+
+	-- Check if bot is possibly stuck below something.
+	-- This is basically when the bot is slowly or not moving on ground, and is crouching even it shouldn't.
+	if bot:GetMoveType() ~= MOVETYPE_LADDER and bot:IsOnGround() and bot:Crouching() and not actions.Duck and (not bot.D3bot_LastDamage or bot.D3bot_LastDamage < CurTime() - 2) and (not mem.lastNoHindrance or mem.lastNoHindrance < CurTime() - 2) then
+		mem.AntiStuckCounter = (mem.AntiStuckCounter or 0) + 1
+		if mem.AntiStuckCounter > 30 then
+			mem.AntiStuckCounter = nil
+			mem.AntiStuckTime = CurTime() + 1
+		end
+	else
+		mem.AntiStuckCounter = nil
+	end
+
+	actions.Attack = facesHindrance and not shouldClimb -- If the bot should climb, but is using its primary attack, climing will fail.
 	actions.Use = actions.Use or facesHindrance
-	
-	if speed > 0 then actions.MoveForward = true end
-	if speed < 0 then actions.MoveBackward = true end
-	
-	if sideSpeed and sideSpeed > 0 then actions.MoveRight = true end
-	if sideSpeed and sideSpeed < 0 then actions.MoveLeft = true end
-	
-	return true, actions, speed, sideSpeed, nil, mem.Angs, minorStuck, majorStuck, facesHindrance
+
+	if movementVector.x > 0 then actions.MoveForward = true end
+	if movementVector.x < 0 then actions.MoveBackward = true end
+	if movementVector.y < 0 then actions.MoveRight = true end
+	if movementVector.y > 0 then actions.MoveLeft = true end
+
+	return true, actions, movementVector.x, -movementVector.y, nil, mem.Angs, minorStuck, majorStuck, facesHindrance
 end
 
+---Basic walk and attack handler.
+---@param bot GPlayer|table
+---@return boolean valid -- True if the handler ran corrcetly.
+---@return table actions -- Table with a set of actions.
+---@return number? forwardSpeed -- The needed forwards speed for the bot.
+---@return number? sideSpeed -- The needed side speed for the bot.
+---@return number? upSpeed -- The needed upwards speed for the bot.
+---@return GAngle aimDirection -- The wanted aim direction for the bot.
+---@return boolean minorStuck -- True if the bot seems to be stuck on a ladder or similar.
+---@return boolean majorStuck -- True if the bot seems to be stuck on props, or runs in circles.
+---@return boolean facesHindrance -- True if the bot is walking slower than expected.
 function D3bot.Basics.WalkAttackAuto(bot)
 	local mem = bot.D3bot_Mem
-	if not mem then return end
-	
+
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
-	
-	local aimPos, origin
+
 	local actions = {}
-	local facesTgt = false
-	
-	-- Check if the bot needs to climb while being on a node or going towards a node. If so, ignore everything else, and use Basics.WalkAuto, which will handle everything fine. TODO: Put everything into its own basics function
+
+	-- Check if the bot needs to climb while being on a node or going towards a node.
+	-- If so, ignore everything else, and use Basics.WalkAuto, which will handle everything fine.
+	-- TODO: Put everything into its own basics function
 	local shouldClimb
 	if D3bot.UsingSourceNav then
 		shouldClimb = ( nodeOrNil and nodeOrNil:GetMetaData().Params.Climbing == "Needed" ) or ( nextNodeOrNil and nextNodeOrNil:GetMetaData().Params.Climbing == "Needed" )
@@ -182,56 +242,68 @@ function D3bot.Basics.WalkAttackAuto(bot)
 		shouldClimb = ( nodeOrNil and nodeOrNil.Params.Climbing == "Needed" ) or ( nextNodeOrNil and nextNodeOrNil.Params.Climbing == "Needed" )
 	end
 
-	-- TODO: Reduce can see target calls
+	-- Fall back to normal walking behavior if possible.
 	if shouldClimb and nextNodeOrNil then
+		-- Use walk handler for climing.
+		-- Unless we don't have a next node, so the target is near a wall we need to climb.
 		if D3bot.UsingSourceNav then
-			return D3bot.Basics.Walk(bot, nextNodeOrNil:GetCenter() )
+			return D3bot.Basics.Walk(bot, nextNodeOrNil:GetCenter(), nil)
 		else
-			return D3bot.Basics.Walk(bot, nextNodeOrNil.Pos)
+			return D3bot.Basics.Walk(bot, nextNodeOrNil.Pos, nil)
 		end
-	elseif mem.TgtOrNil and not mem.DontAttackTgt and (bot:D3bot_CanSeeTargetCached() or not nextNodeOrNil) then
-		aimPos = bot:D3bot_GetAttackPosOrNilFuture(nil, math.Rand(0, D3bot.BotAimPosVelocityOffshoot))
-		origin = bot:D3bot_GetViewCenter()
-		if aimPos and aimPos:DistToSqr(origin) < math.pow(D3bot.BotAttackDistMin, 2) then
-			if weapon and weapon.MeleeReach then
-				local tr = util.TraceLine({
-					start = origin,
-					endpos = origin + bot:EyeAngles():Forward() * weapon.MeleeReach,
-					filter = bot
-				})
-				facesTgt = tr.Entity == mem.TgtOrNil
-			else
-				facesTgt = true
-			end
-			if aimPos.z < bot:GetPos().z + bot:GetViewOffsetDucked().z then
-				actions.Duck = true
-			end
-		end
-	elseif mem.PosTgtOrNil and not nextNodeOrNil then
-		-- Go straight to position target
-		return D3bot.Basics.Walk(bot, mem.PosTgtOrNil, true, mem.PosTgtProximity)
-	elseif nextNodeOrNil then
-		-- Target not visible, walk towards next node
+	elseif not bot:D3bot_CanSeeTargetCached() and nextNodeOrNil then
+		-- Target not visible, walk towards next node.
 		if D3bot.UsingSourceNav then
-			return D3bot.Basics.Walk( bot, nextNodeOrNil:GetCenter() )
+			return D3bot.Basics.Walk(bot, nextNodeOrNil:GetCenter(), nil)
 		else
-			return D3bot.Basics.Walk( bot, nextNodeOrNil.Pos )
+			return D3bot.Basics.Walk(bot, nextNodeOrNil.Pos, nil)
 		end
-	elseif mem.TgtOrNil then
-		-- There is a target entity, but the bot shouldn't attack it
-		return D3bot.Basics.Walk(bot, mem.TgtOrNil:GetPos(), true, mem.TgtProximity)
-	else
-		return
+	elseif mem.TgtOrNil and mem.DontAttackTgt then
+		-- There is a target entity, but the bot shouldn't attack it.
+		return D3bot.Basics.Walk(bot, mem.TgtOrNil:GetPos(), nil, true, mem.TgtProximity)
+	elseif mem.PosTgtOrNil then
+		-- Go straight to position target, if there is one.
+		return D3bot.Basics.Walk(bot, mem.PosTgtOrNil, nil, true, mem.PosTgtProximity)
 	end
-	
-	if aimPos then
-		bot:D3bot_FaceTo(aimPos, origin, D3bot.BotAttackAngLerpFactor, facesTgt and D3bot.FaceTargetOffshootFactor or 1)
+
+	---@type GWeapon|table
+	local weapon = bot:GetActiveWeapon()
+	local range = (weapon and weapon.MeleeReach or 75) + 25 -- Either MeleeReach + 25, or 100.
+
+	-- We don't have a case that can be handled by the basic walk handler.
+	-- So we just attack something directly.
+	local facesTgt = false -- True if bot is close enough for attacks.
+	local origin = bot:GetShootPos() -- Attack origin of the bot.
+	local attackPos = bot:D3bot_GetAttackPosOrNilFuture(nil, math.Rand(0, D3bot.BotAimPosVelocityOffshoot)) -- Target attack position, for aiming.
+	local movePos = attackPos or bot:GetPos() -- Target movement position.
+
+	if attackPos and attackPos:DistToSqr(origin) < math.pow(range, 2) then
+		--ClDebugOverlay.Line(GetPlayerByName("D3"), bot:GetShootPos(), attackPos, 1, Color(255,255,0), false)
+
+		-- We are within attack range.
+		facesTgt = true
+		if attackPos.z < bot:GetPos().z + bot:GetViewOffsetDucked().z then
+			actions.Duck = true
+		end
+	elseif mem.BarricadeAttackEntity and mem.BarricadeAttackPos then
+		-- We are not within attack range, but we have a barricade entity to attack.
+		-- So we aim for this one, instead.
+		if mem.BarricadeAttackEntity:IsValid() and mem.BarricadeAttackPos:DistToSqr(origin) < math.pow(range, 2) then
+			attackPos = mem.BarricadeAttackPos
+			facesTgt = true
+			--ClDebugOverlay.Line(GetPlayerByName("D3"), bot:GetShootPos(), attackPos, 1, Color(0,0,255), false)
+		else
+			-- Target is invalid or too far away, forget about it.
+			mem.BarricadeAttackPos, mem.BarricadeAttackEntity = nil, nil
+		end
 	end
-	
-	local duckParam
-	local duckToParam
-	local jumpParam
-	local jumpToParam
+
+	local offshootAngle = bot:D3bot_GetOffshoot(facesTgt and D3bot.FaceTargetOffshootFactor or 1)
+	if attackPos then
+		bot:D3bot_AngsRotateTo((attackPos - origin):Angle() + offshootAngle, D3bot.BotAttackAngLerpFactor)
+	end
+
+	local duckParam, duckToParam, jumpParam, jumpToParam
 
 	if D3bot.UsingSourceNav then
 		duckParam = nodeOrNil and nodeOrNil:GetMetaData().Params.Duck
@@ -244,31 +316,42 @@ function D3bot.Basics.WalkAttackAuto(bot)
 		jumpParam = nodeOrNil and nodeOrNil.Params.Jump
 		jumpToParam = nextNodeOrNil and nextNodeOrNil.Params.JumpTo
 	end
-	
-	local speed = bot:GetMaxSpeed()
-	
-	-- Antistuck when bot is possibly stuck crouching below something
+
+	-- Set up movement vector, which is relative to the player's 2D forward direction.
+	-- Positive x is forward, positive y is left and positive z is upwards.
+	---@type GVector
+	local movementVector = movePos - origin
+	-- Slow down bot when close to target (2D distance).
+	local invProximity = math.Clamp((movementVector:Length2D() - 10) / 60, 0.01, 1)
+	local speed = bot:GetMaxSpeed() * invProximity
+	movementVector.z = 0
+	movementVector:Normalize()
+	movementVector:Mul(speed)
+	movementVector:Rotate(Angle(0, offshootAngle.yaw - mem.Angs.yaw, 0))
+
+	-- Antistuck when bot is possibly stuck crouching below something.
 	if mem.AntiStuckTime and mem.AntiStuckTime > CurTime() then
 		if not bot:Crouching() then
 			mem.AntiStuckTime = nil
 		else
-			speed = -40
+			movementVector = -0.5 * movementVector
 			actions.Jump = true
 			actions.Attack = true
 		end
 	end
 
-	local facesHindrance = bot:GetVelocity():Length2D() < 0.50 * speed - 10
+	local velocity = bot:GetVelocity():Length2D()
+	local facesHindrance = velocity < 0.25 * speed
 	local minorStuck, majorStuck = bot:D3bot_CheckStuck()
-	
+
 	if not facesHindrance then
 		mem.lastNoHindrance = CurTime()
 	end
-	
+
 	if duckParam == "Always" or duckToParam == "Always" then
 		actions.Duck = true
 	end
-	
+
 	if bot:GetMoveType() ~= MOVETYPE_LADDER then
 		if bot:IsOnGround() then
 			if jumpParam == "Always" or jumpToParam == "Always" then
@@ -281,10 +364,6 @@ function D3bot.Basics.WalkAttackAuto(bot)
 				if math.random(D3bot.BotDuckAntichance) == 1 then
 					actions.Duck = true
 				end
-				-- Check if bot is possibly stuck below something
-				if bot:Crouching() and not actions.Duck and (not bot.D3bot_LastDamage or bot.D3bot_LastDamage < CurTime() - 2) and (not mem.lastNoHindrance or mem.lastNoHindrance < CurTime() - 2) then
-					mem.AntiStuckTime = CurTime() + 1
-				end
 			end
 		else
 			actions.Duck = true
@@ -295,90 +374,121 @@ function D3bot.Basics.WalkAttackAuto(bot)
 		actions.Duck = true
 		actions.Use = true
 	end
-	
+
 	if duckParam == "Disabled" or duckToParam == "Disabled" then
 		actions.Duck = false
 	end
 	if math.random(1, 2) == 1 or jumpParam == "Disabled" or jumpToParam == "Disabled" or (not actions.Duck and bot:Crouching()) then
 		actions.Jump = false
 	end
-	
+
+	-- Check if bot is possibly stuck below something.
+	-- This is basically when the bot is slowly or not moving on ground, and is crouching even it shouldn't.
+	if bot:GetMoveType() ~= MOVETYPE_LADDER and bot:IsOnGround() and bot:Crouching() and not actions.Duck and (not bot.D3bot_LastDamage or bot.D3bot_LastDamage < CurTime() - 2) and (not mem.lastNoHindrance or mem.lastNoHindrance < CurTime() - 2) then
+		mem.AntiStuckCounter = (mem.AntiStuckCounter or 0) + 1
+		if mem.AntiStuckCounter > 30 then
+			mem.AntiStuckCounter = nil
+			mem.AntiStuckTime = CurTime() + 1
+		end
+	else
+		mem.AntiStuckCounter = nil
+	end
+
 	actions.Attack = facesTgt or facesHindrance
 	actions.Use = actions.Use or facesHindrance
-	
-	actions.MoveForward = true
-	
-	return true, actions, speed, nil, nil, mem.Angs, minorStuck, majorStuck, facesHindrance
+
+	if movementVector.x > 0 then actions.MoveForward = true end
+	if movementVector.x < 0 then actions.MoveBackward = true end
+	if movementVector.y < 0 then actions.MoveRight = true end
+	if movementVector.y > 0 then actions.MoveLeft = true end
+
+	return true, actions, movementVector.x, -movementVector.y, nil, mem.Angs, minorStuck, majorStuck, facesHindrance
 end
 
+---Pouncing handler.
+---@param bot GPlayer|table
+---@return boolean valid -- True if the handler ran corrcetly.
+---@return table actions -- Table with a set of actions.
+---@return number? speed -- The needed forwards speed for the bot.
+---@return number? sideSpeed -- The needed side speed for the bot.
+---@return number? upSpeed -- The needed upwards speed for the bot.
+---@return GAngle aimDirection -- The wanted aim direction for the bot.
+---@return boolean minorStuck -- True if the bot seems to be stuck on a ladder or similar.
+---@return boolean majorStuck -- True if the bot seems to be stuck on props, or runs in circles.
+---@return boolean facesHindrance -- True if the bot is walking slower than expected.
 function D3bot.Basics.PounceAuto(bot)
 	local mem = bot.D3bot_Mem
-	if not mem then return end
-	
-	if not bot:IsOnGround() or bot:GetMoveType() == MOVETYPE_LADDER then return end
-	
+
+	local nodeOrNil = mem.NodeOrNil
+	local nextNodeOrNil = mem.NextNodeOrNil
+
+	if not bot:IsOnGround() or bot:GetMoveType() == MOVETYPE_LADDER then return false, {}, nil, nil, nil, angle_zero, false, false, false end
+
+	---@type GWeapon|table
 	local weapon = bot:GetActiveWeapon()
-	if not weapon and not weapon.PounceVelocity then return end
-	
-	-- Fill table with possible pounce target positions, ordered with increasing priority
-	local tempPos = bot:GetPos()
-	local tempDist = 0
+	if not weapon and not weapon.PounceVelocity then return false, {}, nil, nil, nil, angle_zero, false, false, false end
+
+	-- Fill table with possible pounce target positions, ordered with increasing priority.
+
+	local tempPos = bot:GetPos() -- Current position of the bot or a node.
+	local tempDist = 0           -- Approximates the walking distance with the help of tempPos.
 	local pounceTargetPositions = {}
 	if nextNodeOrNil and D3bot.UsingSourceNav then
 		tempDist = tempDist + tempPos:Distance(nextNodeOrNil:GetCenter())
 		tempPos = nextNodeOrNil:GetCenter()
-		table.insert(pounceTargetPositions, {Pos = nextNodeOrNil:GetCenter() + Vector(0, 0, 1),
-											 Dist = tempDist,
-											 TimeFactor = 1.1,
-											 ForcePounce = (nextNodeOrNil:SharesLink( nodeOrNil ) and nextNodeOrNil:SharesLink( nodeOrNil ):GetMetaData().Params.Pouncing == "Needed")})
+		table.insert(pounceTargetPositions, {
+			Pos = nextNodeOrNil:GetCenter() + Vector(0, 0, 1),
+			Dist = tempDist,
+			TimeFactor = 1.1,
+			ForcePounce = (nextNodeOrNil:SharesLink(nodeOrNil) and nextNodeOrNil:SharesLink(nodeOrNil):GetMetaData().Params.Pouncing == "Needed")
+		})
 	elseif nextNodeOrNil then
 		tempDist = tempDist + tempPos:Distance(nextNodeOrNil.Pos)
 		tempPos = nextNodeOrNil.Pos
-		table.insert(pounceTargetPositions, {Pos = nextNodeOrNil.Pos + Vector(0, 0, 1),
-											 Dist = tempDist,
-											 TimeFactor = 1.1,
-											 ForcePounce = (nextNodeOrNil.LinkByLinkedNode[nodeOrNil] and nextNodeOrNil.LinkByLinkedNode[nodeOrNil].Params.Pouncing == "Needed")})
+		table.insert(pounceTargetPositions, {
+			Pos = nextNodeOrNil.Pos + Vector(0, 0, 1),
+			Dist = tempDist,
+			TimeFactor = 1.1,
+			ForcePounce = (nextNodeOrNil.LinkByLinkedNode[nodeOrNil] and nextNodeOrNil.LinkByLinkedNode[nodeOrNil].Params.Pouncing == "Needed")
+		})
 	end
-	local i = 0
 	if D3bot.UsingSourceNav then
-		for k, v in ipairs(mem.RemainingNodes) do -- TODO: Check if it behaves as expected
+		for i, v in ipairs(mem.RemainingNodes) do -- TODO: Check if it behaves as expected
 			tempDist = tempDist + tempPos:Distance(v:GetCenter())
 			tempPos = v:GetCenter()
-			table.insert(pounceTargetPositions, {Pos = v:GetCenter() + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1})
-			i = i + 1
-			if i == 2 then break end
+			table.insert(pounceTargetPositions, { Pos = v:GetCenter() + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1 })
+			if i >= 2 then break end
 		end
 	else
-		for k, v in ipairs(mem.RemainingNodes) do -- TODO: Check if it behaves as expected
+		for i, v in ipairs(mem.RemainingNodes) do -- TODO: Check if it behaves as expected
 			tempDist = tempDist + tempPos:Distance(v.Pos)
 			tempPos = v.Pos
-			table.insert(pounceTargetPositions, {Pos = v.Pos + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1})
-			i = i + 1
-			if i == 2 then break end
+			table.insert(pounceTargetPositions, { Pos = v.Pos + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 1.1 })
+			if i >= 2 then break end
 		end
 	end
 	local tempAttackPosOrNil = bot:D3bot_GetAttackPosOrNilFuturePlatforms(0, mem.pounceFlightTime or 0)
 	if tempAttackPosOrNil then
 		tempDist = tempDist + bot:GetPos():Distance(tempAttackPosOrNil)
-		table.insert(pounceTargetPositions, {Pos = tempAttackPosOrNil + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 0.8, HeightDiff = 100}) -- TODO: Global bot 'IQ' level influences TimeFactor, the lower the more likely they will cut off the players path
+		table.insert(pounceTargetPositions, { Pos = tempAttackPosOrNil + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 0.8, HeightDiff = 100 }) -- TODO: Global bot 'IQ' level influences TimeFactor, the lower the more likely they will cut off the players path
 	elseif mem.PosTgtOrNil then
 		tempDist = tempDist + bot:GetPos():Distance(mem.PosTgtOrNil)
-		table.insert(pounceTargetPositions, {Pos = mem.PosTgtOrNil + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 0.8, HeightDiff = 100})
+		table.insert(pounceTargetPositions, { Pos = mem.PosTgtOrNil + Vector(0, 0, 1), Dist = tempDist, TimeFactor = 0.8, HeightDiff = 100 })
 	end
-	
+
 	-- Find best trajectory
 	local trajectory
 	for _, pounceTargetPos in ipairs(table.Reverse(pounceTargetPositions)) do
 		local trajectories = bot:D3bot_CanPounceToPos(pounceTargetPos.Pos)
 		local timeToTarget = pounceTargetPos.Dist / bot:GetMaxSpeed()
-		if trajectories and (pounceTargetPos.ForcePounce or (pounceTargetPos.HeightDiff and pounceTargetPos.Pos.z - bot:GetPos().z > pounceTargetPos.HeightDiff) or timeToTarget > (trajectories[1].t1 + weapon.PounceStartDelay)*pounceTargetPos.TimeFactor) then
+		if trajectories and (pounceTargetPos.ForcePounce or (pounceTargetPos.HeightDiff and pounceTargetPos.Pos.z - bot:GetPos().z > pounceTargetPos.HeightDiff) or timeToTarget > (trajectories[1].t1 + weapon.PounceStartDelay) * pounceTargetPos.TimeFactor) then
 			trajectory = trajectories[1]
 			break
 		end
 	end
-	
+
 	local actions = {}
-	
+
 	if (trajectory and CurTime() >= weapon:GetNextPrimaryFire() and CurTime() >= weapon:GetNextSecondaryFire() and CurTime() >= weapon.NextAllowPounce) or mem.pouncing then
 		if trajectory then
 			mem.Angs = Angle(-math.deg(trajectory.pitch), math.deg(trajectory.yaw), 0)
@@ -396,35 +506,50 @@ function D3bot.Basics.PounceAuto(bot)
 			mem.pounceFlightTime = nil
 			bot:D3bot_UpdatePathProgress()
 		end
-		
-		return true, actions, 0, nil, nil, mem.Angs, false
+
+		return true, actions, 0, nil, nil, mem.Angs, false, false, false
 	end
-	
-	return
+
+	return false, {}, nil, nil, nil, angle_zero, false, false, false
 end
 
+---Basic aim and shoot handler for survivor bots.
+---(Or anything that can hold a gun)
+---@param bot GPlayer|table
+---@param target GEntity
+---@param maxDistance number
+---@return boolean valid -- True if the handler ran corrcetly.
+---@return table actions -- Table with a set of actions.
+---@return number? speed -- The needed forwards speed for the bot.
+---@return number? sideSpeed -- The needed side speed for the bot.
+---@return number? upSpeed -- The needed upwards speed for the bot.
+---@return GAngle aimDirection -- The wanted aim direction for the bot.
+---@return boolean minorStuck -- True if the bot seems to be stuck on a ladder or similar.
+---@return boolean majorStuck -- True if the bot seems to be stuck on props, or runs in circles.
+---@return boolean facesHindrance -- True if the bot is walking slower than expected.
 function D3bot.Basics.AimAndShoot(bot, target, maxDistance)
 	local mem = bot.D3bot_Mem
-	if not mem then return end
-	
+
 	local actions = {}
 	local reloading
-	
-	if not IsValid(target) then return end
+
+	if not IsValid(target) then return false, {}, nil, nil, nil, angle_zero, false, false, false end
+
+	---@type GWeapon|table
 	local weapon = bot:GetActiveWeapon()
-	if not IsValid(weapon) then return end
+	if not IsValid(weapon) then return false, {}, nil, nil, nil, angle_zero, false, false, false end
 	if weapon:Clip1() == 0 then reloading = true end
 	if (weapon.GetNextReload and weapon:GetNextReload() or 0) > CurTime() - 0.5 then -- Subtract half a second, so it will re-trigger reloading if possible
 		reloading = true
 	end
 	actions.Reload = reloading and math.random(5) == 1
-	
-	local origin = bot:D3bot_GetViewCenter()
+
+	local origin = bot:GetShootPos()
 	local targetPos = LerpVector(mem.AimHeightFactor or 1, target:GetPos(), target:EyePos())
-	
-	if maxDistance and origin:DistToSqr(targetPos) > math.pow(maxDistance, 2) then return end
-	
-	-- TODO: Use fewer traces, cache result for a few frames.
+
+	if maxDistance and origin:DistToSqr(targetPos) > math.pow(maxDistance, 2) then return false, {}, nil, nil, nil, angle_zero, false, false, false end
+
+	-- TODO: Use fewer traces, cache result for a few frames
 	local tr = util.TraceLine({
 		start = origin,
 		endpos = targetPos,
@@ -432,30 +557,41 @@ function D3bot.Basics.AimAndShoot(bot, target, maxDistance)
 		mask = MASK_SHOT_HULL
 	})
 	local canShootTarget = not tr.Hit
-	
+
 	if not canShootTarget then mem.AimHeightFactor = math.Rand(0.5, 1) end
-	
+
 	actions.Attack = not reloading and bot:D3bot_IsLookingAt(targetPos, 0.8) and canShootTarget and not mem.WasPressingAttack
 	mem.WasPressingAttack = actions.Attack
-	
+
 	if targetPos and canShootTarget then
-		bot:D3bot_FaceTo(targetPos, origin, D3bot.BotAimAngLerpFactor, 0)
+		bot:D3bot_AngsRotateTo((targetPos - origin):Angle(), D3bot.BotAimAngLerpFactor)
 	end
-	
-	return true, actions, 0, nil, nil, mem.Angs, false
+
+	return true, actions, 0, nil, nil, mem.Angs, false, false, false
 end
 
+---Basic aim and shoot handler for survivor bots.
+---(Or anything that can hold a gun)
+---@param bot GPlayer|table
+---@return boolean valid -- True if the handler ran corrcetly.
+---@return table actions -- Table with a set of actions.
+---@return number? speed -- The needed forwards speed for the bot.
+---@return number? sideSpeed -- The needed side speed for the bot.
+---@return number? upSpeed -- The needed upwards speed for the bot.
+---@return GAngle aimDirection -- The wanted aim direction for the bot.
+---@return boolean minorStuck -- True if the bot seems to be stuck on a ladder or similar.
+---@return boolean majorStuck -- True if the bot seems to be stuck on props, or runs in circles.
+---@return boolean facesHindrance -- True if the bot is walking slower than expected.
 function D3bot.Basics.LookAround(bot)
 	local mem = bot.D3bot_Mem
-	if not mem then return end
 
 	if math.random(200) == 1 then mem.LookTarget = table.Random(player.GetAll()) end
-	
-	if not IsValid(mem.LookTarget) then return end
-	
-	local origin = bot:D3bot_GetViewCenter()
-	
-	bot:D3bot_FaceTo(mem.LookTarget:D3bot_GetViewCenter(), origin, D3bot.BotAngLerpFactor * 0.3, 0)
-	
-	return true, nil, 0, nil, nil, mem.Angs, false
+
+	if not IsValid(mem.LookTarget) then return false, {}, nil, nil, nil, angle_zero, false, false, false end
+
+	local origin = bot:EyePos()
+
+	bot:D3bot_AngsRotateTo((mem.LookTarget:EyePos()- origin):Angle(), D3bot.BotAngLerpFactor * 0.3)
+
+	return true, {}, 0, nil, nil, mem.Angs, false, false, false
 end
