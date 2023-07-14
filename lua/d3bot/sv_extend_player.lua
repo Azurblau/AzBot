@@ -156,10 +156,11 @@ function meta:D3bot_FindBarricadeEntity(samples)
 		traceData.endpos = traceData.start + (dir + VectorRand(-1, 1)):GetNormalized() * reach
 
 		local tr = util.TraceLine(traceData)
-
-		if tr.Hit and tr.Entity and IsValid(tr.Entity) and tr.Entity:GetClass() == "prop_physics" and tr.Entity.IsNailed and tr.Entity:IsNailed() then
+		---@type GEntity
+		local trEntity = tr.Entity
+		  if tr.Hit and trEntity and trEntity:IsValid() and trEntity:D3bot_IsBarricade() then
 			--ClDebugOverlay.Line(GetPlayerByName("D3"), traceData.start, traceData.endpos, 10, Color(255, 0, 0), true)
-			return tr.Entity, tr.HitPos
+			return trEntity, tr.HitPos
 		end
 	end
 

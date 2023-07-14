@@ -168,7 +168,7 @@ function HANDLER.OnDoDamageFunction(bot, ent, dmg)
 	local mem = bot.D3bot_Mem
 
 	-- If the zombie hits a barricade prop, store that hit position for the next attack.
-	if ent and ent:IsValid() and ent:GetClass() == "prop_physics" and ent.IsNailed and ent:IsNailed() then
+	  if ent and ent:IsValid() and ent:D3bot_IsBarricade() then
 		mem.BarricadeAttackEntity, mem.BarricadeAttackPos = ent, dmg:GetDamagePosition()
 	end
 
