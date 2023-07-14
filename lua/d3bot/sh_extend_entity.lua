@@ -5,8 +5,6 @@ local meta = FindMetaTable("Entity")
 ---This means that it is either a nailed physics object, or some other kind of thing that players can use to block zombies.
 ---@return boolean
 function meta:D3bot_IsBarricade()
-	print(self:GetClass(), self.IsNailed and self:IsNailed(), self.IsBarricadeObject)
-
 	-- Anything that is nailed is considered a barricade entity.
 	if self.IsNailed and self:IsNailed() then return true end
 
