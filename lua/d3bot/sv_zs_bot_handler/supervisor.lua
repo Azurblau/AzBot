@@ -139,11 +139,11 @@ local NextNodeDamage = CurTime()
 local NextMaintainBotRoles = CurTime()
 function D3bot.SupervisorThinkFunction()
 	if NextMaintainBotRoles < CurTime() then
-		NextMaintainBotRoles = CurTime() + D3bot.BotUpdateDelay
+		NextMaintainBotRoles = CurTime() + (D3bot.BotUpdateDelay or 1)
 		D3bot.MaintainBotRoles()
 	end
 	if (NextNodeDamage or 0) < CurTime() then
-		NextNodeDamage = CurTime() + D3bot.NodeDamageInterval
+		NextNodeDamage = CurTime() + (D3bot.NodeDamageInterval or 2)
 		D3bot.DoNodeTrigger()
 	end
 end
@@ -156,7 +156,7 @@ function D3bot.DoNodeTrigger()
 		local nodeOrNil = D3bot.MapNavMesh:GetNearestNodeOrNil(ent:GetPos()) -- TODO: Don't call GetNearestNodeOrNil that often
 		if nodeOrNil then
 			if not D3bot.DisableNodeDamage and type(nodeOrNil.Params.DMGPerSecond) == "number" and nodeOrNil.Params.DMGPerSecond > 0 then
-				ent:TakeDamage(nodeOrNil.Params.DMGPerSecond * D3bot.NodeDamageInterval, game.GetWorld(), game.GetWorld())
+				ent:TakeDamage(nodeOrNil.Params.DMGPerSecond * (D3bot.NodeDamageInterval or 2), game.GetWorld(), game.GetWorld())
 			end
 			if ent:IsPlayer() and not ent.D3bot_Mem and nodeOrNil.Params.BotMod then
 				D3bot.NodeZombiesCountAddition = nodeOrNil.Params.BotMod
