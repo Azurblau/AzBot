@@ -44,7 +44,7 @@ function D3bot.Basics.Walk(bot, pos, aimAngle, slowdown, proximity)
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
 
-	local offshootAngle
+	local offshootAngle = angle_zero
 	local origin = bot:GetPos()
 	local actions = {}
 
@@ -69,11 +69,9 @@ function D3bot.Basics.Walk(bot, pos, aimAngle, slowdown, proximity)
 		if weapon and weapon.GetClimbing and weapon:GetClimbing() and weapon.GetClimbSurface then
 			local tr = weapon:GetClimbSurface()
 			if tr and tr.Hit then
-				offshootAngle = angle_zero
 				bot:D3bot_AngsRotateTo((-tr.HitNormal):Angle(), D3bot.BotAngLerpFactor)
 			end
 		else
-			offshootAngle = angle_zero
 			bot:D3bot_AngsRotateTo(Vector(pos.x-origin.x, pos.y-origin.y, 0):Angle(), 1)
 		end
 	else
