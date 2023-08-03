@@ -101,8 +101,9 @@ function D3bot.MaintainBotRoles()
 		for team, desiredCount in pairs(desiredCountByTeam) do
 			if #(playersByTeam[team] or {}) < desiredCount then
 				if D3bot.UseConsoleBots then
-					RunConsoleCommand("bot")
 					spawnAsTeam = team
+					RunConsoleCommand("bot")
+					spawnAsTeam = nil
 				else
 					spawnAsTeam = team
 					---@type GPlayer|table
