@@ -1,0 +1,30 @@
+name: Build and release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+
+  build:
+    name: Build and release
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          path: d3bot
+
+      - name: Zip Folder
+        run: |
+          rm -rf release.zip
+          zip -r release.zip d3bot -x ".git/*" ".github/*" ".vscode/*" ".gitignore" ".gitmodules" "go.mod" "go.sum" "tools/*"
+
+      - name: Upload binary to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: release.zip
+          asset_name: d3bot-addon.zip
+          overwrite: true

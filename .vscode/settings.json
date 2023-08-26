@@ -85,7 +85,6 @@
         "LANGUAGE"
     ],
     "licenser.author": "David Vogel",
-    "licenser.license": "GPLv3",
     "Lua.runtime.version": "LuaJIT",
     "Lua.runtime.unicodeName": true,
     "Lua.diagnostics.disable": [
