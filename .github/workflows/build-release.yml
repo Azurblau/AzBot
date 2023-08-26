@@ -20,7 +20,7 @@ jobs:
       - name: Zip Folder
         run: |
           rm -rf release.zip
-          zip -r release.zip d3bot -x "d3bot/.git*" "d3bot/.github*" "d3bot/.vscode*" "d3bot/.*" "d3bot/.gitmodules" "d3bot/go.mod" "d3bot/go.sum" "d3bot/tools/*" "d3bot/libgmod"
+          zip -r release.zip d3bot -x "d3bot/.*" "d3bot/.gitmodules" "d3bot/go.mod" "d3bot/go.sum" "d3bot/tools*" "d3bot/libgmod*"
 
       - name: Upload binary to release
         uses: svenstaro/upload-release-action@v2
