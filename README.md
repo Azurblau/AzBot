@@ -1,5 +1,6 @@
 # D3bot
 
+A very primitive AI for GMod bots primarily designed to work with Jetboom's Zombie Survival gamemode.
 This is a fork of [/Azurblau/AzBot](https://github.com/Azurblau/AzBot) with new features and bug fixes.
 
 Here is a list of notable changes compared to the original version:
@@ -54,12 +55,6 @@ Everything below here is the original readme, but with updated information:
 ![Bots in action](./media/screenshot1.jpg)
 Server: pussfoot.ovh:27015 [EU] Zombie Survival | AzBot | Custom Content
 
-# AzBot
-
-A very primitive AI for GMod bots primarily designed to work with Jetboom's Zombie Survival gamemode.
-
-AzBot uses A* pathfinding with directed Monte Carlo-based execution.
-
 ## License
 
 I, the author, have not decided on a license yet.
@@ -86,11 +81,26 @@ Though I won't take measures against illegitimate usage unless I have reasons to
 
 ## Installation
 
-- Make sure you have [ULX](http://steamcommunity.com/sharedfiles/filedetails/?id=557962280) and [ULib](http://steamcommunity.com/sharedfiles/filedetails/?id=557962238) installed.
-- [Download the addon](https://github.com/Dadido3/D3bot/archive/refs/heads/master.zip) and extract it into your `garrysmod/addons/` folder, to get the following file structure: `garrysmod/addons/d3bot/lua/...`, `garrysmod/addons/d3bot/data/...`, and so on. It's important that the folder inside `addons` is named `d3bot` (Don't name it `D3bot` or anything else), otherwise it will not work!
-- Copy all navmeshes from the addon's path `data/d3bot/navmesh/map/...` to `garrysmod/data/d3bot/navmesh/map/...`.
-- Adjust the configuration in `lua/d3bot/sv_config.lua` as you wish.
-- Done
+1. Make sure you have [ULX](http://steamcommunity.com/sharedfiles/filedetails/?id=557962280) and [ULib](http://steamcommunity.com/sharedfiles/filedetails/?id=557962238) installed.
+
+2. [Download the d3bot-addon.zip](https://github.com/Dadido3/D3bot/releases/latest) and unpack it into your `garrysmod/addons/` folder. Ensure you get the following file structure: `garrysmod/addons/d3bot/lua/...`, `garrysmod/addons/d3bot/data/...`, and so on. It's important that the folder inside `addons` is named `d3bot` (Don't name it `D3bot` or anything else), otherwise it will not work!
+
+3. Copy all navmeshes from the addon's path `data/d3bot/navmesh/map/...` to `garrysmod/data/d3bot/navmesh/map/...`.
+
+4. Adjust the configuration in `lua/d3bot/sv_config.lua` as you wish.
+
+5. Done
+
+## Install from git
+
+Instead of downloading the addon, you can clone the git repository directly into your addon folder.
+For this run the following git command inside your Garry's Mod addon directory:
+
+``` bash
+git clone https://github.com/Dadido3/D3bot.git d3bot
+```
+
+Be sure to follow all the other necessary steps as described in [#Installation](#installation).
 
 ## How to test
 
