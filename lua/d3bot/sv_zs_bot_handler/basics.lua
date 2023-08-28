@@ -151,7 +151,7 @@ function D3bot.Basics.Walk(bot, pos, aimAngle, slowdown, proximity)
 			end
 			-- If there is a JumpTo parameter with "Close" as the value, determine if we are close enough to jump.
 			if jumpToParam == "Close" and nextNodeOrNil then
-				local hullTop, _ = bot:GetHull() -- Assume the hull is symmetrical.
+				local _, hullTop = bot:GetHull() -- Assume the hull is symmetrical.
 				local hullX, hullY, _ = hullTop:Unpack()
 				local halfHullWidth = math.max(hullX, hullY) + 5 -- Just add a small margin to let the bot jump before it "touches" the next node's area.
 
@@ -370,7 +370,7 @@ function D3bot.Basics.WalkAttackAuto(bot)
 			end
 			-- If there is a JumpTo parameter with "Close" as the value, determine if we are close enough to jump.
 			if jumpToParam == "Close" and nextNodeOrNil then
-				local hullTop, _ = bot:GetHull() -- Assume the hull is symmetrical.
+				local _, hullTop = bot:GetHull() -- Assume the hull is symmetrical.
 				local hullX, hullY, _ = hullTop:Unpack()
 				local halfHullWidth = math.max(hullX, hullY) + 5 -- Just add a small margin to let the bot jump before it "touches" the next node's area.
 

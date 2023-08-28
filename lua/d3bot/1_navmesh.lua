@@ -248,8 +248,8 @@ return function(lib)
 		local areaYMax = params.AreaYMax
 
 		-- Clamp values by using comparison and logical operators, as it's faster than math.min(math.max(...), ...) or even math.Clamp(...).
-		local nodeX = (posX > areaXMax and areaXMax) or (posX < areaXMin and areaXMin) or posX
-		local nodeY = (posY > areaYMax and areaYMax) or (posY < areaYMin and areaYMin) or posY
+		posX = (posX > areaXMax and areaXMax) or (posX < areaXMin and areaXMin) or posX
+		posY = (posY > areaYMax and areaYMax) or (posY < areaYMin and areaYMin) or posY
 
 		return Vector(posX, posY, posZ)
 	end
