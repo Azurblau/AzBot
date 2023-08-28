@@ -149,6 +149,19 @@ function D3bot.Basics.Walk(bot, pos, aimAngle, slowdown, proximity)
 			if shouldClimb or jumpParam == "Always" or jumpToParam == "Always" then
 				actions.Jump = true
 			end
+			-- If there is a JumpTo parameter with "Close" as the value, determine if we are close enough to jump.
+			if jumpToParam == "Close" and nextNodeOrNil then
+				local _, hullTop = bot:GetHull() -- Assume the hull is symmetrical.
+				local hullX, hullY, _ = hullTop:Unpack()
+				local halfHullWidth = math.max(hullX, hullY) + 5 -- Just add a small margin to let the bot jump before it "touches" the next node's area.
+
+				---@type GVector
+				local closestDiff = origin - nextNodeOrNil:GetClosestPointOnArea(origin)
+				local closestDistSqr = closestDiff:Length2DSqr()
+				if closestDistSqr <= halfHullWidth*halfHullWidth then
+					actions.Jump = true
+				end
+			end
 			if facesHindrance then
 				if math.random(D3bot.BotJumpAntichance) == 1 then
 					actions.Jump = true
@@ -354,6 +367,19 @@ function D3bot.Basics.WalkAttackAuto(bot)
 		if bot:IsOnGround() then
 			if jumpParam == "Always" or jumpToParam == "Always" then
 				actions.Jump = true
+			end
+			-- If there is a JumpTo parameter with "Close" as the value, determine if we are close enough to jump.
+			if jumpToParam == "Close" and nextNodeOrNil then
+				local _, hullTop = bot:GetHull() -- Assume the hull is symmetrical.
+				local hullX, hullY, _ = hullTop:Unpack()
+				local halfHullWidth = math.max(hullX, hullY) + 5 -- Just add a small margin to let the bot jump before it "touches" the next node's area.
+
+				---@type GVector
+				local closestDiff = origin - nextNodeOrNil:GetClosestPointOnArea(origin)
+				local closestDistSqr = closestDiff:Length2DSqr()
+				if closestDistSqr <= halfHullWidth*halfHullWidth then
+					actions.Jump = true
+				end
 			end
 			if facesHindrance then
 				if math.random(D3bot.BotJumpAntichance) == 1 then

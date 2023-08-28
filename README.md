@@ -141,6 +141,7 @@ Be sure to follow all the other necessary steps as described in [#Installation](
     - Jump = Always: Bots will always jump if located in this node.
     - JumpTo = Disabled: Bots won't jump if heading towards this node.
     - JumpTo = Always: Bots will always jump if heading towards this node.
+    - JumpTo = Close: Bots will jump if heading towards this node, but only if they are close enough.
     - Duck = Disabled: Bots won't crouch if located in this node.
     - Duck = Always: Bots will always crouch if located in this node.
     - DuckTo = Disabled: Bots won't crouch if heading towards this node.

@@ -50,7 +50,7 @@ return function(lib)
 	lib.Params = {
 		Correct = {
 			Jump = { "Disabled", "Always" },
-			JumpTo = { "Disabled", "Always" },
+			JumpTo = { "Disabled", "Always", "Close" },
 			Duck = { "Disabled", "Always" },
 			DuckTo = { "Disabled", "Always" },
 			Wall = { "Suicide", "Retarget" },
@@ -230,6 +230,28 @@ return function(lib)
 		if (name .. (isstring(numOrStr) and numOrStr or "")):find("[^%w_]") then error("Only alphanumeric letters and underscore allowed in name and string values.", 2) end
 		self.Params[name] = numOrStr
 		itemParamChanged(self, name)
+	end
+
+	---Returns a point that lies on the node's area, and is closest to the given position pos.
+	---It may just return the node's origin if the node doesn't have any area.
+	---@param pos GVector
+	---@return GVector
+	function nodeFallback:GetClosestPointOnArea(pos)
+		local posX, posY, posZ = pos:Unpack()
+
+		local params = self.Params
+		if not self.HasArea then return self.Pos end
+
+		local areaXMin = params.AreaXMin
+		local areaXMax = params.AreaXMax
+		local areaYMin = params.AreaYMin
+		local areaYMax = params.AreaYMax
+
+		-- Clamp values by using comparison and logical operators, as it's faster than math.min(math.max(...), ...) or even math.Clamp(...).
+		posX = (posX > areaXMax and areaXMax) or (posX < areaXMin and areaXMin) or posX
+		posY = (posY > areaYMax and areaYMax) or (posY < areaYMin and areaYMin) or posY
+
+		return Vector(posX, posY, posZ)
 	end
 
 	function nodeFallback:GetFocusPos() return self.Pos end
