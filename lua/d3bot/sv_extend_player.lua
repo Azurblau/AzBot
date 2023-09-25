@@ -64,8 +64,9 @@ function meta:D3bot_CanPounceToPos(pos)
 		local hit = false
 		for _, point in ipairs(trajectory.points) do
 			if lastPoint then
-				local tr = util.TraceEntity({start = point, endpos = lastPoint, filter = player.GetAll()}, self)
-				if tr.Hit then
+				local tr = util.TraceEntity({start = point, endpos = lastPoint, mask = CONTENTS_SOLID + CONTENTS_GRATE + CONTENTS_MOVEABLE + CONTENTS_PLAYERCLIP}, self)
+				if tr.Hit and pos:DistToSqr(tr.HitPos) > 16*16 then
+					-- We consider this path invalid, since the bot would hit something and end up further away from the target than about a normal hull box half width.
 					hit = true
 					break
 				end
