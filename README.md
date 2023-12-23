@@ -45,7 +45,7 @@ Here is a list of notable changes compared to the original version:
   - Spanish (Thanks to [Fafy2801])
   - Turkish (Thanks to ᴇXғɪʀᴇᴄʜʀᴏᴍᴇ~)
   - Ukrainian (Thanks to [ErickMaksimets])
-- Some smaller things i possibly forgot.
+- Some smaller things I possibly forgot.
 
 This fork is backward compatible, but there are some changes which prevents you to use navmeshes from this fork in the original version. To make them work just replace all occurrences of `\n` with `;`.
 If you come from an older version, you may have to move the navmeshes from `garrysmod/data/azbot/navmesh/map/...` to `garrysmod/data/d3bot/navmesh/map/...`.
@@ -192,7 +192,7 @@ Be sure to follow all the other necessary steps as described in [#Installation](
 - All links are normally bidirectional (see also: Wall = Suicide parameter or Direction = Forward/Backward).
 - Bots can take any route with tendency towards the shortest.
 - Bots stubbornly move towards the next node unless they enter another node at time of path refresh (occurs roughly every second). Link wisely.
-- Bots may aim too perfect, the precision can be changed inside `sv_config.lua` with the option `D3bot.FaceTargetOffshootFactor`. (Suggestion for the fix by [Sigilmare])
+- Bots may aim too perfect, the precision can be changed inside `sv_config.lua` with the option `D3bot.FaceTargetOffshootFactor`.
 
 ![Bots in action](./media/screenshot2.jpg)
 
@@ -211,7 +211,7 @@ Starting with highest public priority:
 - Equipment upgrading behavior for survivor bots.
 - Caching of non-branching paths as a single node to optimize the pathfinding performance.
 
-[Sigilmare]: http://steamcommunity.com/profiles/76561198171603670
+[Sigilmare]: https://github.com/Sigilmare
 [Antizombie]: https://github.com/Antizombie
 [Bagellll]: https://github.com/Bagellll
 [Blueberryy]: https://github.com/Blueberryy
