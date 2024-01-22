@@ -131,7 +131,12 @@ registerAdminCmd("BotMod", numParam, function(caller, num)
 	local formerZombiesCountAddition = D3bot.ZombiesCountAddition
 	D3bot.ZombiesCountAddition = math.Round(num)
 	local function format(num) return "[formula + (" .. num .. ")]" end
-	caller:ChatPrint("Zombies count changed from " .. format(formerZombiesCountAddition) .. " to " .. format(D3bot.ZombiesCountAddition) .. ".")
+	if IsValid(caller) then
+		caller:ChatPrint("Zombies count changed from " .. format(formerZombiesCountAddition) .. " to " .. format(D3bot.ZombiesCountAddition) .. ".")
+	else
+		-- If 'botmod' is set via console (or the caller is invalid?), it won't throw an error
+		print("Zombies count changed from " .. format(formerZombiesCountAddition) .. " to " .. format(D3bot.ZombiesCountAddition) .. ".")
+	end
 end)
 
 registerSuperadminCmd("ViewMesh", plsParam, function(caller, pls) for k, pl in pairs(pls) do D3bot.SetMapNavMeshUiSubscription(pl, "view") end end)
