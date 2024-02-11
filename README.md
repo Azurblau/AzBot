@@ -146,6 +146,7 @@ Be sure to follow all the other necessary steps as described in [#Installation](
     - Duck = Always: Bots will always crouch if located in this node.
     - DuckTo = Disabled: Bots won't crouch if heading towards this node.
     - DuckTo = Always: Bots will always crouch if heading towards this node.
+    - DuckTo = Close: Bots will duck if heading towards this node, but only if they are close enough.
     - Climbing = Needed: Only bots with the ability to climb will path through this node. If the node is above the bot, the will look towards this node, jump, and climb towards the node.
     - Wall = Suicide: Bots suicide if trying to navigate towards this node higher than crouch-jumping height. Use this when respawn is the only way to get to that node.
     - Wall = Retarget: Same as Wall = Suicide but target is changed instead of suiciding. If no other targets are available, target remains the same. Use this for unreachable or low priority nodes.

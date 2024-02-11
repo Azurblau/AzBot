@@ -142,6 +142,18 @@ function D3bot.Basics.Walk(bot, pos, aimAngle, slowdown, proximity)
 	if duckParam == "Always" or duckToParam == "Always" then
 		actions.Duck = true
 	end
+	if duckToParam == "Close" and nextNodeOrNil then
+		local _, hullTop = bot:GetHull() -- Assume the hull is symmetrical.
+		local hullX, hullY, _ = hullTop:Unpack()
+		local halfHullWidth = math.max(hullX, hullY) + 5 -- Just add a small margin to let the bot duck/crouch before it "touches" the next node's area.
+
+		---@type GVector
+		local closestDiff = origin - nextNodeOrNil:GetClosestPointOnArea(origin)
+		local closestDistSqr = closestDiff:Length2DSqr()
+		if closestDistSqr <= halfHullWidth*halfHullWidth then
+			actions.Duck = true
+		end
+	end
 
 	if bot:GetMoveType() ~= MOVETYPE_LADDER then
 		if bot:IsOnGround() then

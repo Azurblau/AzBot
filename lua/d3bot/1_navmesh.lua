@@ -52,7 +52,7 @@ return function(lib)
 			Jump = { "Disabled", "Always" },
 			JumpTo = { "Disabled", "Always", "Close" },
 			Duck = { "Disabled", "Always" },
-			DuckTo = { "Disabled", "Always" },
+			DuckTo = { "Disabled", "Always", "Close" },
 			Wall = { "Suicide", "Retarget" },
 			See = { "Disabled" },
 			Aim = { "Straight" },
