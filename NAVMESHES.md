@@ -121,7 +121,7 @@
 | [🖼️](media/navmesh-previews/zs_belmont_vb.svg)                      | zs_belmont_vb                                                                                      | [AzoNa]                                 |                                                                                                                |
 | [🖼️](media/navmesh-previews/zs_biolab_v1.svg)                       | [zs_biolab_v1](https://steamcommunity.com/sharedfiles/filedetails/?id=486459911)                   | [Blueberryy]                            |                                                                                                                |
 | [🖼️](media/navmesh-previews/zs_blighted_night.svg)                  | zs_blighted_night                                                                                  | [Antizombie]                            |                                                                                                                |
-| [🖼️](media/navmesh-previews/zs_blitzkrieg_v15.svg)                  | zs_blitzkrieg_v15                                                                                  | [Antizombie]                            |                                                                                                                |
+| [🖼️](media/navmesh-previews/zs_blitzkrieg_v15.svg)                  | zs_blitzkrieg_v15                                                                                  | [Antizombie], [brubani]                 |                                                                                                                |
 | [🖼️](media/navmesh-previews/zs_bloody_arena_1v1.svg)                | [zs_bloody_arena_1v1](https://steamcommunity.com/sharedfiles/filedetails/?id=176561630)            | [Blueberryy]                            |                                                                                                                |
 | [🖼️](media/navmesh-previews/zs_botsity.svg)                         | [zs_botsity](https://steamcommunity.com/sharedfiles/filedetails/?id=759885233)                     | [Blueberryy]                            |                                                                                                                |
 | [🖼️](media/navmesh-previews/zs_boxco.svg)                           | [zs_boxco](https://steamcommunity.com/sharedfiles/filedetails/?id=1192815414)                      | [Blueberryy]                            |                                                                                                                |
@@ -461,9 +461,10 @@
 | [🖼️](media/navmesh-previews/zs_zombie_village_v3.svg)               | zs_zombie_village_v3                                                                               | D3                                      |                                                                                                                | Same as zs_zombie_village, but with a ladder near spawn.
 
 [Antizombie]: https://github.com/Antizombie
-[Azurblau]: https://github.com/Azurblau
 [AzoNa]: https://github.com/Mr-AzoNa
+[Azurblau]: https://github.com/Azurblau
 [Blueberryy]: https://github.com/Blueberryy
+[brubani]: https://github.com/brubani
 [HordeRally ツ]: https://github.com/HordeRally
 [Korespond]: https://github.com/Korespond
 [Tuckatk]: https://github.com/Tuckatk
